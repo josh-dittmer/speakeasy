@@ -1,0 +1,19 @@
+services:
+    backend:
+        build: "./backend"
+        ports:
+            - "42069:42069"
+    frontend:
+        build: "./frontend"
+        ports:
+            - "3000:3000"
+    db:
+        image: postgres
+        restart: always
+        ports:
+            - "5432:5432"
+        shm_size: 128mb
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: admin
+            POSTGRES_DB: speakeasy

@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "lib": ["es2015"],
+        "module": "commonjs",
+        "esModuleInterop": true,
+        "target": "es6",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "paths": {
+            "@/*": ["./src/*"]
+        }
+    },
+    "include": ["**/*.ts", "**/*.tsx"],
+    "exclude": ["node_modules"],
+}
