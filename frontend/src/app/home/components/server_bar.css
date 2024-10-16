@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes server-icon-animation {
+	100% { 
+		border-radius: 15px; 
+		background-color: #8e70c2;
+		color: white;
+	}
+}
+
+@keyframes server-indicator-animation {
+    100% {
+        opacity: 1;
+        background-color: gray;
+    }
+}
+
+@keyframes server-nameplate-animation {
+    100% {
+        opacity: 1;
+    }
+}
+
+.server-icon {
+	border-radius: 50px;
+	background-color: white;
+	color: gray;
+    font-size: 1.25rem;
+}
+
+.server-indicator {
+    opacity: 0;
+}
+
+.server-nameplate {
+    opacity: 0;
+}
+
+.server-div:hover {
+	.server-icon {
+		animation: server-icon-animation 0.2s;
+		animation-fill-mode: forwards;
+	}
+
+	.server-indicator {
+		animation: server-indicator-animation 0.2s;
+		animation-fill-mode: forwards;
+	}
+
+    .server-nameplate {
+        animation: server-nameplate-animation 0.2s;
+		animation-fill-mode: forwards;
+    }
+}
+
+.selected-server-div {
+    .server-icon {
+        border-radius: 15px; 
+		background-color: #8e70c2;
+		color: white;
+	}
+
+	.server-indicator {
+        opacity: 1;
+        background-color: gray;
+	}
+}
+
+.selected-server-div:hover {
+    .server-nameplate {
+        animation: server-nameplate-animation 0.2s;
+		animation-fill-mode: forwards;
+    }
+}
