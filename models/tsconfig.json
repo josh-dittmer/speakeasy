@@ -7,12 +7,12 @@
         "moduleResolution": "node",
         "sourceMap": true,
         "outDir": "dist",
-        "strict": true,
-        "skipLibCheck": true
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "declaration": true,
+        "composite": true
     },
-    "references": [
-        { "path": "../models" }
-    ],
     "include": ["**/*.ts", "**/*.tsx"],
-    "exclude": ["node_modules"],
+    "exclude": ["node_modules", "**/*.d.ts"],
 }

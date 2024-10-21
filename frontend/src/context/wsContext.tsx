@@ -1,8 +1,8 @@
 import { createContext, useEffect, useRef, ReactNode } from 'react';
 
-const ROOT_CHANNEL = 'root';
+export const ROOT_CHANNEL = 'root';
 
-type WSCallback = (data: any) => void;
+type WSCallback = (data: string) => void;
 
 type WSSubscribe = (channel: string, callback: WSCallback) => void;
 type WSUnsubscribe = (channel: string) => void;
@@ -15,6 +15,7 @@ type WSContextType = [
 const WSContext = createContext<WSContextType | null>(null);
 
 function WSProvider({ children, url } : { children: ReactNode, url: string}) {
+	//console.log(url)
     const wsInst = useRef<WebSocket | null>(null);
     const wsChannels = useRef(new Map<string, WSCallback>());
 

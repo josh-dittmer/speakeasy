@@ -1,18 +1,15 @@
-import { useEffect } from 'react';
+import ServerBar from '@/components/server_bar';
+import { getServerList } from '@/lib/requests';
 
-import ChannelBar from "./components/channel_bar";
-import UserBar from "./components/user_bar";
+export default async function ServerLayout({ params, children }: Readonly<{ params: { serverId: string }, children: React.ReactNode; }>) { 
+    const servers = await getServerList();
 
-export default function ServerLayout({ children }: Readonly<{ children: React.ReactNode; }>) {    
     return (
         <>
             <div>
-                <ChannelBar />
+                <ServerBar servers={servers} selectedServerId={params.serverId} />
             </div>
             {children}
-            <div>
-                <UserBar />
-            </div>
         </>
     );
   }

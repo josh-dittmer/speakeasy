@@ -5,7 +5,7 @@
 @keyframes server-icon-animation {
 	100% { 
 		border-radius: 15px; 
-		background-color: #8e70c2;
+		background-color: #aa81e1;
 		color: white;
 	}
 }
@@ -58,7 +58,7 @@
 .selected-server-div {
     .server-icon {
         border-radius: 15px; 
-		background-color: #8e70c2;
+		background-color: #aa81e1;
 		color: white;
 	}
 

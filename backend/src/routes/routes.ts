@@ -1,5 +1,7 @@
 import { Application, Router } from 'express';
 import serverRoutes from './server.routes';
+import userRoutes from './user.routes';
+import channelRoutes from './channel.routes';
 
 const apiVersion = parseInt(process.env.API_VERSION!);
 
@@ -15,5 +17,7 @@ export default class Routes {
 
     private init() {
         this.router.use(serverRoutes);
+        this.router.use(userRoutes);
+        this.router.use(channelRoutes);
     }
 }
