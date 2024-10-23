@@ -1,19 +1,13 @@
-import ChannelBar from '@/components/channel_bar';
-import UserBar from '@/components/user_bar';
-import { getChannelList } from '@/lib/requests';
+import ChatArea from "@/components/chat_area";
+import { getServerData } from "@/lib/requests"
+import { ServerDataT } from "models"
 
+export default async function ChannelPage({ params }: Readonly<{ params: { serverId: string, channelId: string } }>) {
+    const serverData: ServerDataT = await getServerData(params.serverId);
 
-export default async function ChannelPage({ params }: { params: { serverId: string, channelId: string }}) {
-    const channels = await getChannelList(params.serverId);
-    
     return (
         <>
-            <div>
-                <ChannelBar channels={channels} selectedChannelId={params.channelId} />
-            </div>
-            <div>
-                <UserBar />
-            </div>
+            <ChatArea channelId={params.channelId} users={serverData.users} />
         </>
     )
 }

@@ -1,10 +1,16 @@
-import { endpoints } from '@/lib/endpoints';
-import { LastVisitedServer, LastVisitedServerT } from 'models';
-import { isLeft } from 'fp-ts/Either'
+import { getServerData, getServerList } from '@/lib/requests';
+import { ChannelArrayT, ServerArrayT, ServerDataT } from 'models';
 import { redirect } from 'next/navigation';
-import { getLastVisitedServer } from '@/lib/requests';
 
 export default async function HomePage() {
-    const lastVisitedServer: LastVisitedServerT = await getLastVisitedServer();
-    redirect(`/home/${lastVisitedServer.serverId}`);
+    const servers: ServerArrayT = await getServerList();
+
+    // TODO: Load last visited server from local storage
+    const lastServer = servers[0];
+
+    if (lastServer) {
+        redirect(`/home/${lastServer.serverId}/`);
+    }
+
+    return <></>
 }

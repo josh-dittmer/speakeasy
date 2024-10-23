@@ -35,7 +35,8 @@
 }
 
 .server-nameplate {
-    opacity: 0;
+	opacity: 0;
+	visibility: hidden;
 }
 
 .server-div:hover {
@@ -49,9 +50,10 @@
 		animation-fill-mode: forwards;
 	}
 
-    .server-nameplate {
-        animation: server-nameplate-animation 0.2s;
+    .server-nameplate:not(:hover) {
+        animation: server-nameplate-animation 0.4s;
 		animation-fill-mode: forwards;
+		visibility: visible;
     }
 }
 
@@ -69,8 +71,9 @@
 }
 
 .selected-server-div:hover {
-    .server-nameplate {
-        animation: server-nameplate-animation 0.2s;
+    .server-nameplate:not(:hover) {
+        animation: server-nameplate-animation 0.4s;
 		animation-fill-mode: forwards;
+		visibility: visible;
     }
 }

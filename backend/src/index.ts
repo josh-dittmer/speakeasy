@@ -1,14 +1,14 @@
 import 'dotenv/config';
 
-import express, { Application } from 'express';
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors, { CorsOptions } from 'cors';
 
 import { auth } from './auth';
 
 import Routes from './routes/routes'
 
-const apiAddress = process.env.API_ADDRESS!;
 const apiPort = process.env.API_PORT!;
+const allowedOrigin = process.env.ALLOWED_ORIGIN!;
 
 export default class Server {
     private routes: Routes;
@@ -20,13 +20,17 @@ export default class Server {
 
     private config(app: Application): void {
         const corsOptions: CorsOptions = {
-            origin: `${apiAddress}:${apiPort}`
+            origin: allowedOrigin
         };
 
         app.use(cors(corsOptions));
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
         app.use(auth);
+        app.use((req: Request, res: Response, next: NextFunction) => {
+            console.log(`${req.method} ${req.path}`);
+            next();
+        })
     }
 }
 

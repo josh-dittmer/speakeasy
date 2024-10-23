@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLastVisitedChannel, getServerList } from '../controllers/server.controller';
+import { getServerData, getServerList } from '../controllers/server.controller';
 
 class ServerRoutes {
     public router: Router;
@@ -11,7 +11,7 @@ class ServerRoutes {
 
     private init() {
         this.router.get('/getServerList', getServerList);
-        this.router.post('/getLastVisitedChannel', getLastVisitedChannel);
+        this.router.get('/getServerData/:serverId', getServerData);
     }
 }
 

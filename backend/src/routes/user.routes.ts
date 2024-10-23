@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getLastVisitedServer } from '../controllers/user.controller';
+//import { getLastVisitedServer } from '../controllers/user.controller';
 
 class UserRoutes {
     public router: Router;
@@ -10,7 +10,7 @@ class UserRoutes {
     }
 
     private init() {
-        this.router.get('/getLastVisitedServer', getLastVisitedServer);
+        //this.router.get('/getLastVisitedServer', getLastVisitedServer);
     }
 }
 

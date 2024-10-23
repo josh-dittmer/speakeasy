@@ -1,10 +1,16 @@
-import { endpoints } from '@/lib/endpoints';
-import { GetLastVisitedChannelReqT, LastVisitedChannel, LastVisitedChannelT } from 'models';
-import { isLeft } from 'fp-ts/Either'
-import { redirect } from 'next/navigation'
-import { getLastVisitedChannel } from '@/lib/requests';
+import { getServerData, getServerList } from '@/lib/requests';
+import { ServerArrayT, ServerDataT } from 'models';
+import { redirect } from 'next/navigation';
 
 export default async function ServerPage({ params }: { params: { serverId: string }}) {
-    const lastVisitedChannel: LastVisitedChannelT = await getLastVisitedChannel(params.serverId);
-    redirect(`/home/${params.serverId}/${lastVisitedChannel.channelId}`);
+    const serverData: ServerDataT = await getServerData(params.serverId);
+
+    // TODO: Load last visited channel from local storage
+    const lastChannel = serverData.channels[0];
+
+    if (lastChannel) {
+        redirect(`/home/${params.serverId}/${lastChannel.channelId}`);
+    }
+
+    return <></>
 }

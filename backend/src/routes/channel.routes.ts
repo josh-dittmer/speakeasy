@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getChannelList } from '../controllers/channel.controller';
+import { getChannelData } from '../controllers/channel.controller';
 
 class ChannelRoutes {
     public router: Router;
@@ -10,7 +10,7 @@ class ChannelRoutes {
     }
 
     private init() {
-        this.router.post('/getChannelList', getChannelList);
+        this.router.get('/getChannelData/:channelId', getChannelData);
     }
 }
 

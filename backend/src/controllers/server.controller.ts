@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
-import { eq, and } from 'drizzle-orm';
-import { membershipsTable, serversTable } from '../db/schema';
-import { GetLastVisitedChannelReq, GetLastVisitedChannelReqT, LastVisitedChannelT, ServerArrayT } from 'models';
+import { eq } from 'drizzle-orm';
+import { channelsTable, membershipsTable, serversTable, usersTable } from '../db/schema';
+import { ChannelArrayT, ServerArrayT, ServerDataT, UserArrayT } from 'models';
 import { isLeft } from 'fp-ts/Either'
+import { badRequest, notFound } from '../common/response';
 
 export async function getServerList(req: Request, res: Response) {
     const result: ServerArrayT = await db.select({
@@ -18,32 +19,49 @@ export async function getServerList(req: Request, res: Response) {
     res.json(result);
 }
 
-export async function getLastVisitedChannel(req: Request, res: Response) {
-    const decoded = GetLastVisitedChannelReq.decode(req.body);
-    if (isLeft(decoded)) {
-        res.status(400).send({
-            message: 'Invalid request body'
-        });
-        return;
+export async function getServerData(req: Request, res: Response) {
+    if (!req.params.serverId) {
+        return badRequest(res);
     }
 
-    const getLastVisitedChannelReq: GetLastVisitedChannelReqT = decoded.right;
-    
-    const result: LastVisitedChannelT[] = await db.select({
-        channelId: membershipsTable.lastVisitedChannel
+    const serverId = req.params.serverId;
+
+    const serverResult: ServerArrayT = await db.select({
+        serverId: serversTable.serverId,
+        imageId: serversTable.imageId,
+        name: serversTable.name
+    })
+    .from(serversTable)
+    .where(eq(serversTable.serverId, serverId))
+
+    if (serverResult.length === 0) {
+        return notFound(res, `server ${serverId}`);
+    }
+
+    const channelResult: ChannelArrayT = await db.select({
+        serverId: serversTable.serverId,
+        channelId: channelsTable.channelId,
+        name: channelsTable.name
+    })
+    .from(serversTable)
+    .innerJoin(channelsTable, eq(serversTable.serverId, channelsTable.serverId))
+    .where(eq(serversTable.serverId, serverId));
+
+    const userResult: UserArrayT = await db.select({
+        userId: membershipsTable.userId,
+        imageId: usersTable.imageId,
+        name: usersTable.name,
+        bio: usersTable.bio
     })
     .from(membershipsTable)
-    .where(and(
-        eq(membershipsTable.userId, res.locals.userId),
-        eq(membershipsTable.serverId, getLastVisitedChannelReq.serverId)
-    ));
+    .innerJoin(usersTable, eq(membershipsTable.userId, usersTable.userId))
+    .where(eq(membershipsTable.serverId, serverResult[0].serverId));
 
-    if (!result[0]) {
-        res.status(404).send({
-            message: 'No data found'
-        });
-        return;
-    }
+    const result: ServerDataT = {
+        server: serverResult[0],
+        channels: channelResult,
+        users: userResult
+    };
 
-    res.json(result[0]);
+    res.json(result);
 }

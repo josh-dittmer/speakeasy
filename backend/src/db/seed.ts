@@ -1,14 +1,15 @@
 import { db } from './db';
-import { channelsTable, membershipsTable, serversTable, usersTable } from './schema';
+import { channelsTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
 
 async function seed() {
     try {
         console.log('Seeding...');
 
-        await db.delete(serversTable);
-        await db.delete(usersTable);
+        await db.delete(messagesTable);
         await db.delete(membershipsTable);
         await db.delete(channelsTable);
+        await db.delete(serversTable);
+        await db.delete(usersTable);
 
         console.log('Cleared database. Inserting...');
 
@@ -24,6 +25,13 @@ async function seed() {
         const s1channel2Id = crypto.randomUUID();
         const s2channel1Id = crypto.randomUUID();
         const s3channel1Id = crypto.randomUUID();
+
+        const s1c1message1Id = crypto.randomUUID();
+        const s1c1message2Id = crypto.randomUUID();
+        const s1c1message3Id = crypto.randomUUID();
+        const s1c2message1Id = crypto.randomUUID();
+        const s1c2message2Id = crypto.randomUUID();
+        const s1c2message3Id = crypto.randomUUID();
 
         const servers: Array<typeof serversTable.$inferInsert> = [
             {
@@ -49,20 +57,17 @@ async function seed() {
                 bio: 'I am test user #1',
                 userId: user1Id,
                 imageId: crypto.randomUUID(),
-                lastVisitedServer: server2Id
             },
             {
                 name: 'Test User 2',
                 bio: 'I am test user #2',
                 userId: user2Id,
                 imageId: crypto.randomUUID(),
-                lastVisitedServer: server2Id,
             },
             {
                 name: 'Test User 3',
                 userId: user3Id,
                 imageId: crypto.randomUUID(),
-                lastVisitedServer: server3Id
             }
         ];
 
@@ -70,32 +75,26 @@ async function seed() {
             {
                 serverId: server1Id,
                 userId: user1Id,
-                lastVisitedChannel: s1channel2Id
             },
             {
                 serverId: server1Id,
                 userId: user2Id,
-                lastVisitedChannel: s1channel2Id
             },
             {
                 serverId: server1Id,
                 userId: user3Id,
-                lastVisitedChannel: s1channel2Id
             },
             {
                 serverId: server2Id,
                 userId: user1Id,
-                lastVisitedChannel: s2channel1Id
             },
             {
                 serverId: server2Id,
                 userId: user3Id,
-                lastVisitedChannel: s2channel1Id
             },
             {
                 serverId: server3Id,
                 userId: user3Id,
-                lastVisitedChannel: s3channel1Id
             },
         ];
 
@@ -122,10 +121,66 @@ async function seed() {
             },
         ]
 
+        const messages: Array<typeof messagesTable.$inferInsert> = [
+            {
+                messageId: s1c1message1Id,
+                userId: user1Id,
+                channelId: s1channel1Id,
+                serverId: server1Id,
+                content: 'Poop!'
+            },
+            {
+                messageId: s1c1message2Id,
+                userId: user2Id,
+                channelId: s1channel1Id,
+                serverId: server1Id,
+                content: 'Poo'
+            },
+            {
+                messageId: s1c1message3Id,
+                userId: user3Id,
+                channelId: s1channel1Id,
+                serverId: server1Id,
+                content: 'Poop!!'
+            },
+            {
+                messageId: s1c2message1Id,
+                userId: user1Id,
+                channelId: s1channel2Id,
+                serverId: server1Id,
+                content: 'Test'
+            },
+            {
+                messageId: s1c2message2Id,
+                userId: user1Id,
+                channelId: s1channel2Id,
+                serverId: server1Id,
+                content: 'Testing'
+            },
+            {
+                messageId: s1c2message3Id,
+                userId: user1Id,
+                channelId: s1channel2Id,
+                serverId: server1Id,
+                content: '123'
+            }
+        ]
+
+        for (let i = 0; i < 25; i++) {
+            messages.push({
+                userId: user1Id,
+                channelId: s1channel1Id,
+                serverId: server1Id,
+                content: `${i}`,
+                //content: 'Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting Extra long message to test formatting '
+            });
+        }
+
         await db.insert(serversTable).values(servers);
         await db.insert(usersTable).values(users);
         await db.insert(membershipsTable).values(memberships);
         await db.insert(channelsTable).values(channels);
+        await db.insert(messagesTable).values(messages);
 
         console.log('Finished seeding.');
     } catch(err) {
