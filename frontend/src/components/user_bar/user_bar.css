@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes user-bar-animation {
+	100% { 
+        opacity: 1;
+        right: 0px;
+	}
+}
+
+.user-bar {
+    animation: user-bar-animation 0.3s;
+    animation-fill-mode: forwards;
+
+    opacity: 0;
+    right: -208px;
+}

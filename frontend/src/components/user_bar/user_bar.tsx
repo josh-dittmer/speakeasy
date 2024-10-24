@@ -1,6 +1,8 @@
 import { UserArrayT, UserT } from 'models';
 import Image from 'next/image';
 
+import './user_bar.css'
+
 function UserCard({ user } : { user: UserT }) {
     const status: string = 'offline';
     let statusColor;
@@ -46,9 +48,9 @@ function UserCard({ user } : { user: UserT }) {
 
 export default function UserBar({ users }: { users: UserArrayT }) {
     return (
-        <div className="hidden md:block relative bg-slate-100 h-screen w-52">
+        <div className="hidden md:block relative bg-slate-100 h-screen w-[208px]">
             <div className="absolute h-[48px] w-52 shadow-b p-3 bg-white"></div>
-            <div className="absolute top-[48px] overflow-y-scroll w-full h-full">
+            <div className="user-bar absolute top-[48px] overflow-y-scroll w-full h-full">
                 <div className="p-3">
                     <p className="text-xs font-bold text-gray-500">ONLINE USERS</p>
                 </div>

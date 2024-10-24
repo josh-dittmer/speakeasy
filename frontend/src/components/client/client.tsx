@@ -1,6 +1,6 @@
 'use client';
 
-import { WSProvider } from "@/context/wsContext";
+import { WSProvider } from "@/contexts/ws_content";
 
 export default function Client({ children }: Readonly<{ children: React.ReactNode }>) {
     return (

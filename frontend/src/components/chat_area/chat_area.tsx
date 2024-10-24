@@ -1,10 +1,12 @@
 'use client';
 
-import { getChannelData } from '@/lib/requests';
+import { getChannelData } from '@/lib/api/requests';
 import { keepPreviousData, QueryClient, QueryClientProvider, useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import { MessageArrayT, MessageT, UserArrayT, UserT } from 'models';
 import Image from 'next/image';
 import { createRef, Fragment, useEffect, useRef, useState } from 'react';
+
+import './chat_area.css';
 
 const queryClient = new QueryClient();
 
@@ -56,13 +58,15 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
             if (firstPageParam <= 1) return undefined;
             return firstPageParam - 1;
         },
-        //placeholderData: keepPreviousData
     });
 
     const onMessagesScrolled = (e: any) => {
-        if (chatAreaRef.current?.scrollTop === 0) {
+        const st = chatAreaRef.current?.scrollTop;
+        const sh = chatAreaRef?.current?.scrollHeight;
+        const ch = chatAreaRef?.current?.clientHeight;
+        if (st && sh && st + sh === ch) {
             fetchNextPage();
-        } else if (chatAreaRef.current?.scrollTop === chatAreaRef?.current?.scrollHeight) {
+        } else if (chatAreaRef.current?.scrollTop === 0) {
             
         }
     };
@@ -71,22 +75,20 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
     const prevScrollHeightRef = useRef<number>(0);
 
     // scroll to appropriate position when new messages are loaded
+    // please do not ask me wtf is going on here i tried different combos until it worked
     useEffect(() => {
-        if (chatAreaRef.current) {
-            const newHeight = chatAreaRef.current.scrollHeight;
-            chatAreaRef.current.scrollTop = newHeight - prevScrollHeightRef.current;
-            prevScrollHeightRef.current = chatAreaRef.current.scrollHeight;
+        const st = chatAreaRef.current?.scrollTop;
+        const sh = chatAreaRef?.current?.scrollHeight;
+
+        if (sh && prevScrollHeightRef.current === 0) {
+            prevScrollHeightRef.current = sh;
+        }   
+
+        if (st && sh && chatAreaRef.current) {
+            chatAreaRef.current.scrollTop = (sh + st) - prevScrollHeightRef.current;
+            prevScrollHeightRef.current = sh;
         }
     }, [data?.pages]);
-
-    // scroll to bottom on intial load in case messages are cached
-    useEffect(() => {
-        if (chatAreaRef.current) {
-            chatAreaRef.current.scrollTop = chatAreaRef.current.scrollHeight;
-            // set visibile after scrolling to avoid ugly jump
-            chatAreaRef.current.style.visibility = 'visible';
-        }
-    }, [chatAreaRef]);
 
     if (isLoading) {
         return (
@@ -110,7 +112,7 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
                 <p className="mr-2 text-gray-500 text-xl font-bold">T</p>
                 <p className="text-lg text-gray-600">{data?.pages[0]?.channel.name}</p>
             </div>
-            <div style={{ visibility: 'hidden' }} className="absolute bottom-[70px] max-h-full w-full overflow-y-scroll w-auto" ref={chatAreaRef} onScroll={(e) => onMessagesScrolled(e)}>
+            <div style={{ visibility: 'visible' }} className="flex flex-col-reverse absolute bottom-[70px] max-h-full w-full overflow-y-scroll w-auto" ref={chatAreaRef} onScroll={(e) => onMessagesScrolled(e)}>
                 <div>
                     <div className="h-[118px] mb-2"></div>
                     {data?.pages.map((page, index) => (

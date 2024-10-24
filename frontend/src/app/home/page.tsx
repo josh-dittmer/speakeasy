@@ -1,4 +1,4 @@
-import { getServerData, getServerList } from '@/lib/requests';
+import { getServerData, getServerList } from '@/lib/api/requests';
 import { ChannelArrayT, ServerArrayT, ServerDataT } from 'models';
 import { redirect } from 'next/navigation';
 
