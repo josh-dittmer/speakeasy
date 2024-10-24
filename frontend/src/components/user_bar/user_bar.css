@@ -5,7 +5,7 @@
 @keyframes user-bar-animation {
 	100% { 
         opacity: 1;
-        right: 0px;
+        transform: translateX(0);
 	}
 }
 
@@ -14,5 +14,5 @@
     animation-fill-mode: forwards;
 
     opacity: 0;
-    right: -208px;
+    transform: translateX(208px);
 }

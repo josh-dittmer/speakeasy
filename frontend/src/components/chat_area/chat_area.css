@@ -1,6 +1,7 @@
-/* width */
+/* width 
 ::-webkit-scrollbar {
-    display: none;
+    /*display: none;*/
+    /*width: 10px;
 }
   
 
@@ -14,4 +15,9 @@
 
 ::-webkit-scrollbar-thumb:hover {
     background: #555;
+}*/
+
+.chat-area {
+    display: grid;
+    grid-template-rows: var(--header-height) auto 70px;
 }

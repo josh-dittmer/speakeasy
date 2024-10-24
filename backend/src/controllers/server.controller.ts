@@ -63,5 +63,7 @@ export async function getServerData(req: Request, res: Response) {
         users: userResult
     };
 
+    //await new Promise((res) => setTimeout(res, 2000));
+
     res.json(result);
 }

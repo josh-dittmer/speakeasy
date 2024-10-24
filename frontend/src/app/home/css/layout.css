@@ -1,0 +1,11 @@
+.home-layout {
+    display: grid;
+    grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto;
+}
+
+@media (min-width: 768px) {
+    .home-layout {
+        display: grid;
+        grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(--user-bar-width);
+    }
+ }

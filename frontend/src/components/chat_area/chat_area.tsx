@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { createRef, Fragment, useEffect, useRef, useState } from 'react';
 
 import './chat_area.css';
+import LoadingSpinner from '../loading_spinner/loading_spinner';
 
 const queryClient = new QueryClient();
 
@@ -24,11 +25,11 @@ function ChatMessage({ message, user } : { message: MessageT, user: UserT | unde
             </div>
             <div className="ml-3">
                 <div className="flex items-center">
-                    <p className="text-lg text-black">{user?.name}</p>
-                    <p className="ml-3 text-xs text-gray-400">{message.date}</p>
+                    <p className="text-lg text-fg-dark">{user?.name}</p>
+                    <p className="ml-3 text-xs text-fg-light">{message.date}</p>
                 </div>
                 <div className="">
-                    <p className="text-md text-gray-600">{message.content}</p>
+                    <p className="text-md text-fg-dark">{message.content}</p>
                 </div>
             </div>
         </div>
@@ -91,30 +92,26 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
     }, [data?.pages]);
 
     if (isLoading) {
-        return (
-            <div className="relative h-screen grow flex justify-center items-center">
-                <Image src="/img/loading.gif" width={100} height={100} alt="Loading" />
-            </div>
-        )
+        return <LoadingSpinner />
+
     }
     
     if (error) {
         return (
             <div className="relative h-screen grow flex justify-center items-center">
-                <p className="text-6xl text-slate-500">:(</p>
+                <p className="text-6xl text-fg-medium">:(</p>
             </div>
         )
     }
 
     return (
-        <div className="relative h-screen grow">
-            <div className="absolute z-10 h-[48px] w-full bg-white flex items-center p-3 shadow-b">
-                <p className="mr-2 text-gray-500 text-xl font-bold">T</p>
-                <p className="text-lg text-gray-600">{data?.pages[0]?.channel.name}</p>
+        <div className="chat-area h-screen bg-bg-light">
+            <div className="w-full bg-bg-light flex items-center p-3 shadow-b z-10">
+                <p className="mr-2 text-fg-medium text-xl font-bold">T</p>
+                <p className="text-lg text-fg-medium">{data?.pages[0]?.channel.name}</p>
             </div>
-            <div style={{ visibility: 'visible' }} className="flex flex-col-reverse absolute bottom-[70px] max-h-full w-full overflow-y-scroll w-auto" ref={chatAreaRef} onScroll={(e) => onMessagesScrolled(e)}>
-                <div>
-                    <div className="h-[118px] mb-2"></div>
+            <div className="flex flex-col-reverse w-full overflow-y-scroll" ref={chatAreaRef} onScroll={(e) => onMessagesScrolled(e)}>
+                <div className="mt-2">
                     {data?.pages.map((page, index) => (
                         <Fragment key={index}>
                             {page.messages.map((message) => {
@@ -125,11 +122,11 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
                     ))}
                 </div>
             </div>
-            <div className="flex justify-center items-center absolute bottom-0 h-[70px] w-full p-3">
+            <div className="flex justify-center items-center w-full p-3">
                 <input 
                     type="text" 
                     placeholder={`Send a message to ${data?.pages[0]?.channel.name}...`} 
-                    className="w-full bg-slate-100 p-3 rounded focus:outline-none"    
+                    className="w-full bg-bg-medium text-fg-medium p-3 rounded focus:outline-none"    
                 />
             </div>
         </div>

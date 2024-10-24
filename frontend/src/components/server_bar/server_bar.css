@@ -5,15 +5,15 @@
 @keyframes server-icon-animation {
 	100% { 
 		border-radius: 15px; 
-		background-color: #aa81e1;
-		color: white;
+		background-color: var(--bg-accent);
+		color: var(--fg-accent);
 	}
 }
 
 @keyframes server-indicator-animation {
     100% {
         opacity: 1;
-        background-color: gray;
+        background-color: var(--fg-medium);
     }
 }
 
@@ -25,8 +25,8 @@
 
 .server-icon {
 	border-radius: 50px;
-	background-color: white;
-	color: gray;
+	background-color: var(--bg-light);
+	color: var(--fg-medium);
     font-size: 1.25rem;
 }
 
@@ -60,13 +60,13 @@
 .selected-server-div {
     .server-icon {
         border-radius: 15px; 
-		background-color: #aa81e1;
-		color: white;
+		background-color: var(--bg-accent);
+		color: var(--fg-accent);
 	}
 
 	.server-indicator {
         opacity: 1;
-        background-color: gray;
+        background-color: var(--fg-medium);
 	}
 }
 

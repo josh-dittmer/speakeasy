@@ -9,6 +9,7 @@ const getReq = (tags: Array<string>): RequestInit => {
         next: {
             tags: tags
         },
+        //cache: 'no-store',
         method: 'get'
     };
 
