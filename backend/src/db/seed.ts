@@ -1,10 +1,11 @@
 import { db } from './db';
-import { channelsTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
+import { channelsTable, filesTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
 
 async function seed() {
     try {
         console.log('Seeding...');
 
+        await db.delete(filesTable);
         await db.delete(messagesTable);
         await db.delete(membershipsTable);
         await db.delete(channelsTable);

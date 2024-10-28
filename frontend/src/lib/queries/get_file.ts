@@ -1,0 +1,1 @@
+export const getFileKey = (fileId: string): string => `getFile_${fileId}`;

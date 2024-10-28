@@ -1,0 +1,34 @@
+@keyframes empty-animation {
+    0% { 
+        transform: translateX(10px);
+        border: 2px solid var(--fg-light);
+    }
+
+    20% { transform: translate(-5px) }
+    40% { transform: translateX(5px) }
+    60% { transform: translate(-5px) }
+    80% { transform: translateX(5px) }
+    100% { 
+        transform: translate(0px);
+    }
+}
+
+@keyframes sent-animation {
+    0% {
+        border: 2px solid var(--bg-accent);
+    }
+}
+
+.empty {
+    animation: empty-animation 0.5s;
+	animation-fill-mode: forwards;
+}
+
+.sent {
+    /*animation: sent-animation 0.5s;
+	animation-fill-mode: forwards;*/
+}
+
+.chat-box {
+    border: 2px solid var(--bg-medium);
+}

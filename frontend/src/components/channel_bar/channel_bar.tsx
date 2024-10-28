@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChannelArrayT, ChannelT } from 'models';
+import ThemeToggle from '../theme_toggle/theme_toggle';
 
 function TextChannel({ channel, selected } : { channel: ChannelT, selected: boolean }) {
     return (

@@ -1,67 +1,36 @@
 'use client';
 
-import { getChannelData } from '@/lib/api/requests';
-import { keepPreviousData, QueryClient, QueryClientProvider, useInfiniteQuery, useQuery } from '@tanstack/react-query';
-import { MessageArrayT, MessageT, UserArrayT, UserT } from 'models';
+import { MessageT, UserArrayT, UserT } from 'models';
 import Image from 'next/image';
-import { createRef, Fragment, useEffect, useRef, useState } from 'react';
+import { createRef, Fragment, useEffect, useMemo, useRef } from 'react';
+
+import LoadingSpinner from '../loading_spinner/loading_spinner';
+import ThemeToggle from '../theme_toggle/theme_toggle';
+import ChatBox from './chat_box/chat_box';
+import { failedMessageState, pendingMessageState } from '@/lib/mutations/create_message';
+import { getChannelDataQuery } from '@/lib/queries/get_channel_data';
 
 import './chat_area.css';
-import LoadingSpinner from '../loading_spinner/loading_spinner';
+import SentMessage from './chat_message/sent_message';
+import PendingMessage from './chat_message/pending_message';
+import FailedMessage from './chat_message/failed_message';
 
-const queryClient = new QueryClient();
+export default function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }) {
+    const userMap: Map<string, UserT> = useMemo(() => {
+        const m = new Map<string, UserT>();
+        users.map((user) => {
+            m.set(user.userId, user);
+        });
 
-function ChatMessage({ message, user } : { message: MessageT, user: UserT | undefined }) {
-    return (
-        <div className="flex ml-5 mb-5">
-            <div className="shrink-0">
-                <Image 
-                    src={'/img/profile_pic.jpg'} 
-                    width={50} 
-                    height={50} 
-                    alt="Profile picture" 
-                    className="object-cover rounded-full"
-                />
-            </div>
-            <div className="ml-3">
-                <div className="flex items-center">
-                    <p className="text-lg text-fg-dark">{user?.name}</p>
-                    <p className="ml-3 text-xs text-fg-light">{message.date}</p>
-                </div>
-                <div className="">
-                    <p className="text-md text-fg-dark">{message.content}</p>
-                </div>
-            </div>
-        </div>
-    )
-}
+        return m;
+    }, [users]);
 
-function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }) {
-    const userMap = new Map<string, UserT>();
-    users.map((user) => {
-        userMap.set(user.userId, user);
-    });
+    const pendingMessages = pendingMessageState(channelId);
+    const failedMessages = failedMessageState(channelId);
 
-    const fetchMessages = async ({ pageParam }: { pageParam: any }) => await getChannelData(channelId, pageParam);
-    const { data, error, fetchNextPage, isLoading } = useInfiniteQuery({
-        queryKey: [channelId],
-        queryFn: fetchMessages,
-        select: (data) => ({
-            pages: [...data.pages].reverse(),
-            pageParams: [...data.pageParams].reverse(),
-        }),
-        initialPageParam: 0,
-        getNextPageParam: (lastPage, allPages, lastPageParam) => {
-            if (lastPage.messages.length === 0) return undefined;
-            return lastPageParam + 1;
-        },
-        getPreviousPageParam: (firstPage, allPages, firstPageParam) => {
-            if (firstPageParam <= 1) return undefined;
-            return firstPageParam - 1;
-        },
-    });
+    const { fetchNextPage, data, isLoading, isError, isPending } = getChannelDataQuery(channelId);
 
-    const onMessagesScrolled = (e: any) => {
+    const onMessagesScrolled = () => {
         const st = chatAreaRef.current?.scrollTop;
         const sh = chatAreaRef?.current?.scrollHeight;
         const ch = chatAreaRef?.current?.clientHeight;
@@ -89,14 +58,13 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
             chatAreaRef.current.scrollTop = (sh + st) - prevScrollHeightRef.current;
             prevScrollHeightRef.current = sh;
         }
-    }, [data?.pages]);
+    }, [data?.pages, chatAreaRef]);
 
     if (isLoading) {
         return <LoadingSpinner />
-
     }
     
-    if (error) {
+    if (isError) {
         return (
             <div className="relative h-screen grow flex justify-center items-center">
                 <p className="text-6xl text-fg-medium">:(</p>
@@ -105,38 +73,38 @@ function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }
     }
 
     return (
-        <div className="chat-area h-screen bg-bg-light">
-            <div className="w-full bg-bg-light flex items-center p-3 shadow-b z-10">
+        <div className="chat-area h-screen bg-bg-light min-w-0">
+            <div className="w-full bg-bg-light flex items-center p-3 shadow-b z-10 h-header">
                 <p className="mr-2 text-fg-medium text-xl font-bold">T</p>
                 <p className="text-lg text-fg-medium">{data?.pages[0]?.channel.name}</p>
+                <div className="block md:hidden flex grow justify-end items-center">
+                    <ThemeToggle />
+                </div>
             </div>
-            <div className="flex flex-col-reverse w-full overflow-y-scroll" ref={chatAreaRef} onScroll={(e) => onMessagesScrolled(e)}>
+            <div className="grow flex flex-col-reverse w-full overflow-y-scroll overflow-x-hidden" ref={chatAreaRef} onScroll={() => onMessagesScrolled()}>
                 <div className="mt-2">
                     {data?.pages.map((page, index) => (
                         <Fragment key={index}>
                             {page.messages.map((message) => {
-                                return <ChatMessage key={message.messageId} message={message} user={userMap.get(message.userId)} />
+                                return <SentMessage key={message.messageId} message={message} user={userMap.get(message.userId)} />
                             })}
                         </Fragment>
-
                     ))}
+                    <Fragment key="failed">
+                        {failedMessages.map((req, index) => {
+                            return <FailedMessage key={index} messageReq={req} />;
+                        })}
+                    </Fragment>
+                    <Fragment key="pending">
+                        {pendingMessages.map((req, index) => {
+                            return <PendingMessage key={index} messageReq={req} />;
+                        })}
+                    </Fragment>
                 </div>
             </div>
-            <div className="flex justify-center items-center w-full p-3">
-                <input 
-                    type="text" 
-                    placeholder={`Send a message to ${data?.pages[0]?.channel.name}...`} 
-                    className="w-full bg-bg-medium text-fg-medium p-3 rounded focus:outline-none"    
-                />
-            </div>
+            {data?.pages[0]?.channel && (
+                <ChatBox channel={data.pages[0].channel} />
+            )}
         </div>
-    )
-}
-
-export default function ChatAreaWrapper({ channelId, users }: { channelId: string, users: UserArrayT }) {
-    return (
-        <QueryClientProvider client={queryClient}>
-            <ChatArea channelId={channelId} users={users} />
-        </QueryClientProvider>
     )
 }

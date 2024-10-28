@@ -1,5 +1,11 @@
 import * as t from 'io-ts';
 
+export const allowedMimes = [
+    'image/png',
+    'image/jpeg',
+    'image/gif'
+];
+
 export const Server = t.type({
     serverId: t.string,
     imageId: t.union([ t.string, t.null ]),
@@ -34,13 +40,26 @@ export type UserT = t.TypeOf<typeof User>;
 export const UserArray = t.array(User);
 export type UserArrayT = t.TypeOf<typeof UserArray>;
 
+export const File = t.type({
+    fileId: t.string,
+    messageId: t.string,
+    name: t.string,
+    mimeType: t.string
+});
+
+export type FileT = t.TypeOf<typeof File>;
+
+export const FileArray = t.array(File);
+export type FileArrayT = t.TypeOf<typeof FileArray>;
+
 export const Message = t.type({
     messageId: t.string,
     userId: t.string,
     channelId: t.string,
     serverId: t.string,
     content: t.string,
-    date: t.string
+    date: t.string,
+    files: FileArray
 });
 
 export type MessageT = t.TypeOf<typeof Message>;
@@ -62,3 +81,42 @@ export const ChannelData = t.type({
 });
 
 export type ChannelDataT = t.TypeOf<typeof ChannelData>;
+
+export const CreateMessageRequest = t.type({
+    channelId: t.string,
+    content: t.string,
+    files: t.array(t.type({
+        name: t.string,
+        mimeType: t.string
+    }))
+});
+
+export type CreateMessageRequestT = t.TypeOf<typeof CreateMessageRequest>;
+
+export const CreateMessageResponseUpload = t.type({
+    fileId: t.string,
+    url: t.string,
+    name: t.string,
+    fields: t.unknown
+});
+
+export type CreateMessageResponseUploadT = t.TypeOf<typeof CreateMessageResponseUpload>;
+
+export const CreateMessageResponse = t.partial({
+    uploads: t.array(CreateMessageResponseUpload)
+});
+
+export type CreateMessageResponseT = t.TypeOf<typeof CreateMessageResponse>;
+
+/*export function createMessageRequestToFormData(data: CreateMessageRequestT): FormData {
+    const formData = new FormData();
+
+    formData.append('channelId', data.channelId);
+    formData.append('content', data.content);
+
+    for (let i = 0; i < data.files.length; i++) {
+        formData.append('files', data.files[i]);
+    }
+
+    return formData;
+}*/

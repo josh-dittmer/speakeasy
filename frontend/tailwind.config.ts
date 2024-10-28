@@ -19,7 +19,7 @@ const config: Config = {
 				'fg-accent': "var(--fg-accent)",
 			},
 			height: {
-				'header': 'var(--header-height)'
+				'header': 'var(--header-height)',
 			},
 		},
 	},

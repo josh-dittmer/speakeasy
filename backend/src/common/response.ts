@@ -11,3 +11,15 @@ export function notFound(res: Response, what: string) {
         message: `${what} not found`
     });
 }
+
+export function forbidden(res: Response) {
+    res.status(403).send({
+        message: 'unauthorized to access selected resource'
+    });
+}
+
+export function serverError(res: Response) {
+    res.status(500).send({
+        message: 'internal server error'
+    });
+}

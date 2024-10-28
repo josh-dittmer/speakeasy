@@ -4,7 +4,8 @@ import { eq } from 'drizzle-orm';
 import { channelsTable, membershipsTable, serversTable, usersTable } from '../db/schema';
 import { ChannelArrayT, ServerArrayT, ServerDataT, UserArrayT } from 'models';
 import { isLeft } from 'fp-ts/Either'
-import { badRequest, notFound } from '../common/response';
+import { badRequest, forbidden, notFound } from '../common/response';
+import { verifyServer } from '../util/verify';
 
 export async function getServerList(req: Request, res: Response) {
     const result: ServerArrayT = await db.select({
@@ -36,6 +37,11 @@ export async function getServerData(req: Request, res: Response) {
 
     if (serverResult.length === 0) {
         return notFound(res, `server ${serverId}`);
+    }
+
+    const verified = verifyServer(res.locals.userId, serverId);
+    if (!verified) {
+        return forbidden(res);
     }
 
     const channelResult: ChannelArrayT = await db.select({

@@ -1,6 +1,5 @@
 import { getServerData, getServerList } from '@/lib/api/requests';
-import { lattice } from 'fp-ts';
-import { ChannelArrayT, ServerArrayT, ServerDataT } from 'models';
+import { ServerArrayT, ServerDataT } from 'models';
 import { redirect } from 'next/navigation';
 
 export default async function HomePage() {

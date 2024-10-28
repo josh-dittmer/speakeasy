@@ -6,9 +6,8 @@ import ThemeToggle from '@/components/theme_toggle/theme_toggle';
 import './user_bar.css'
 
 function UserCard({ user } : { user: UserT }) {
-    const status: string = 'offline';
+    const status: string = 'online';
     let statusColor;
-
 
     switch(status) {
         case 'online':
@@ -35,7 +34,7 @@ function UserCard({ user } : { user: UserT }) {
                         width={35}
                         height={35}
                         alt="Profile picture"
-                        className="rounded-full"
+                        className="rounded-full w-[35px] h-[35px]"
                     />
                     <span className={"absolute bottom-0 right-0 w-3 h-3 rounded-full " + statusColor}></span>
                 </div>
@@ -50,7 +49,7 @@ function UserCard({ user } : { user: UserT }) {
 
 export default function UserBar({ users }: { users: UserArrayT }) {
     return (
-        <div className="user-bar hidden md:block relative bg-bg-medium h-screen">
+        <div className="text-nowrap relative bg-bg-medium h-screen">
             <div className="flex justify-end h-header shadow-b p-3 bg-bg-light">
                 <ThemeToggle />
             </div>
