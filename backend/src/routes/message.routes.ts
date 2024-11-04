@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createMessage } from '../controllers/message.controller';
+import { createMessage, deleteMessage } from '../controllers/message.controller';
 
 class MessageRoutes {
     public router: Router;
@@ -11,6 +11,7 @@ class MessageRoutes {
 
     private init() {
         this.router.post('/createMessage', createMessage);
+        this.router.delete('/deleteMessage/:messageId', deleteMessage);
     }
 }
 

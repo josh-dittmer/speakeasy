@@ -32,7 +32,7 @@ export const messagesTable = pgTable('messages', {
     //id: integer().primaryKey().generatedAlwaysAsIdentity(),
     messageId: uuid().primaryKey().unique().notNull().$default(() => crypto.randomUUID()),
     userId: uuid().notNull().references(() => usersTable.userId),
-    channelId: uuid().notNull().references(() => channelsTable.channelId),
+    channelId: uuid().notNull().references(() => channelsTable.channelId, { onDelete: 'cascade' }),
     serverId: uuid().notNull().references(() => serversTable.serverId),
     content: varchar({ length: 2047 }).notNull(),
     date: timestamp().notNull().defaultNow(),
@@ -41,7 +41,7 @@ export const messagesTable = pgTable('messages', {
 
 export const filesTable = pgTable('files', {
     fileId: uuid().primaryKey().unique().notNull().$default(() => crypto.randomUUID()),
-    messageId: uuid().notNull().references(() => messagesTable.messageId),
+    messageId: uuid().notNull().references(() => messagesTable.messageId, { onDelete: 'cascade' }),
     serverId: uuid().notNull().references(() => serversTable.serverId),
     name: varchar({ length: 255 }).notNull(),
     mimeType: varchar({ length: 255 }).notNull()

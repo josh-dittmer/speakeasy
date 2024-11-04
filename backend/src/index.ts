@@ -27,6 +27,7 @@ export default class Server {
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
         app.use(auth);
+        
         app.use((req: Request, res: Response, next: NextFunction) => {
             console.log(`${req.method} ${req.path}`);
             next();

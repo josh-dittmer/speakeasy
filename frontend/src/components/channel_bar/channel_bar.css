@@ -1,0 +1,11 @@
+.text-channel {
+    .menu {
+        visibility: hidden;
+    }
+}
+
+.text-channel:hover {
+    .menu {
+        visibility: visible;
+    }
+}

@@ -17,9 +17,9 @@ function ApplyTheme({ children }: Readonly<{ children: React.ReactNode }>) {
     )
 }
 
-export default function Client({ children }: Readonly<{ children: React.ReactNode }>) {
-    const queryClient = new QueryClient();
+const queryClient = new QueryClient();
 
+export default function Client({ children }: Readonly<{ children: React.ReactNode }>) {
     return (
         <>
             <ThemeProvider defaultTheme={'dark'}>

@@ -10,7 +10,7 @@ class FileRoutes {
     }
 
     private init() {
-        this.router.get('/getFile/:fileId', getFile);
+        this.router.get('/getFile/:type/:fileId', getFile);
     }
 }
 

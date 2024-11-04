@@ -16,14 +16,6 @@ html, body {
 	box-shadow: 0 1px 0px 0 rgb(0 0 0 / 0.1), 0 1px 0px -1px rgb(0 0 0 / 0.1);
 }
 
-:root {
-	--header-height: 48px;
-
-	--server-bar-width: 84px;
-	--channel-bar-width: 208px;
-	--user-bar-width: 208px;
-}
-
 @keyframes switch-light-animation {
 	100% {
 		opacity: 1;
@@ -38,11 +30,20 @@ html, body {
 	}
 }
 
+:root {
+	--header-height: 48px;
+
+	--server-bar-width: 84px;
+	--channel-bar-width: 208px;
+	--user-bar-width: 208px;
+}
+
 .light {
 	--bg-dark: rgb(226, 232, 240);
 	--bg-medium: rgb(241, 245, 249);
 	--bg-light: rgb(255, 255, 255);
 	--bg-accent: rgb(170, 129, 225);
+	--bg-accent-dark: rgb(140, 99, 195);
 
 	--fg-dark: rgb(0, 0, 0);
 	--fg-medium: rgb(107, 114, 128);
@@ -60,6 +61,7 @@ html, body {
 	--bg-medium: rgb(58, 58, 58);
 	--bg-light: rgb(66, 65, 65);
 	--bg-accent: rgb(170, 129, 225);
+	--bg-accent-dark: rgb(140, 99, 195);
 
 	--fg-dark: rgb(255, 255, 255);
 	--fg-medium: rgb(178, 178, 178);

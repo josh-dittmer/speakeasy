@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getChannelData } from '../controllers/channel.controller';
+import { createChannel, deleteChannel, editChannel, getChannelData } from '../controllers/channel.controller';
 
 class ChannelRoutes {
     public router: Router;
@@ -11,6 +11,9 @@ class ChannelRoutes {
 
     private init() {
         this.router.get('/getChannelData/:channelId', getChannelData);
+        this.router.post('/createChannel', createChannel);
+        this.router.post('/editChannel/:channelId', editChannel);
+        this.router.delete('/deleteChannel/:channelId', deleteChannel);
     }
 }
 

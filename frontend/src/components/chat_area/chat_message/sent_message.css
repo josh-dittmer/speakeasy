@@ -1,0 +1,63 @@
+.message-menu {
+    visibility: hidden;
+}
+
+.message:hover {
+    .message-menu {
+        visibility: visible;
+    }
+}
+
+.message-highlight {
+    background-color: var(--bg-medium);
+
+    .message-menu {
+        visibility: visible;
+    }
+}
+
+@keyframes open-rotate-animation {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(90deg);
+    }
+}
+
+.menu-icon-open {
+    animation: open-rotate-animation 0.2s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes close-rotate-animation {
+    0% {
+        transform: rotate(90deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+.menu-icon-close {
+    animation: close-rotate-animation 0.2s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes menu-appear-animation {
+    0% {
+        transform: translateX(10px);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(0px);
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.menu-items {
+    animation: menu-appear-animation 0.5s;
+	animation-fill-mode: forwards;
+}

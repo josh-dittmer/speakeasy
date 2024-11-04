@@ -6,6 +6,18 @@ export const allowedMimes = [
     'image/gif'
 ];
 
+export const maxFileSize = 1000 * 1000 * 10;/*mb*/
+
+export const maxNumFiles = 5;
+
+export const S3Keys = {
+    messageFiles: 'messageFiles',
+    profileImgs: 'profileImgs',
+    serverImgs: 'serverImgs'
+}
+
+export const maxChannelNameLength = 255;
+
 export const Server = t.type({
     serverId: t.string,
     imageId: t.union([ t.string, t.null ]),
@@ -43,6 +55,7 @@ export type UserArrayT = t.TypeOf<typeof UserArray>;
 export const File = t.type({
     fileId: t.string,
     messageId: t.string,
+    serverId: t.string,
     name: t.string,
     mimeType: t.string
 });
@@ -59,6 +72,7 @@ export const Message = t.type({
     serverId: t.string,
     content: t.string,
     date: t.string,
+    isMine: t.boolean,
     files: FileArray
 });
 
@@ -107,6 +121,26 @@ export const CreateMessageResponse = t.partial({
 });
 
 export type CreateMessageResponseT = t.TypeOf<typeof CreateMessageResponse>;
+
+export const CreateChannelRequest = t.type({
+    serverId: t.string,
+    name: t.string
+});
+
+export type CreateChannelRequestT = t.TypeOf<typeof CreateChannelRequest>;
+
+export const CreateChannelResponse = t.type({
+    serverId: t.string,
+    channelId: t.string
+})
+
+export type CreateChannelResponseT = t.TypeOf<typeof CreateChannelResponse>;
+
+export const EditChannelRequest = t.type({
+    name: t.string
+})
+
+export type EditChannelRequestT = t.TypeOf<typeof EditChannelRequest>;
 
 /*export function createMessageRequestToFormData(data: CreateMessageRequestT): FormData {
     const formData = new FormData();

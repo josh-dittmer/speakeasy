@@ -46,7 +46,7 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
 
     // scroll to appropriate position when new messages are loaded
     // please do not ask me wtf is going on here i tried different combos until it worked
-    useEffect(() => {
+    /*useEffect(() => {
         const st = chatAreaRef.current?.scrollTop;
         const sh = chatAreaRef?.current?.scrollHeight;
 
@@ -58,7 +58,7 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
             chatAreaRef.current.scrollTop = (sh + st) - prevScrollHeightRef.current;
             prevScrollHeightRef.current = sh;
         }
-    }, [data?.pages, chatAreaRef]);
+    }, [data?.pages, chatAreaRef]);*/
 
     if (isLoading) {
         return <LoadingSpinner />

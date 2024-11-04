@@ -1,13 +1,13 @@
 import { Request, Response } from 'express';
 import { badRequest, forbidden, notFound } from '../common/response';
-import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, CreateMessageResponseUploadT } from 'models';
+import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, CreateMessageResponseUploadT, S3Keys } from 'models';
 import { isLeft } from 'fp-ts/Either'
 import { channelsTable, filesTable, messagesTable } from '../db/schema';
 import { db } from '../db/db';
 import { eq } from 'drizzle-orm';
 import { verifyServer } from '../util/verify';
 import { allowedMimes } from 'models';
-import { createUploadUrl } from '../util/s3';
+import { createUploadUrl, deleteFile } from '../util/s3';
 
 /*const createMessageUpload = upload.array('files');
 
@@ -99,7 +99,7 @@ export async function createMessage(req: Request, res: Response) {
             mimeType: data.files[i].mimeType
         });
 
-        const { url, fields } = await createUploadUrl(`message_files/${fileId}`);
+        const { url, fields } = await createUploadUrl(`${S3Keys.messageFiles}/${fileId}`);
         uploads.push({
             fileId: fileId,
             url: url,
@@ -115,4 +115,44 @@ export async function createMessage(req: Request, res: Response) {
     };
 
     res.json(response);
+}
+
+export async function deleteMessage(req: Request, res: Response) {
+    if (!req.params.messageId) {
+        return badRequest(res);
+    }
+
+    const result = await db.select({
+        messageId: messagesTable.messageId,
+        userId: messagesTable.userId,
+        channelId: messagesTable.channelId,
+        hasFiles: messagesTable.hasFiles
+    })
+    .from(messagesTable)
+    .where(eq(messagesTable.messageId, req.params.messageId));
+
+    if (result.length === 0) {
+        return notFound(res, `message ${req.params.messageId}`);
+    }
+
+    const messageInfo = result[0];
+
+    if (messageInfo.userId !== res.locals.userId) {
+        return forbidden(res);
+    }
+
+    const fileResults = await db.select({
+        fileId: filesTable.fileId,
+        messageId: filesTable.messageId
+    })
+    .from(filesTable)
+    .where(eq(filesTable.messageId, messageInfo.messageId));
+
+    fileResults.forEach(async (file) => {
+        await deleteFile(`${S3Keys.messageFiles}/${file.fileId}`)
+    });
+
+    await db.delete(messagesTable).where(eq(messagesTable.messageId, messageInfo.messageId));
+
+    res.json({});
 }

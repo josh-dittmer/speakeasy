@@ -3,12 +3,13 @@
 import { createMessage } from '@/lib/api/requests';
 import { createMessageMutation } from '@/lib/mutations/create_message';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus } from 'lucide-react';
-import { ChannelT, CreateMessageRequestT } from 'models';
+import { Plus, X } from 'lucide-react';
+import { allowedMimes, ChannelT, CreateMessageRequestT, maxFileSize, maxNumFiles } from 'models';
 import Image from 'next/image';
 import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useState } from 'react';
 
 import './chat_box.css'
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
 
 export default function ChatBox({ channel }: { channel: ChannelT }) {
     const [messageContent, setMessageContent] = useState<string>('');
@@ -45,9 +46,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
 
         setFiles([]);
 
-        if (fileUploadRef.current) {
-            fileUploadRef.current.value = '';
-        }
+        clearFile();
     }
 
     const playAnimation = (className: 'empty' | 'sent') => {
@@ -61,7 +60,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
 
     const onMessageKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {
-            if (messageContent.length === 0) {
+            if (messageContent.length === 0 && files.length === 0) {
                 playAnimation('empty');
             } else {
                 playAnimation('sent');
@@ -72,7 +71,41 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
         }
     }
 
+    const clearFile = () => {
+        if (fileUploadRef.current) {
+            //fileUploadRef.current.value = '';
+        }
+    }
+
     const onAddFile = (e: ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+
+        if (e.target.files.length + files.length > maxNumFiles) {
+            /*errorAlertState.setTitle('Too many files!');
+            errorAlertState.setDescription(`You can upload a maximum of ${maxNumFiles} files at a time!`);
+            errorAlertState.setOpen(true);*/
+            clearFile();
+            return;
+        }
+
+        for (let i = 0; i < e.target.files.length; i++) {
+            if (e.target.files[i].size > maxFileSize) {
+                /*errorAlertState.setTitle('File too big!');
+                errorAlertState.setDescription(`Files cannot exceed a size of ${maxFileSize / (1000 * 1000)}MB! Sorry my AWS free tier is already used up 💀`);
+                errorAlertState.setOpen(true);*/
+                clearFile();
+                return;
+            }
+
+            else if (!allowedMimes.includes(e.target.files[i].type)) {
+                /*errorAlertState.setTitle('Disallowed file type!');
+                errorAlertState.setDescription('One or more of the selected files have disallowed types!');
+                errorAlertState.setOpen(true);*/
+                clearFile();
+                return;
+            }
+        }
+
         setFiles((old) => {
             const newFiles = [...old];
             if (e.target.files) {
@@ -80,17 +113,61 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                     newFiles.push(e.target.files[i]);
                 }
             }
+            clearFile();
             return newFiles;
         })
     };
 
+    const removeFile = (file: File) => {
+        const i = files.indexOf(file);
+        if (i > -1) {
+            setFiles((old) => {
+                const newFiles = [...old];
+                newFiles.splice(i, 1);
+                return newFiles;
+            })
+        }
+    };
+
     return (
-        <div className="flex justify-center items-center w-full p-3">
-            <div className="">
-                {files.map((file) => {
-                    return <p>{file.name}</p>
-                })}
-            </div>
+        <div className="flex flex-col justify-center items-center w-full p-3">
+            {files.length > 0 && (
+                <div className="flex justify-center items-center bg-bg-medium p-7 rounded-t-lg w-full">
+                    {files.map((file, index) => {
+                        switch(file.type) {
+                            case 'image/png':
+                            case 'image/jpeg':
+                            case 'image/gif':
+                                return (
+                                    <div key={index} className="relative m-3">
+                                        <div className="absolute top-[-10px] left-[-10px]">
+                                            <button 
+                                                className="p-1 bg-red-600 hover:bg-red-800 rounded-full text-white shadow"
+                                                onClick={() => removeFile(file)}
+                                            >
+                                                <X width={15} height={15} />
+                                            </button>
+                                        </div>
+                                        <Image
+                                            src={URL.createObjectURL(file)}
+                                            width={0}
+                                            height={0}
+                                            sizes="100vw"
+                                            className="w-full max-h-32 rounded"
+                                            alt="Message image"
+                                        />
+                                    </div>
+                                )
+                            default:
+                                return (
+                                    <div className="">
+
+                                    </div>
+                                )
+                        }
+                    })}
+                </div>
+            )}
             <div className="w-full flex items-center bg-bg-medium p-3 rounded text-nowrap chat-box" ref={textAreaRef}>
                 <textarea 
                     placeholder={`Send a message to ${channel.name}...`} 
@@ -107,6 +184,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                     ref={fileUploadRef}
                     onChange={onAddFile}
                     className="hidden"
+                    multiple
                 />
                 <label 
                     htmlFor="file"

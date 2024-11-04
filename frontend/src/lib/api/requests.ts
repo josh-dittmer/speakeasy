@@ -1,4 +1,4 @@
-import { ChannelData, ChannelDataT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, EditChannelRequestT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
@@ -33,6 +33,14 @@ const postReq = <ReqType>(data: ReqType): RequestInit => {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(data)
+    };
+
+    return init;
+}
+
+const deleteReq = (): RequestInit => {
+    const init: RequestInit = {
+        method: 'delete'
     };
 
     return init;
@@ -79,8 +87,7 @@ export async function getServerData(serverId: string): Promise<ServerDataT> {
 }
 
 export async function getChannelData(channelId: string, page: number): Promise<ChannelDataT> {
-    const usedTags = [channelId];
-    return await requestAndDecode(`/getChannelData/${channelId}?page=${page}`, getReq(usedTags), ChannelData);
+    return await requestAndDecode(`/getChannelData/${channelId}?page=${page}`, getReq([]), ChannelData);
 }
 
 export async function getMyUserData(): Promise<UserT> {
@@ -93,6 +100,22 @@ export async function createMessage(createMessageRequest: CreateMessageRequestT)
     return await requestAndDecode(`/createMessage`, postReq(createMessageRequest), CreateMessageResponse);
 }
 
+export async function createChannel(createChannelRequest: CreateChannelRequestT): Promise<CreateChannelResponseT> {
+    return await requestAndDecode(`/createChannel`, postReq(createChannelRequest), CreateChannelResponse);
+}
+
+export async function editChannel(channelId: string, editChannelRequest: EditChannelRequestT) {
+    return await requestAndDecode(`/editChannel/${channelId}`, postReq(editChannelRequest), t.type({}));
+}
+
+export async function deleteMessage(messageId: string) {
+    return await requestAndDecode(`/deleteMessage/${messageId}`, deleteReq(), t.type({}));
+}
+
+export async function deleteChannel(channelId: string) {
+    return await requestAndDecode(`/deleteChannel/${channelId}`, deleteReq(), t.type({}));
+}
+
 export type UploadFileData = {
     uploadUrl: string,
     file: File,
@@ -101,7 +124,8 @@ export type UploadFileData = {
 
 export async function uploadFile(data: UploadFileData): Promise<Response> {
     const form = new FormData();
-    
+
+    // for aws s3
     const fieldsObj = data.fields as any;
     Object.entries(fieldsObj).forEach(([field, value]) => {
         form.append(field, value as string);
