@@ -1,9 +1,12 @@
+'use client';
+
 import { UserArrayT, UserT } from 'models';
 import Image from 'next/image';
 import ThemeToggle from '@/components/theme_toggle/theme_toggle';
 
 
 import './user_bar.css'
+import ProfileImage from '../profile_image/profile_image';
 
 function UserCard({ user } : { user: UserT }) {
     const status: string = 'online';
@@ -26,21 +29,15 @@ function UserCard({ user } : { user: UserT }) {
     }
     
     return (
-        <div className="hover:bg-bg-dark p-0.5 m-1.5 rounded">
+        <div className="hover:bg-bg-dark p-0.5">
             <div className="flex items-center pl-3 mb-1 mt-1">
                 <div className="relative">
-                    <Image 
-                        src={'/img/profile_pic.jpg'}
-                        width={35}
-                        height={35}
-                        alt="Profile picture"
-                        className="rounded-full w-[35px] h-[35px]"
-                    />
+                    <ProfileImage name={user.name} imageId={user.imageId} size="10" />
                     <span className={"absolute bottom-0 right-0 w-3 h-3 rounded-full " + statusColor}></span>
                 </div>
                 <div className="ml-2">
-                    <p className="text-sm text-fg-dark">{user.name}</p>
-                    <p className="text-xs text-fg-light">{user.bio}</p>
+                    <p className="text-sm text-fg-dark max-w-28 truncate">{user.name}</p>
+                    <p className="text-xs text-fg-light max-w-28 truncate">{user.bio}</p>
                 </div>
             </div>
         </div>

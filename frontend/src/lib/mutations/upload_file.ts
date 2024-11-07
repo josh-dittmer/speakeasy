@@ -1,6 +1,7 @@
 import { QueryClient, useMutation } from '@tanstack/react-query';
 import { uploadFile } from '../api/requests';
 import { getFileKey } from '../queries/get_file';
+import { useRouter } from 'next/navigation';
 
 export const uploadFileKey = 'uploadFile';
 
@@ -8,7 +9,8 @@ type UploadFileMutationVars = {
     url: string, 
     file: File, 
     fileId: string,
-    fields: unknown
+    fields: unknown,
+    finishedCallback: () => void
 }
 
 export const uploadFileMutation = (client: QueryClient) => {
@@ -18,7 +20,14 @@ export const uploadFileMutation = (client: QueryClient) => {
             file: vars.file,
             fields: vars.fields
         }),
-        onSettled: (data, err, variables, context) => client.invalidateQueries({ queryKey: [getFileKey(variables.fileId)] }),
-        mutationKey: [uploadFileKey]
+        onSettled: (data, err, variables, context) => {
+            //console.log('test');
+            client.invalidateQueries({ queryKey: [getFileKey(variables.fileId)] });
+        },
+        mutationKey: [uploadFileKey],
+        onSuccess: (data, variables, context) => {
+            //console.log('testing 123');
+            variables.finishedCallback();
+        }
     })
 }

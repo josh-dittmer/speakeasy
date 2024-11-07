@@ -1,4 +1,4 @@
-import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, EditChannelRequestT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
@@ -104,8 +104,24 @@ export async function createChannel(createChannelRequest: CreateChannelRequestT)
     return await requestAndDecode(`/createChannel`, postReq(createChannelRequest), CreateChannelResponse);
 }
 
+export async function createServer(createServerRequest: CreateServerRequestT): Promise<CreateServerResponseT> {
+    return await requestAndDecode('/createServer', postReq(createServerRequest), CreateServerResponse);
+}
+
+export async function editProfile(editProfileRequest: EditProfileRequestT): Promise<EditProfileResponseT> {
+    return await requestAndDecode('/editUserProfile', postReq(editProfileRequest), EditProfileResponse);
+}
+
 export async function editChannel(channelId: string, editChannelRequest: EditChannelRequestT) {
     return await requestAndDecode(`/editChannel/${channelId}`, postReq(editChannelRequest), t.type({}));
+}
+
+export async function editServer(serverId: string, editServerRequest: EditServerRequestT): Promise<EditServerResponseT> {
+    return await requestAndDecode(`/editServer/${serverId}`, postReq(editServerRequest), EditServerResponse);
+}
+
+export async function leaveServer(serverId: string) {
+    return await requestAndDecode(`/leaveServer/${serverId}`, getReq([]), t.type({}));
 }
 
 export async function deleteMessage(messageId: string) {
@@ -122,7 +138,7 @@ export type UploadFileData = {
     fields: unknown
 }
 
-export async function uploadFile(data: UploadFileData): Promise<Response> {
+export async function uploadFile(data: UploadFileData) {
     const form = new FormData();
 
     // for aws s3
@@ -133,5 +149,7 @@ export async function uploadFile(data: UploadFileData): Promise<Response> {
 
     form.append('file', data.file);
 
-    return await request(data.uploadUrl, postReqMultipart(form));
+    await request(data.uploadUrl, postReqMultipart(form));
+
+    return true;
 }

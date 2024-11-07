@@ -1,9 +1,13 @@
 import * as t from 'io-ts';
 
-export const allowedMimes = [
+export const allowedImageMimes = [
     'image/png',
     'image/jpeg',
     'image/gif'
+];
+
+export const allowedMimes = [
+    ...allowedImageMimes
 ];
 
 export const maxFileSize = 1000 * 1000 * 10;/*mb*/
@@ -16,7 +20,14 @@ export const S3Keys = {
     serverImgs: 'serverImgs'
 }
 
+export const maxMessageLength = 2047;
+
 export const maxChannelNameLength = 255;
+
+export const maxServerNameLength = 255;
+
+export const maxUserNameLength = 255;
+export const maxUserBioLength = 511;
 
 export const Server = t.type({
     serverId: t.string,
@@ -54,8 +65,9 @@ export type UserArrayT = t.TypeOf<typeof UserArray>;
 
 export const File = t.type({
     fileId: t.string,
-    messageId: t.string,
-    serverId: t.string,
+    messageId: t.union([ t.string, t.null]),
+    serverId: t.union([ t.string, t.null]),
+    userId: t.union([ t.string, t.null]),
     name: t.string,
     mimeType: t.string
 });
@@ -96,28 +108,32 @@ export const ChannelData = t.type({
 
 export type ChannelDataT = t.TypeOf<typeof ChannelData>;
 
+export const UploadRequest = t.type({
+    name: t.string,
+    mimeType: t.string
+})
+
+export type UploadRequestT = t.TypeOf<typeof UploadRequest>;
+
 export const CreateMessageRequest = t.type({
     channelId: t.string,
     content: t.string,
-    files: t.array(t.type({
-        name: t.string,
-        mimeType: t.string
-    }))
+    files: t.array(UploadRequest)
 });
 
 export type CreateMessageRequestT = t.TypeOf<typeof CreateMessageRequest>;
 
-export const CreateMessageResponseUpload = t.type({
+export const UploadResponse = t.type({
     fileId: t.string,
     url: t.string,
     name: t.string,
     fields: t.unknown
 });
 
-export type CreateMessageResponseUploadT = t.TypeOf<typeof CreateMessageResponseUpload>;
+export type UploadResponseT = t.TypeOf<typeof UploadResponse>;
 
 export const CreateMessageResponse = t.partial({
-    uploads: t.array(CreateMessageResponseUpload)
+    uploads: t.array(UploadResponse)
 });
 
 export type CreateMessageResponseT = t.TypeOf<typeof CreateMessageResponse>;
@@ -142,15 +158,42 @@ export const EditChannelRequest = t.type({
 
 export type EditChannelRequestT = t.TypeOf<typeof EditChannelRequest>;
 
-/*export function createMessageRequestToFormData(data: CreateMessageRequestT): FormData {
-    const formData = new FormData();
+export const EditServerRequest = t.type({
+    name: t.string,
+    image: t.union([ UploadRequest, t.null ])
+});
 
-    formData.append('channelId', data.channelId);
-    formData.append('content', data.content);
+export type EditServerRequestT = t.TypeOf<typeof EditServerRequest>;
 
-    for (let i = 0; i < data.files.length; i++) {
-        formData.append('files', data.files[i]);
-    }
+export const EditServerResponse = t.partial({
+    upload: UploadResponse
+});
 
-    return formData;
-}*/
+export type EditServerResponseT = t.TypeOf<typeof EditServerResponse>;
+
+export const CreateServerRequest = t.type({
+    name: t.string,
+    image: t.union([ UploadRequest, t.null ])
+});
+
+export type CreateServerRequestT = t.TypeOf<typeof CreateServerRequest>;
+
+export const CreateServerResponse = t.partial({
+    upload: UploadResponse
+});
+
+export type CreateServerResponseT = t.TypeOf<typeof CreateServerResponse>;
+
+export const EditProfileRequest = t.type({
+    name: t.string,
+    bio: t.string,
+    image: t.union([ UploadRequest, t.null ])
+});
+
+export type EditProfileRequestT = t.TypeOf<typeof EditProfileRequest>;
+
+export const EditProfileResponse = t.partial({
+    upload: UploadResponse
+});
+
+export type EditProfileResponseT = t.TypeOf<typeof EditProfileResponse>;

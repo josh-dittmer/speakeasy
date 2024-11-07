@@ -5,6 +5,7 @@ import './popup.css'
 export default function Popup({ children, open }: { children: React.ReactNode, open: boolean }) {
     const [appear, setAppear] = useState<boolean>(false);
 
+    // prevents animation from playing on page load
     useEffect(() => {
         if (open) {
             setAppear(true);

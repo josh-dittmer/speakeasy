@@ -11,6 +11,7 @@ const config: Config = {
     	extend: {
     		colors: {
     			'bg-dark': 'var(--bg-dark)',
+				'bg-medium-dark': 'var(--bg-medium-dark)',
     			'bg-medium': 'var(--bg-medium)',
     			'bg-light': 'var(--bg-light)',
     			'bg-accent': 'var(--bg-accent)',

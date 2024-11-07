@@ -4,7 +4,7 @@ import { createMessage } from '@/lib/api/requests';
 import { createMessageMutation } from '@/lib/mutations/create_message';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, X } from 'lucide-react';
-import { allowedMimes, ChannelT, CreateMessageRequestT, maxFileSize, maxNumFiles } from 'models';
+import { allowedMimes, ChannelT, CreateMessageRequestT, maxFileSize, maxMessageLength, maxNumFiles } from 'models';
 import Image from 'next/image';
 import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useState } from 'react';
 
@@ -34,6 +34,11 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
     };
 
     const sendMessage = () => {
+        if (messageContent.length > maxMessageLength) {
+            // max length exceeded
+            return;
+        }
+
         mutate({
             content: messageContent,
             files: files

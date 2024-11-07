@@ -31,6 +31,7 @@ export async function getFile(req: Request, res: Response) {
         fileId: filesTable.fileId,
         messageId: filesTable.messageId,
         serverId: filesTable.serverId,
+        userId: filesTable.userId,
         name: filesTable.name,
         mimeType: filesTable.mimeType
     })
@@ -43,9 +44,11 @@ export async function getFile(req: Request, res: Response) {
 
     const file = results[0];
 
-    const verified = await verifyServer(res.locals.userId, file.serverId);
-    if (!verified) {
-        return forbidden(res);
+    if (file.serverId) {
+        const verified = await verifyServer(res.locals.userId, file.serverId);
+        if (!verified) {
+            return forbidden(res);
+        }
     }
 
     const exists = await fileExists(`${key}/${file.fileId}`);

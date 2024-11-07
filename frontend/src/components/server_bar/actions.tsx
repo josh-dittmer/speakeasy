@@ -1,7 +1,8 @@
 'use server'
 
-import { getServerData } from '@/lib/api/requests';
+import { getServerData, Tags } from '@/lib/api/requests';
 import { ServerDataT } from 'models';
+import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
  
@@ -10,5 +11,9 @@ export async function visitServer(serverId: string) {
     // TODO: load last channel from local storage
     const lastChannel = serverData.channels[0];
 
-    redirect(`/home/${serverId}/${lastChannel.channelId}`);
+    redirect((lastChannel) ? `/home/${serverId}/${lastChannel.channelId}` : `/home/${serverId}/empty`);
+}
+
+export async function invalidateServers() {
+    revalidateTag(Tags.servers);
 }

@@ -1,5 +1,5 @@
 import { Pencil, Trash } from 'lucide-react';
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, Fragment, SetStateAction, useState } from 'react'
 
 import './menu.css'
 
@@ -10,24 +10,45 @@ type MenuState = {
 
 /*
 Example:
-<Menu menuState={{ open: menuOpen, setOpen: setMenuOpen }}>
-    <MenuItem>
-        <Pencil width={15} height={15} />
-        <p>Edit</p>
-    </MenuItem>
-    <MenuItem>
-        <Trash width={15} height={15} className="text-red-800" />
-        <p className="text-red-800">Delete</p>
-    </MenuItem>
-</Menu>
+
 
 */
 
-export function MenuItem({ children }: { children: React.ReactNode }) {
+export function MenuSeparator() {
     return (
-        <div className="flex gap-2 items-center text-fg-medium p-1 hover:bg-bg-medium rounded">
-            {children}
-        </div>
+        <div className="h-[0.5px] bg-fg-light mt-2 mb-2"></div>
+    )
+}
+
+export function MenuItem({ children, onClick }: { children: React.ReactNode, onClick: () => void }) {
+    return (
+        <>
+            <div onClick={() => onClick()} className="flex gap-2 items-center text-fg-dark p-1 hover:bg-bg-medium rounded mt-2 mb-2">
+                {children}
+            </div>
+        </>
+    )
+}
+
+export function MenuUp({ children, menuState }: { children: React.ReactNode[], menuState: MenuState }) {
+    return (
+        <>
+            {menuState.open && (
+                <div className="relative">
+                    <div className="absolute menu-up w-full">
+                        <div className="m-3 bg-bg-light p-2 rounded shadow">
+                            {children.map((item, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        {item}
+                                    </Fragment>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     )
 }
 
@@ -36,17 +57,16 @@ export default function Menu({ children, menuState }: { children: React.ReactNod
         <>
             {menuState.open && (
                 <div className="relative">
-                    <div className="absolute right-0 bg-bg-light p-2 rounded shadow w-fit">
-                        {children.map((item, index) => {
-                            return (
-                                <>
-                                    {item}
-                                    {index !== children.length - 1 && (
-                                        <div className="h-[0.5px] bg-fg-light mt-1 mb-1"></div>
-                                    )}
-                                </>
-                            )
-                        })}
+                    <div className="absolute menu w-full">
+                        <div className="m-3 bg-bg-light p-2 rounded shadow">
+                            {children.map((item, index) => {
+                                return (
+                                    <Fragment key={index}>
+                                        {item}
+                                    </Fragment>
+                                )
+                            })}
+                        </div>
                     </div>
                 </div>
             )}

@@ -14,7 +14,7 @@ export default async function HomePage() {
     const lastChannel = serverData.channels[0];
 
     if (lastServer) {
-        redirect(`/home/${lastServer.serverId}/${lastChannel.channelId}`);
+        redirect((lastChannel) ? `/home/${lastServer.serverId}/${lastChannel.channelId}` : `/home/${lastServer.serverId}/empty`);
     }
 
     return <></>

@@ -1,7 +1,8 @@
-import { useMutation } from '@tanstack/react-query';
-import { createChannel } from '../api/requests';
+import { QueryClient, useMutation } from '@tanstack/react-query';
+import { createChannel, getChannelData } from '../api/requests';
 import { CreateChannelRequestT } from 'models';
 import { useRouter } from 'next/navigation';
+import { getChannelDataKey } from '../queries/get_channel_data';
 
 export const createChannelKey = (serverId: string): string => `createChannel_${serverId}`;
 

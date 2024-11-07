@@ -1,0 +1,33 @@
+@keyframes menu-open-animation {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0px);
+    }
+}
+
+.menu {
+    animation: menu-open-animation 0.2s;
+	animation-fill-mode: forwards;
+}
+
+@keyframes menu-up-open-animation {
+    0% {
+        opacity: 0;
+        transform: translateY(-85%);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(-100%);
+    }
+}
+
+.menu-up {
+    animation: menu-up-open-animation 0.2s;
+	animation-fill-mode: forwards;
+}

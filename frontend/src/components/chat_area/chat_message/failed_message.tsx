@@ -20,7 +20,7 @@ export default function FailedMessage({ messageReq }: { messageReq: CreateMessag
                     width={45} 
                     height={45} 
                     alt="Profile picture" 
-                    className="object-cover rounded-full"
+                    className="object-cover rounded-full w-[45px] h-[45px]"
                 />
             </div>
             <div className="ml-3">

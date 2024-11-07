@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { badRequest, forbidden, notFound } from '../common/response';
-import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, CreateMessageResponseUploadT, S3Keys } from 'models';
+import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, UploadResponseT, S3Keys, maxMessageLength } from 'models';
 import { isLeft } from 'fp-ts/Either'
 import { channelsTable, filesTable, messagesTable } from '../db/schema';
 import { db } from '../db/db';
@@ -35,6 +35,10 @@ export async function createMessage(req: Request, res: Response) {
 
     const data: CreateMessageRequestT = decoded.right;
     const hasFiles: boolean = data.files.length > 0;
+
+    if (data.content.length > maxMessageLength) {
+        return badRequest(res);
+    }
 
     let allowed: boolean = true;
     data.files.forEach((file) => {
@@ -86,7 +90,7 @@ export async function createMessage(req: Request, res: Response) {
 
     type FileSchema = typeof filesTable.$inferInsert;
     const files: Array<FileSchema> = [];
-    const uploads: Array<CreateMessageResponseUploadT> = [];
+    const uploads: Array<UploadResponseT> = [];
 
     for (let i = 0; i < data.files.length; i++) {
         const fileId = crypto.randomUUID();

@@ -11,6 +11,7 @@ import { deleteMessage } from '@/lib/api/requests';
 import { useQueryClient } from '@tanstack/react-query';
 import { getChannelDataKey } from '@/lib/queries/get_channel_data';
 import MessageFile from './message_file';
+import ProfileImage from '@/components/profile_image/profile_image';
 
 export default function SentMessage({ message, user }: { message: MessageT, user: UserT | undefined }) {    
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
@@ -36,13 +37,9 @@ export default function SentMessage({ message, user }: { message: MessageT, user
         <div className="relative">
         <div className={'message flex pl-4 pb-1 pt-1 mb-1 mt-1 truncate hover:bg-bg-medium ' + (menuOpen ? 'message-highlight' : '')}>
             <div className="shrink-0">
-                <Image 
-                    src={'/img/profile_pic.jpg'} 
-                    width={45} 
-                    height={45} 
-                    alt="Profile picture" 
-                    className="object-cover rounded-full"
-                />
+                {user && (
+                    <ProfileImage name={user.name} imageId={user?.imageId} size="12" />
+                )}
             </div>
             <div className="ml-3">
                 <div className="flex items-center">
@@ -64,12 +61,12 @@ export default function SentMessage({ message, user }: { message: MessageT, user
                         <div className="flex items-center menu-items">
                             <button onClick={handleEditMessage}>
                             <div className="message-menu mr-2 shadow p-1 rounded bg-bg-light hover:bg-bg-dark">
-                                <Pencil width={20} height={20} className="text-yellow-600" />
+                                <Pencil width={20} height={20} className="text-yellow-400" />
                             </div>
                             </button>
                             <button onClick={handleDeleteMessage}>
                             <div className="message-menu mr-2 shadow p-1 rounded bg-bg-light hover:bg-bg-dark">
-                                <Trash width={20} height={20} className="text-red-800" />
+                                <Trash width={20} height={20} className="text-red-600" />
                             </div>
                             </button>
                         </div>

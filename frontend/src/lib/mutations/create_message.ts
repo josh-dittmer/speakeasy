@@ -40,7 +40,8 @@ export const createMessageMutation = (client: QueryClient, channelId: string) =>
                     url: upload.url,
                     file: file,
                     fileId: upload.fileId,
-                    fields: upload.fields
+                    fields: upload.fields,
+                    finishedCallback: () => {}
                 });
             });
         },

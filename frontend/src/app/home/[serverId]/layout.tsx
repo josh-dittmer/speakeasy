@@ -8,7 +8,7 @@ export default async function ServerLayout({ params, children }: Readonly<{ para
     
     return (
         <>
-            <ChannelBar channels={serverData.channels} serverName={serverData.server.name} />
+            <ChannelBar channels={serverData.channels} server={serverData.server} />
             {children}
             <UserBar users={serverData.users} />
         </>

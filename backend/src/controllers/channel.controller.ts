@@ -61,6 +61,7 @@ export async function getChannelData(req: Request, res: Response) {
                 fileId: filesTable.fileId,
                 messageId: filesTable.messageId,
                 serverId: filesTable.serverId,
+                userId: filesTable.userId,
                 name: filesTable.name,
                 mimeType: filesTable.mimeType
             })
@@ -166,6 +167,10 @@ export async function createChannel(req: Request, res: Response) {
     }
 
     const data: CreateChannelRequestT = decoded.right;
+
+    if (data.name.length > maxChannelNameLength) {
+        return badRequest(res);
+    }
 
     const verified = await verifyServer(res.locals.userId, data.serverId);
     if (!verified) {

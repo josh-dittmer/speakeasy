@@ -38,17 +38,17 @@ async function seed() {
             {
                 name: 'Test Server 1',
                 serverId: server1Id,
-                imageId: crypto.randomUUID()
+                imageId: null
             },
             {
                 name: 'Test Server 2',
                 serverId: server2Id,
-                imageId: crypto.randomUUID()
+                imageId: null
             },
             {
                 name: 'Test Server 3',
                 serverId: server3Id,
-                imageId: crypto.randomUUID()
+                imageId: null
             }
         ];
 
@@ -57,18 +57,18 @@ async function seed() {
                 name: 'Test User 1',
                 bio: 'I am test user #1',
                 userId: user1Id,
-                imageId: crypto.randomUUID(),
+                imageId: null,
             },
             {
                 name: 'Test User 2',
                 bio: 'I am test user #2',
                 userId: user2Id,
-                imageId: crypto.randomUUID(),
+                imageId: null,
             },
             {
                 name: 'Test User 3',
                 userId: user3Id,
-                imageId: crypto.randomUUID(),
+                imageId: null,
             }
         ];
 
@@ -128,21 +128,21 @@ async function seed() {
                 userId: user1Id,
                 channelId: s1channel1Id,
                 serverId: server1Id,
-                content: 'Poop!'
+                content: 'Test message #1 hello world'
             },
             {
                 messageId: s1c1message2Id,
                 userId: user2Id,
                 channelId: s1channel1Id,
                 serverId: server1Id,
-                content: 'Poo'
+                content: 'Testing #2'
             },
             {
                 messageId: s1c1message3Id,
                 userId: user3Id,
                 channelId: s1channel1Id,
                 serverId: server1Id,
-                content: 'Poop!!'
+                content: 'Number three test'
             },
             {
                 messageId: s1c2message1Id,
