@@ -4,7 +4,7 @@ import { ChangeEvent, createRef, Dispatch, SetStateAction, useState } from "reac
 import { allowedImageMimes, maxFileSize, maxUserBioLength, maxUserNameLength, S3Keys, ServerT, UserT } from "models";
 import { useQueryClient } from "@tanstack/react-query";
 import { editProfileMutation } from "@/lib/mutations/edit_profile";
-import { invalidateServerData, invalidateUser } from "../actions";
+import { invalidateServers, invalidateUser } from "../actions";
 import Image from "next/image";
 import { getFileQuery } from "@/lib/queries/get_file";
 import { usePathname } from "next/navigation";
@@ -68,7 +68,7 @@ function UserImage({ imageId, newImageFile }: { imageId: string | null, newImage
 
 
 export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open: boolean, setOpen: Dispatch<SetStateAction<boolean>> }) {
-    const selectedServerId = usePathname().split('/')[2];
+    //const selectedServerId = usePathname().split('/')[2];
     
     const [userName, setUserName] = useState<string>(user.name);
     const [userBio, setUserBio] = useState<string>(user.bio || '');
@@ -88,7 +88,7 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
         if (userName.length < maxUserNameLength && userName.length > 0
             && userBio.length < maxUserBioLength && userBio.length > 0
         ) {
-            invalidateServerData(selectedServerId);
+            invalidateServers();
             invalidateUser();
             mutate({
                 name: userName,

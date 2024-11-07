@@ -13,10 +13,16 @@ import { getChannelDataKey } from '@/lib/queries/get_channel_data';
 import MessageFile from './message_file';
 import ProfileImage from '@/components/profile_image/profile_image';
 
-export default function SentMessage({ message, user }: { message: MessageT, user: UserT | undefined }) {    
+export enum MessageType {
+    FULL, MINIMAL
+};
+
+export default function SentMessage({ message, user, type }: { message: MessageT, user: UserT | undefined, type: MessageType }) {    
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
     const queryClient = useQueryClient();
+
+    const isFull: boolean = type === MessageType.FULL;
 
     const handleMenuChange = () => {
         setMenuOpen((old) => !old);
@@ -35,17 +41,19 @@ export default function SentMessage({ message, user }: { message: MessageT, user
     
     return (
         <div className="relative">
-        <div className={'message flex pl-4 pb-1 pt-1 mb-1 mt-1 truncate hover:bg-bg-medium ' + (menuOpen ? 'message-highlight' : '')}>
+        <div className={'message flex pl-4 truncate hover:bg-bg-medium pt-0.5 pb-0.5' + (menuOpen ? 'message-highlight ' : ' ')}>
             <div className="shrink-0">
-                {user && (
+                {isFull && user && (
                     <ProfileImage name={user.name} imageId={user?.imageId} size="12" />
                 )}
             </div>
-            <div className="ml-3">
-                <div className="flex items-center">
-                    <p className="text-sm text-fg-dark font-bold">{user?.name}</p>
-                    <p className="ml-3 text-xs text-fg-light">{message.date}</p>
-                </div>
+            <div className={isFull ? 'ml-4' : 'ml-16'}>
+                {isFull && (
+                    <div className="flex items-center">
+                        <p className="text-sm text-fg-dark font-bold">{user?.name}</p>
+                        <p className="ml-3 text-xs text-fg-light">{message.date}</p>
+                    </div>
+                )}
                 <div className="">
                     {message.files.map((file) => {
                         return <MessageFile key={file.fileId} file={file} />

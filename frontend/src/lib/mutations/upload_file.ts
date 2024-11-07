@@ -21,13 +21,13 @@ export const uploadFileMutation = (client: QueryClient) => {
             fields: vars.fields
         }),
         onSettled: (data, err, variables, context) => {
-            //console.log('test');
+            console.log('test');
+            variables.finishedCallback();
             client.invalidateQueries({ queryKey: [getFileKey(variables.fileId)] });
         },
         mutationKey: [uploadFileKey],
         onSuccess: (data, variables, context) => {
-            //console.log('testing 123');
-            variables.finishedCallback();
+            console.log('testing 123');
         }
     })
 }

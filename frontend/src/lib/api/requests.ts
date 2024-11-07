@@ -82,7 +82,7 @@ export async function getServerList(): Promise<ServerArrayT> {
 }
 
 export async function getServerData(serverId: string): Promise<ServerDataT> {
-    const usedTags = [serverId];
+    const usedTags = [Tags.servers, serverId];
     return await requestAndDecode(`/getServerData/${serverId}`, getReq(usedTags), ServerData);
 }
 

@@ -5,7 +5,7 @@ import Image from 'next/image';
 export default function ProfileImage({ name, imageId, size }: { name: string, imageId: string | null, size: string }) {    
     if (!imageId) {
         return (
-            <div className={`w-${size} h-${size} bg-bg-light rounded-full flex items-center justify-center`}>
+            <div className={`w-12 h-12 bg-bg-light rounded-full flex items-center justify-center`}>
                 <p className="text-fg-dark">{name[0]}</p>
             </div>
         )
@@ -27,7 +27,7 @@ export default function ProfileImage({ name, imageId, size }: { name: string, im
                     width={0}
                     height={0}
                     sizes="100vw"
-                    className={`w-${size} h-${size} rounded-full`}
+                    className={`w-12 h-12 rounded-full`}
                     alt="User image loading"
                 />
             )}
@@ -37,7 +37,7 @@ export default function ProfileImage({ name, imageId, size }: { name: string, im
                     width={0}
                     height={0}
                     sizes="100vw"
-                    className={`w-${size} h-${size} rounded-full`}
+                    className={`w-12 h-12 rounded-full`}
                     alt="User image"
                 />
             )}

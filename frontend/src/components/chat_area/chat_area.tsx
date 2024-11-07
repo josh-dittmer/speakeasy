@@ -11,7 +11,7 @@ import { failedMessageState, pendingMessageState } from '@/lib/mutations/create_
 import { getChannelDataQuery } from '@/lib/queries/get_channel_data';
 
 import './chat_area.css';
-import SentMessage from './chat_message/sent_message';
+import SentMessage, { MessageType } from './chat_message/sent_message';
 import PendingMessage from './chat_message/pending_message';
 import FailedMessage from './chat_message/failed_message';
 
@@ -28,6 +28,9 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
     const pendingMessages = pendingMessageState(channelId);
     const failedMessages = failedMessageState(channelId);
 
+    const chatAreaRef = createRef<HTMLDivElement>();
+    const prevScrollHeightRef = useRef<number>(0);
+
     const { fetchNextPage, data, isLoading, isError, isPending } = getChannelDataQuery(channelId);
 
     const onMessagesScrolled = () => {
@@ -41,8 +44,16 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
         }
     };
 
-    const chatAreaRef = createRef<HTMLDivElement>();
-    const prevScrollHeightRef = useRef<number>(0);
+    const getMessageType = (curr: MessageT, prev: MessageT | undefined): MessageType => {
+        if (!prev) return MessageType.FULL;
+
+        if (curr.userId === prev.userId && curr.date === prev.date) {
+            return MessageType.MINIMAL;
+        }
+
+        return MessageType.FULL;
+    };
+
 
     // scroll to appropriate position when new messages are loaded
     // please do not ask me wtf is going on here i tried different combos until it worked
@@ -83,10 +94,21 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
             </div>
             <div className="grow flex flex-col-reverse w-full overflow-y-scroll overflow-x-hidden" ref={chatAreaRef} onScroll={() => onMessagesScrolled()}>
                 <div className="mt-2">
-                    {data?.pages.map((page, index) => (
-                        <Fragment key={index}>
-                            {page.messages.map((message) => {
-                                return <SentMessage key={message.messageId} message={message} user={userMap.get(message.userId)} />
+                    {data?.pages.map((page, pIndex) => (
+                        <Fragment key={pIndex}>
+                            {page.messages.map((message, mIndex) => {
+                                let type: MessageType = MessageType.MINIMAL;
+                                if (mIndex <= 0) {
+                                    if (pIndex <= 0) {
+                                        type = MessageType.FULL;
+                                    } else {
+                                        const prevPage = data.pages.at(pIndex - 1);
+                                        type = getMessageType(message, prevPage?.messages.at(prevPage.messages.length - 1));
+                                    }
+                                } else {
+                                    type = getMessageType(message, page.messages.at(mIndex - 1));
+                                }
+                                return <SentMessage key={message.messageId} message={message} user={userMap.get(message.userId)} type={type} />
                             })}
                         </Fragment>
                     ))}

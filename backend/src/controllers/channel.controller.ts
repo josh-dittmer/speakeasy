@@ -9,7 +9,7 @@ import { formatDate } from '../util/date';
 import { verifyServer } from '../util/verify';
 
 export async function getChannelData(req: Request, res: Response) {
-    const MESSAGES_PER_PAGE: number = 10;
+    const MESSAGES_PER_PAGE: number = 50;
 
     if (!req.params.channelId || !req.query.page) {
         return badRequest(res);
