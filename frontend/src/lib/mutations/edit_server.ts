@@ -1,7 +1,9 @@
 import { QueryClient, useMutation } from "@tanstack/react-query";
 import { uploadFileMutation } from "./upload_file";
-import { editServer } from "../api/requests";
+import { editServer, Tags } from "../api/requests";
 import { useRouter } from "next/navigation";
+import { getServerDataKey } from "../queries/get_server_data";
+import { getServerListKey } from "../queries/get_server_list";
 
 export const editServerKey = (serverId: string): string => `editServer_${serverId}`;
 
@@ -24,6 +26,8 @@ export const editServerMutation = (client: QueryClient, serverId: string) => {
         }),
         mutationKey: [editServerKey(serverId)],
         onSuccess: (data, variables, context) => {
+            client.invalidateQueries({ queryKey: [getServerListKey()] });
+            client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(serverId)] });
             if (data.upload && variables.imageFile) {
                 mutate({
                     url: data.upload.url,
@@ -31,7 +35,7 @@ export const editServerMutation = (client: QueryClient, serverId: string) => {
                     fileId: data.upload.fileId,
                     fields: data.upload.fields,
                     finishedCallback: () => {
-                        router.refresh();
+                        //router.refresh();
                     }
                 });
             }

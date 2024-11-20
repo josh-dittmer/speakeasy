@@ -1,6 +1,6 @@
 import { QueryClient, useMutation, useMutationState } from '@tanstack/react-query';
 import { CreateMessageRequestT } from 'models';
-import { createMessage } from '../api/requests';
+import { createMessage, Tags } from '../api/requests';
 import { getChannelDataKey } from '../queries/get_channel_data';
 import { uploadFileMutation } from './upload_file';
 
@@ -23,7 +23,7 @@ export const createMessageMutation = (client: QueryClient, channelId: string) =>
                 mimeType: file.type
             }))
         }),
-        onSettled: () => client.invalidateQueries({ queryKey: [getChannelDataKey(channelId)] }),
+        onSettled: () => client.invalidateQueries({ queryKey: [Tags.channelData, getChannelDataKey(channelId)] }),
         mutationKey: [createMessageKey(channelId)],
         onSuccess: (data, variables, context) => {
             const filesMap = new Map<string, File>();

@@ -4,17 +4,51 @@ import { createMessage } from '@/lib/api/requests';
 import { createMessageMutation } from '@/lib/mutations/create_message';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, X } from 'lucide-react';
-import { allowedMimes, ChannelT, CreateMessageRequestT, maxFileSize, maxMessageLength, maxNumFiles } from 'models';
+import { allowedImageMimes, allowedMimes, ChannelT, CreateMessageRequestT, FileArrayT, FileT, maxFileSize, maxMessageLength, maxNumFiles } from 'models';
 import Image from 'next/image';
-import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useState } from 'react';
+import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useMemo, useState } from 'react';
 
 import './chat_box.css'
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from '@radix-ui/react-alert-dialog';
+
+function FilePreview({ file, removeFile }: { file: File, removeFile: (file: File) => void }) {
+    const isImg = allowedImageMimes.includes(file.type);
+
+    const imgUrl = useMemo(() => (isImg) ? URL.createObjectURL(file) : undefined, [file]);
+    
+    if (isImg && imgUrl) {
+        return (
+            <div className="relative m-3">
+                <div className="absolute top-[-10px] left-[-10px]">
+                    <button 
+                        className="p-1 bg-red-600 hover:bg-red-800 rounded-full text-white shadow"
+                        onClick={() => removeFile(file)}
+                    >
+                        <X width={15} height={15} />
+                    </button>
+                </div>
+                <Image
+                    src={imgUrl}
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    className="w-full max-h-32 rounded"
+                    alt="Message image"
+                />
+            </div>
+        )
+    }
+
+    return (
+        <div className="">
+
+        </div>
+    )
+}
 
 export default function ChatBox({ channel }: { channel: ChannelT }) {
     const [messageContent, setMessageContent] = useState<string>('');
     const [files, setFiles] = useState<Array<File>>([]);
-    
+
     const textBoxRef = createRef<HTMLTextAreaElement>();
     const textAreaRef = createRef<HTMLDivElement>();
     const fileUploadRef = createRef<HTMLInputElement>();
@@ -78,7 +112,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
 
     const clearFile = () => {
         if (fileUploadRef.current) {
-            //fileUploadRef.current.value = '';
+            fileUploadRef.current.value = '';
         }
     }
 
@@ -111,16 +145,16 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
             }
         }
 
-        setFiles((old) => {
-            const newFiles = [...old];
-            if (e.target.files) {
-                for (let i = 0; i < e.target.files.length; i++) {
-                    newFiles.push(e.target.files[i]);
-                }
+        const newFiles: File[] = [...files];
+        if (e.target.files) {
+            for (let i = 0; i < e.target.files.length; i++) {
+                console.log(e.target.files[i]);
+                newFiles.push(e.target.files[i]);
             }
-            clearFile();
-            return newFiles;
-        })
+        }
+        clearFile();
+
+        setFiles(newFiles);
     };
 
     const removeFile = (file: File) => {
@@ -139,37 +173,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
             {files.length > 0 && (
                 <div className="flex justify-center items-center bg-bg-medium p-7 rounded-t-lg w-full">
                     {files.map((file, index) => {
-                        switch(file.type) {
-                            case 'image/png':
-                            case 'image/jpeg':
-                            case 'image/gif':
-                                return (
-                                    <div key={index} className="relative m-3">
-                                        <div className="absolute top-[-10px] left-[-10px]">
-                                            <button 
-                                                className="p-1 bg-red-600 hover:bg-red-800 rounded-full text-white shadow"
-                                                onClick={() => removeFile(file)}
-                                            >
-                                                <X width={15} height={15} />
-                                            </button>
-                                        </div>
-                                        <Image
-                                            src={URL.createObjectURL(file)}
-                                            width={0}
-                                            height={0}
-                                            sizes="100vw"
-                                            className="w-full max-h-32 rounded"
-                                            alt="Message image"
-                                        />
-                                    </div>
-                                )
-                            default:
-                                return (
-                                    <div className="">
-
-                                    </div>
-                                )
-                        }
+                        return <FilePreview key={index} file={file} removeFile={removeFile} />
                     })}
                 </div>
             )}
@@ -185,14 +189,14 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                 />
                 <input 
                     type="file"
-                    id="file"
+                    id="file-chat"
                     ref={fileUploadRef}
                     onChange={onAddFile}
                     className="hidden"
                     multiple
                 />
                 <label 
-                    htmlFor="file"
+                    htmlFor="file-chat"
                     className=""
                 >
                     <div className="ml-2 bg-bg-light hover:bg-bg-dark p-2 rounded-full shadow">

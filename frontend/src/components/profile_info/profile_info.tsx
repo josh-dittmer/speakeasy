@@ -34,7 +34,7 @@ export default function ProfileInfo() {
             <ProfileMenu user={data} open={menuOpen} setOpen={setMenuOpen} />
             <div onClick={() => setMenuOpen((old) => !old)} className="flex items-center h-16 bg-bg-medium-dark hover:bg-bg-dark">
                 <div className="p-2">
-                    <ProfileImage name={data.name} imageId={data.imageId} size="10" />
+                    <ProfileImage name={data.name} imageId={data.imageId} className="bg-bg-light" />
                 </div>
                 <div className="">
                     <p className="text-sm text-fg-dark max-w-24 truncate">{data.name}</p>

@@ -1,21 +1,36 @@
+'use client';
+
 import { getServerData, getServerList } from '@/lib/api/requests';
 import { ServerArrayT, ServerDataT } from 'models';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
+import { getServerListQuery } from '@/lib/queries/get_server_list';
+import { getServerDataQuery, getServerDataQueryDependent } from '@/lib/queries/get_server_data';
+import { useQuery } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
 
-export default async function HomePage() {
-    const servers: ServerArrayT = await getServerList();
+export default function HomePage() {
+    const router = useRouter();
 
-    // TODO: Load last visited server from local storage
-    const lastServer = servers[0];
+    const { data: profileCompleteRes, isSuccess: profileCompleteLoadFinished } = isMyProfileCompleteQuery(); 
 
-    const serverData: ServerDataT = await getServerData(lastServer.serverId);
+    const { data: servers } = getServerListQuery();
+    const lastServer = servers?.at(0);
 
-    // TODO: Load last visited channel from local storage
-    const lastChannel = serverData.channels[0];
+    const { data: serverData, isSuccess: serverLoadFinished } = getServerDataQueryDependent(lastServer?.serverId);
+    const lastChannel = serverData?.channels[0];
 
-    if (lastServer) {
-        redirect((lastChannel) ? `/home/${lastServer.serverId}/${lastChannel.channelId}` : `/home/${lastServer.serverId}/empty`);
-    }
+    useEffect(() => {
+        if (profileCompleteLoadFinished && !profileCompleteRes?.complete) {
+            router.push(`/signup`);
+        }
+    }, [profileCompleteLoadFinished]);
+
+    useEffect(() => {
+        if (lastServer && serverLoadFinished) {
+            router.push((lastChannel) ? `/home/${lastServer.serverId}/${lastChannel.channelId}` : `/home/${lastServer.serverId}/empty`);
+        }
+    }, [serverLoadFinished]);
 
     return <></>
 }

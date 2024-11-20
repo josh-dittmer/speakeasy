@@ -1,24 +1,25 @@
-import { deleteChannel } from '@/lib/api/requests';
+import { deleteChannel, Tags } from '@/lib/api/requests';
 import { editChannelMutation } from '@/lib/mutations/edit_channel';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { invalidateServerData } from '../actions';
 import { ChannelArrayT, ChannelT, maxChannelNameLength, ServerT } from 'models';
 import Popup from '@/components/ui/popup/popup';
 import { Settings, Trash } from 'lucide-react';
+import { getChannelDataKey } from '@/lib/queries/get_channel_data';
+import { getServerDataKey } from '@/lib/queries/get_server_data';
 
 export default function EditChannel({ channel, server, selectedChannelId, channels, menuOpen, setMenuOpen } : { channel: ChannelT, server: ServerT, selectedChannelId: string, channels: ChannelArrayT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [channelName, setChannelName] = useState<string>(channel.name);
     
     const client = useQueryClient();
-    const { mutate } = editChannelMutation(client, channel.channelId);
+    const { mutate } = editChannelMutation(client, server.serverId, channel.channelId);
 
     const router = useRouter();
 
     const handleDeleteChannel = async () => {
         await deleteChannel(channel.channelId);
-        invalidateServerData(server.serverId);
+        client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(server.serverId)] });
 
         if (selectedChannelId === channel.channelId) {
             const next = channels.find((channel) => channel.channelId !== selectedChannelId);
@@ -35,7 +36,6 @@ export default function EditChannel({ channel, server, selectedChannelId, channe
         }
 
         if (channelName.length < maxChannelNameLength && channelName.length > 0) {
-            invalidateServerData(server.serverId);
             mutate({
                 name: channelName
             });

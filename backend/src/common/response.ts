@@ -12,6 +12,12 @@ export function notFound(res: Response, what: string) {
     });
 }
 
+export function unauthorized(res: Response) {
+    res.status(401).send({
+        message: `client is unauthorized`
+    })
+}
+
 export function forbidden(res: Response) {
     res.status(403).send({
         message: 'unauthorized to access selected resource'

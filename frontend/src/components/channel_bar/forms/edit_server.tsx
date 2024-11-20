@@ -3,7 +3,6 @@ import { editChannelMutation } from '@/lib/mutations/edit_channel';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChangeEvent, createRef, Dispatch, SetStateAction, useState } from 'react';
-import { invalidateServerData, invalidateServers } from '../actions';
 import { allowedImageMimes, ChannelArrayT, ChannelT, FileT, maxChannelNameLength, maxFileSize, maxServerNameLength, S3Keys, ServerT } from 'models';
 import Popup from '@/components/ui/popup/popup';
 import { Plus, Settings, Trash } from 'lucide-react';
@@ -96,7 +95,6 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
         }
 
         if (serverName.length < maxServerNameLength && serverName.length > 0) {
-            invalidateServers();
             mutate({
                 name: serverName,
                 imageFile: serverImage || null
@@ -142,13 +140,13 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
                 <p className="text-fg-medium mb-2">Server Icon</p>
                 <input 
                     type="file"
-                    id="file"
+                    id="file-e-server"
                     ref={serverImageRef}
                     onChange={onAddImage}
                     className="hidden"
                 />
                 <label
-                    htmlFor="file"
+                    htmlFor="file-e-server"
                     className=""
                 >
                     <ServerImage imageId={server.imageId} newImageFile={serverImage} />

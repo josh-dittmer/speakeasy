@@ -1,27 +1,17 @@
-import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
 import { PathReporter } from "io-ts/PathReporter";
-import { revalidateTag } from 'next/cache';
+import { getAccessToken, handleRefresh, TokenStorageNames } from '../auth/auth';
+import { redirect } from 'next/navigation';
+import { getClientId, navigate } from '@/app/actions';
 
-const getReq = (tags: Array<string>): RequestInit => {
+const getReq = (): RequestInit => {
     const init: RequestInit = {
-        next: {
-            tags: tags
-        },
-        //cache: 'no-store',
+        cache: 'no-store',
         method: 'get'
     };
-
-    return init;
-}
-
-const postReqMultipart = (data: FormData): RequestInit => {
-    const init: RequestInit = {
-        method: 'post',
-        body: data
-    }
 
     return init;
 }
@@ -38,6 +28,15 @@ const postReq = <ReqType>(data: ReqType): RequestInit => {
     return init;
 }
 
+const postReqMultipart = (data: FormData): RequestInit => {
+    const init: RequestInit = {
+        method: 'post',
+        body: data
+    }
+
+    return init;
+}
+
 const deleteReq = (): RequestInit => {
     const init: RequestInit = {
         method: 'delete'
@@ -46,22 +45,39 @@ const deleteReq = (): RequestInit => {
     return init;
 }
 
-async function request(url: string, data: RequestInit): Promise<Response> {
+async function request(url: string, data: RequestInit, useAuth: boolean = true): Promise<Response> {
+    if (useAuth) {
+        try {
+            const accessToken = await getAccessToken(await getClientId());
+
+            data.headers = new Headers(data.headers);
+            data.headers.set('Authorization', `Bearer ${accessToken}`);
+        } catch(err) {
+            navigate('/login');
+        }
+    }
+    
     const response = await fetch(url, data);
-    if (response.status !== 200) {
+
+    // if request fails due to auth error, prompt user to log in again
+    if (response.status === 401) {
+        navigate('/login');
+    }
+
+    else if (response.status !== 200) {
         throw new Error('request failed');
     }
 
     return response;
 }
 
-async function requestAndDecode<C extends t.Mixed>(path: string, data: RequestInit, decoder: C): Promise<t.TypeOf<typeof decoder>> {
+async function requestAndDecode<C extends t.Mixed>(path: string, data: RequestInit, decoder: C): Promise<t.TypeOf<typeof decoder>> {    
     const response: Response = await request(`${endpoints.MAIN_API}${path}`, data);
     const parsed: unknown = await response.json();
 
     const decoded = decoder.decode(parsed);
     if (isLeft(decoded)) {
-        throw new Error(`Could not validate data: ${PathReporter.report(decoded).join("\n")}`);
+        throw new Error(`could not validate data: ${PathReporter.report(decoded).join("\n")}`);
     }
 
     type C_T = t.TypeOf<typeof decoder>;
@@ -72,31 +88,32 @@ async function requestAndDecode<C extends t.Mixed>(path: string, data: RequestIn
 
 // for purging cache
 export const Tags = {
-    servers: 'servers',
-    myself: 'myself'
+    serverData: 'serverData',
+    channelData: 'channelData',
+    myself: 'myself',
 }
 
 export async function getServerList(): Promise<ServerArrayT> {
-    const usedTags = [Tags.servers];
-    return await requestAndDecode('/getServerList', getReq(usedTags), ServerArray);
+    return await requestAndDecode('/getServerList', getReq(), ServerArray);
 }
 
 export async function getServerData(serverId: string): Promise<ServerDataT> {
-    const usedTags = [Tags.servers, serverId];
-    return await requestAndDecode(`/getServerData/${serverId}`, getReq(usedTags), ServerData);
+    return await requestAndDecode(`/getServerData/${serverId}`, getReq(), ServerData);
 }
 
 export async function getChannelData(channelId: string, page: number): Promise<ChannelDataT> {
-    return await requestAndDecode(`/getChannelData/${channelId}?page=${page}`, getReq([]), ChannelData);
+    return await requestAndDecode(`/getChannelData/${channelId}?page=${page}`, getReq(), ChannelData);
 }
 
 export async function getMyUserData(): Promise<UserT> {
-    const usedTags = [Tags.myself]
-    return await requestAndDecode('/getMyUserData', getReq(usedTags), User);
+    return await requestAndDecode('/getMyUserData', getReq(), User);
+}
+
+export async function isMyProfileComplete(): Promise<IsMyProfileCompleteResponseT> {
+    return await requestAndDecode('/isMyProfileComplete', getReq(), IsMyProfileCompleteResponse);
 }
 
 export async function createMessage(createMessageRequest: CreateMessageRequestT): Promise<CreateMessageResponseT> {
-    //const data: FormData = createMessageRequestToFormData(createMessageRequest);
     return await requestAndDecode(`/createMessage`, postReq(createMessageRequest), CreateMessageResponse);
 }
 
@@ -121,7 +138,7 @@ export async function editServer(serverId: string, editServerRequest: EditServer
 }
 
 export async function leaveServer(serverId: string) {
-    return await requestAndDecode(`/leaveServer/${serverId}`, getReq([]), t.type({}));
+    return await requestAndDecode(`/leaveServer/${serverId}`, getReq(), t.type({}));
 }
 
 export async function deleteMessage(messageId: string) {
@@ -149,7 +166,12 @@ export async function uploadFile(data: UploadFileData) {
 
     form.append('file', data.file);
 
-    await request(data.uploadUrl, postReqMultipart(form));
+    await request(data.uploadUrl, postReqMultipart(form), false);
 
     return true;
+}
+
+export async function downloadFile(fileLocation: string, fileId: string) {
+    const res = await request(`${endpoints.MAIN_API}/getFile/${fileLocation}/${fileId}`, getReq());
+    return await res.blob();
 }

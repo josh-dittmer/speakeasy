@@ -2,6 +2,7 @@ import { QueryClient, useMutation } from '@tanstack/react-query';
 import { uploadFileMutation } from './upload_file';
 import { useRouter } from 'next/navigation';
 import { createServer } from '../api/requests';
+import { getServerListKey } from '../queries/get_server_list';
 
 export const createServerKey = (): string => 'createServer';
 
@@ -24,6 +25,7 @@ export const createServerMutation = (client: QueryClient) => {
         }),
         mutationKey: [createServerKey()],
         onSuccess: (data, variables, context) => {
+            client.invalidateQueries({ queryKey: [getServerListKey()] });
             if (data.upload && variables.imageFile) {
                 mutate({
                     url: data.upload.url,
@@ -31,7 +33,7 @@ export const createServerMutation = (client: QueryClient) => {
                     fileId: data.upload.fileId,
                     fields: data.upload.fields,
                     finishedCallback: () => {
-                        router.refresh();
+                        //router.refresh();
                     }
                 })
             }

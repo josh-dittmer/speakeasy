@@ -4,12 +4,13 @@ import Image from 'next/image';
 import { ServerT, ServerArrayT, S3Keys } from 'models';
 
 import './server_bar.css';
-import { usePathname } from 'next/navigation';
-import { visitServer } from './actions';
+import { usePathname, useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { getFileQuery } from '@/lib/queries/get_file';
 import { useState } from 'react';
 import CreateServer from './forms/create_server';
+import { getServerListQuery } from '@/lib/queries/get_server_list'
+import { getServerDataQuery } from '@/lib/queries/get_server_data';
 
 function ServerImage({ serverName, imageId }: { serverName: string, imageId: string | null }) {    
     if (!imageId) {
@@ -60,10 +61,23 @@ function ServerImage({ serverName, imageId }: { serverName: string, imageId: str
 }
 
 function ServerIcon({ server, selected } : { server: ServerT, selected: boolean }) {    
+    const router = useRouter();
+    const { data, isSuccess, isError } = getServerDataQuery(server.serverId);
+
+    //if (isError) return <p>ERROR</p>;
+
+    const visitServer = () => {
+        // TODO: load last channel from local storage
+        if (data) {
+            const lastChannel = data.channels[0];
+            router.push((lastChannel) ? `/home/${server.serverId}/${lastChannel.channelId}` : `/home/${server.serverId}/empty`);
+        }
+    }
+    
     return (
         <div className={(selected ? 'selected-server-div' : 'server-div') + " flex items-center p-2 pl-0"}>
             <div className="relative w-1 h-8 mr-2 rounded-r-lg server-indicator"></div>
-            <button onClick={() => visitServer(server.serverId)}>
+            <button onClick={() => visitServer()}>
             <div className="">
                     <ServerImage serverName={server.name} imageId={server.imageId} />
             </div>
@@ -75,9 +89,11 @@ function ServerIcon({ server, selected } : { server: ServerT, selected: boolean 
     )
 }
 
-export default function ServerBar({ servers } : { servers: ServerArrayT }) { 
+export default function ServerBar() { 
     const selectedServerId = usePathname().split('/')[2];
     
+    const { data } = getServerListQuery();
+
     const [createServerOpen, setCreateServerOpen] = useState<boolean>(false);
 
     return (
@@ -87,7 +103,7 @@ export default function ServerBar({ servers } : { servers: ServerArrayT }) {
                 <button onClick={() => setCreateServerOpen(true)}>
                 <div className="server-icon">
                     <div className="w-16 h-16 rounded-full flex items-center justify-center">
-                        <Plus width={25} height={25} className="text-fg-dark" />
+                        <Plus width={25} height={25} className="" />
                     </div>
                 </div>
                 </button>
@@ -95,7 +111,7 @@ export default function ServerBar({ servers } : { servers: ServerArrayT }) {
                     <p className="text-fg-dark">New Server</p>
                 </div>
             </div>
-            {servers.map((server) => {
+            {data?.map((server) => {
                 return <ServerIcon key={server.serverId} server={server} selected={server.serverId === selectedServerId} />
             })}
             <CreateServer menuOpen={createServerOpen} setMenuOpen={setCreateServerOpen} />

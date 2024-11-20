@@ -10,7 +10,6 @@ import { editServerMutation } from '@/lib/mutations/edit_server';
 import Image from 'next/image';
 import { getFileQuery } from '@/lib/queries/get_file';
 import { createServerMutation } from '@/lib/mutations/create_server';
-import { invalidateServers } from '../actions';
 
 function ServerImage({ newImageFile }: { newImageFile: File | undefined }) {    
     if (!newImageFile) {
@@ -44,7 +43,6 @@ export default function CreateServer({ menuOpen, setMenuOpen } : { menuOpen: boo
 
     const handleServerCreate = () => {
         if (serverName.length < maxServerNameLength && serverName.length > 0) {
-            invalidateServers();
             mutate({
                 name: serverName,
                 imageFile: serverImage || null
@@ -89,13 +87,13 @@ export default function CreateServer({ menuOpen, setMenuOpen } : { menuOpen: boo
                 <p className="text-fg-medium mb-2">Server Icon</p>
                 <input 
                     type="file"
-                    id="file"
+                    id="file-c-server"
                     ref={serverImageRef}
                     onChange={onAddImage}
                     className="hidden"
                 />
                 <label
-                    htmlFor="file"
+                    htmlFor="file-c-server"
                     className=""
                 >
                     <ServerImage newImageFile={serverImage} />

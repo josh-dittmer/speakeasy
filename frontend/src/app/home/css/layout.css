@@ -10,7 +10,7 @@
 	}
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1000px) {
     .home-layout {
         display: grid;
         grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto 0px;
@@ -20,7 +20,7 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1000px) {
     .home-layout {
         display: grid;
         grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(--user-bar-width);

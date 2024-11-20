@@ -2,7 +2,7 @@
 
 import { WSProvider } from "@/contexts/ws_context";
 import { ThemeContext, ThemeProvider } from "@/contexts/theme_context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 
 import '@/app/globals.css';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -17,9 +17,9 @@ function ApplyTheme({ children }: Readonly<{ children: React.ReactNode }>) {
     )
 }
 
-const queryClient = new QueryClient();
-
 export default function Client({ children }: Readonly<{ children: React.ReactNode }>) {
+    const [queryClient] = useState(new QueryClient());
+
     return (
         <>
             <ThemeProvider defaultTheme={'dark'}>

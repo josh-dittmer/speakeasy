@@ -29,7 +29,7 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
     const failedMessages = failedMessageState(channelId);
 
     const chatAreaRef = createRef<HTMLDivElement>();
-    const prevScrollHeightRef = useRef<number>(0);
+    const prevHeight = useRef<number>(0);
 
     const { fetchNextPage, data, isLoading, isError, isPending } = getChannelDataQuery(channelId);
 
@@ -37,10 +37,13 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
         const st = chatAreaRef.current?.scrollTop;
         const sh = chatAreaRef?.current?.scrollHeight;
         const ch = chatAreaRef?.current?.clientHeight;
-        if (st && sh && st + sh === ch) {
+
+        if (!st || !sh || !ch) return;
+
+        const topDist = Math.abs((Math.abs(st) + ch) - sh);
+
+        if (topDist < 3) {
             fetchNextPage();
-        } else if (chatAreaRef.current?.scrollTop === 0) {
-            
         }
     };
 
@@ -57,19 +60,28 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
 
     // scroll to appropriate position when new messages are loaded
     // please do not ask me wtf is going on here i tried different combos until it worked
-    /*useEffect(() => {
+    useEffect(() => {
         const st = chatAreaRef.current?.scrollTop;
         const sh = chatAreaRef?.current?.scrollHeight;
+        const ch = chatAreaRef?.current?.clientHeight;
 
-        if (sh && prevScrollHeightRef.current === 0) {
-            prevScrollHeightRef.current = sh;
-        }   
+        if (sh && ch && sh <= ch) {
+            console.log('fill in page');
+            fetchNextPage();
+        }
 
         if (st && sh && chatAreaRef.current) {
-            chatAreaRef.current.scrollTop = (sh + st) - prevScrollHeightRef.current;
-            prevScrollHeightRef.current = sh;
+
+            //const addedHeight = 0;
+            const addedHeight = sh - prevHeight.current;
+            prevHeight.current = sh;
+
+            chatAreaRef.current.scrollTop = st + addedHeight;
+            //chatAreaRef.current.scrollTop = -100;
+
+            //console.log(chatAreaRef.current.scrollTop);
         }
-    }, [data?.pages, chatAreaRef]);*/
+    }, [data?.pages, prevHeight]);
 
     if (isLoading) {
         return <LoadingSpinner />

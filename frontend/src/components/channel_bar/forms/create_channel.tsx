@@ -3,7 +3,6 @@ import { editChannelMutation } from '@/lib/mutations/edit_channel';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { invalidateServerData } from '../actions';
 import { ChannelArrayT, ChannelT, maxChannelNameLength, ServerT } from 'models';
 import Popup from '@/components/ui/popup/popup';
 import { Plus, Settings, Trash } from 'lucide-react';
@@ -16,7 +15,6 @@ export default function CreateChannel({ server, menuOpen, setMenuOpen } : { serv
 
     const handleCreateChannel = async () => {
         if (channelName.length < maxChannelNameLength && channelName.length > 0) {
-            invalidateServerData(server.serverId);
             mutate({
                 name: channelName
             });

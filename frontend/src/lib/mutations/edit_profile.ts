@@ -25,8 +25,10 @@ export const editProfileMutation = (client: QueryClient) => {
             } : null
         }),
         mutationKey: [editProfileKey()],
-        onSettled: () => client.invalidateQueries({ queryKey: [Tags.myself] }),
         onSuccess: (data, variables, context) => {
+            client.invalidateQueries({ queryKey: [Tags.myself] });
+            client.invalidateQueries({ queryKey: [Tags.serverData] });
+            client.invalidateQueries({ queryKey: [Tags.channelData] });
             if (data.upload && variables.imageFile) {
                 mutate({
                     url: data.upload.url,
@@ -34,7 +36,7 @@ export const editProfileMutation = (client: QueryClient) => {
                     fileId: data.upload.fileId,
                     fields: data.upload.fields,
                     finishedCallback: () => {
-                        router.refresh();
+                        //router.refresh();
                     }
                 });
             }

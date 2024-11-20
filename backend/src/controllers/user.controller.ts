@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
-import { allowedImageMimes, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT } from 'models';
+import { allowedImageMimes, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT } from 'models';
 import { filesTable, usersTable } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { badRequest, notFound, serverError } from '../common/response';
@@ -22,6 +22,26 @@ export async function getMyUserData(req: Request, res: Response) {
     }
 
     res.json(result[0]);
+}
+
+export async function isMyProfileComplete(req: Request, res: Response) {
+    const result = await db.select({
+        userId: usersTable.userId
+    })
+    .from(usersTable)
+    .where(eq(usersTable.userId, res.locals.userId));
+
+    let complete = true;
+
+    if (result.length === 0) {
+        complete = false;
+    }
+
+    const response: IsMyProfileCompleteResponseT = {
+        complete: complete
+    };
+
+    res.json(response);
 }
 
 export async function editUserProfile(req: Request, res: Response) {

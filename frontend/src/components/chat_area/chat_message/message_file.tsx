@@ -1,10 +1,12 @@
 import { getFileQuery } from '@/lib/queries/get_file';
 import { FileT, S3Keys } from 'models';
 import Image from 'next/image';
+import { useMemo } from 'react';
 
 export default function MessageFile({ file }: { file: FileT }) {
     const { data, isLoading, isError } = getFileQuery(S3Keys.messageFiles, file.fileId);
-    
+    const url = useMemo(() => (data) ? URL.createObjectURL(data) : undefined, [data]);
+
     if (isLoading) {
         return (
             <Image
@@ -24,7 +26,7 @@ export default function MessageFile({ file }: { file: FileT }) {
         )
     }
 
-    if (!data) return;
+    if (!data || !url) return;
 
     switch(file.mimeType) {
         case 'image/png':
@@ -33,7 +35,7 @@ export default function MessageFile({ file }: { file: FileT }) {
             return (
                 <div>
                     <Image
-                        src={URL.createObjectURL(data)}
+                        src={url}
                         width={0}
                         height={0}
                         sizes="100vw"

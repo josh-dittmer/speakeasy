@@ -40,7 +40,7 @@ html, body {
 
 .light {
 	--bg-dark: rgb(226, 232, 240);
-	--bg-medium-dark: rgb(230, 247, 244);
+	--bg-medium-dark: rgb(237, 242, 246);
 	--bg-medium: rgb(241, 245, 249);
 	--bg-light: rgb(255, 255, 255);
 	--bg-accent: rgb(170, 129, 225);

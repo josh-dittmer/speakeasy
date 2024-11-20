@@ -3,18 +3,19 @@ import { editChannelMutation } from '@/lib/mutations/edit_channel';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { Dispatch, SetStateAction, useState } from 'react';
-import { invalidateServerData, invalidateServers } from '../actions';
 import { ChannelArrayT, ChannelT, maxChannelNameLength, ServerT } from 'models';
 import Popup from '@/components/ui/popup/popup';
 import { LogOut, Plus, Settings, Trash } from 'lucide-react';
 import { createChannelMutation } from '@/lib/mutations/create_channel';
+import { getServerListKey } from '@/lib/queries/get_server_list';
 
 export default function LeaveServer({ server, menuOpen, setMenuOpen } : { server: ServerT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const router = useRouter();
+    const client = useQueryClient();
     
     const handleLeaveServer = async () => {
         await leaveServer(server.serverId);
-        invalidateServers();
+        client.invalidateQueries({ queryKey: [getServerListKey()] });
 
         router.push('/home');
     };

@@ -197,3 +197,9 @@ export const EditProfileResponse = t.partial({
 });
 
 export type EditProfileResponseT = t.TypeOf<typeof EditProfileResponse>;
+
+export const IsMyProfileCompleteResponse = t.type({
+    complete: t.boolean
+});
+
+export type IsMyProfileCompleteResponseT = t.TypeOf<typeof IsMyProfileCompleteResponse>;

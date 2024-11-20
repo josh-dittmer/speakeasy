@@ -32,7 +32,7 @@ function UserCard({ user } : { user: UserT }) {
         <div className="hover:bg-bg-dark p-0.5">
             <div className="flex items-center pl-3 mb-1 mt-1">
                 <div className="relative">
-                    <ProfileImage name={user.name} imageId={user.imageId} size="10" />
+                    <ProfileImage name={user.name} imageId={user.imageId} className="bg-bg-light" />
                     <span className={"absolute bottom-0 right-0 w-3 h-3 rounded-full " + statusColor}></span>
                 </div>
                 <div className="ml-2">

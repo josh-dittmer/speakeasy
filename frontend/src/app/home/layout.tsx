@@ -3,13 +3,12 @@ import { getServerList } from '@/lib/api/requests';
 import { ServerArrayT } from 'models';
 
 import './css/layout.css';
+import { getServerListQuery } from '@/lib/queries/get_server_list';
 
 export default async function HomeLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const servers: ServerArrayT = await getServerList();
-    
     return (
         <div className="home-layout">
-            <ServerBar servers={servers} />
+            <ServerBar />
             {children}
         </div>
     )

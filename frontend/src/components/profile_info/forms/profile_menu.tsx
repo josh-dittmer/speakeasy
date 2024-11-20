@@ -4,10 +4,11 @@ import { ChangeEvent, createRef, Dispatch, SetStateAction, useState } from "reac
 import { allowedImageMimes, maxFileSize, maxUserBioLength, maxUserNameLength, S3Keys, ServerT, UserT } from "models";
 import { useQueryClient } from "@tanstack/react-query";
 import { editProfileMutation } from "@/lib/mutations/edit_profile";
-import { invalidateServers, invalidateUser } from "../actions";
 import Image from "next/image";
 import { getFileQuery } from "@/lib/queries/get_file";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { handleRevokeTokens } from "@/lib/auth/auth";
+import { getClientId } from "@/app/actions";
 
 function UserImage({ imageId, newImageFile }: { imageId: string | null, newImageFile: File | undefined }) {
     if (newImageFile) {
@@ -79,6 +80,8 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
     const client = useQueryClient();
     const { mutate } = editProfileMutation(client);
 
+    const router = useRouter();
+
     const handleProfileSave = () => {
         if (userName === user.name && userBio === user.bio && !userImage) {
             setOpen(false);
@@ -86,10 +89,8 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
         }
 
         if (userName.length < maxUserNameLength && userName.length > 0
-            && userBio.length < maxUserBioLength && userBio.length > 0
+            && userBio.length < maxUserBioLength
         ) {
-            invalidateServers();
-            invalidateUser();
             mutate({
                 name: userName,
                 bio: userBio,
@@ -100,6 +101,11 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
         } else {
 
         }
+    };
+
+    const handleLogout = async () => {
+        await handleRevokeTokens(await getClientId());
+        router.push('/login?clear_session=1');
     };
 
     const clearImage = () => {
@@ -133,13 +139,13 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
                     <p className="text-sm text-fg-medium mb-2">Profile Picture</p>
                     <input 
                         type="file"
-                        id="file"
+                        id="file-e-profile"
                         ref={userImageRef}
                         onChange={onAddImage}
                         className="hidden"
                     />
                     <label
-                        htmlFor="file"
+                        htmlFor="file-e-profile"
                         className=""
                     >
                         <UserImage imageId={user.imageId} newImageFile={userImage} />
@@ -165,7 +171,16 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
                         className="p-1 w-full text-sm text-fg-dark bg-bg-medium outline-none rounded resize-none"
                     />
                 </div>
-                <div className="grow flex justify-end p-1">
+                <div className="grow flex justify-between p-1">
+                    <div className="flex gap-1 items-center text-red-600 hover:text-red-800">
+                        <LogOut width={10} height={10} className="" />
+                        <button
+                            onClick={() => handleLogout()}
+                            className="text-xs"
+                        >
+                            Log Out
+                        </button>
+                    </div>
                     <button
                         onClick={() => handleProfileSave()}
                         className="text-xs text-fg-accent bg-bg-accent hover:bg-bg-accent-dark p-1 rounded"

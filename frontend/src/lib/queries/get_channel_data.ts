@@ -1,14 +1,16 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { getChannelData } from '@/lib/api/requests';
+import { getChannelData, Tags } from '@/lib/api/requests';
 
 export const getChannelDataKey = (channelId: string ): string => `getChannelData_${channelId}`;
 
 const fetchMessages = (channelId: string) => async ({ pageParam }: { pageParam: number }) => await getChannelData(channelId, pageParam);
 
 export const getChannelDataQuery = (channelId: string) => useInfiniteQuery({
-    queryKey: [getChannelDataKey(channelId)],
+    queryKey: [Tags.channelData, getChannelDataKey(channelId)],
     queryFn: fetchMessages(channelId),
     select: (data) => ({
+        //pages: [...data.pages].reverse(),
+        //pageParams: [...data.pageParams].reverse(),
         pages: [...data.pages].reverse(),
         pageParams: [...data.pageParams].reverse(),
     }),

@@ -7,7 +7,7 @@ import Image from 'next/image';
 
 import './sent_message.css';
 import { useState } from 'react';
-import { deleteMessage } from '@/lib/api/requests';
+import { deleteMessage, Tags } from '@/lib/api/requests';
 import { useQueryClient } from '@tanstack/react-query';
 import { getChannelDataKey } from '@/lib/queries/get_channel_data';
 import MessageFile from './message_file';
@@ -31,7 +31,7 @@ export default function SentMessage({ message, user, type }: { message: MessageT
     const handleDeleteMessage = async () => {
         await deleteMessage(message.messageId);
         queryClient.invalidateQueries({
-            queryKey: [getChannelDataKey(message.channelId)]
+            queryKey: [Tags.channelData, getChannelDataKey(message.channelId)]
         });
     };
 
@@ -41,10 +41,10 @@ export default function SentMessage({ message, user, type }: { message: MessageT
     
     return (
         <div className="relative">
-        <div className={'message flex pl-4 truncate hover:bg-bg-medium pt-0.5 pb-0.5' + (menuOpen ? 'message-highlight ' : ' ')}>
+        <div className={'message flex pl-4 truncate hover:bg-bg-medium  ' + (menuOpen ? 'message-highlight ' : ' ') + (isFull ? 'mt-3' : '')}>
             <div className="shrink-0">
                 {isFull && user && (
-                    <ProfileImage name={user.name} imageId={user?.imageId} size="12" />
+                    <ProfileImage name={user.name} imageId={user?.imageId} className="bg-bg-dark" />
                 )}
             </div>
             <div className={isFull ? 'ml-4' : 'ml-16'}>
