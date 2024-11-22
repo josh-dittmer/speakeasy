@@ -1,11 +1,12 @@
 'use client';
 
-import { WSProvider } from "@/contexts/ws_context";
+import { SIOProvider } from '@/contexts/sio_context';
 import { ThemeContext, ThemeProvider } from "@/contexts/theme_context";
 import { useContext, useState } from "react";
 
 import '@/app/globals.css';
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { endpoints } from "@/lib/api/endpoints";
 
 function ApplyTheme({ children }: Readonly<{ children: React.ReactNode }>) {
     const theme = useContext(ThemeContext);
@@ -23,13 +24,13 @@ export default function Client({ children }: Readonly<{ children: React.ReactNod
     return (
         <>
             <ThemeProvider defaultTheme={'dark'}>
-            <WSProvider url={''}>
+            <SIOProvider>
             <QueryClientProvider client={queryClient}>
                 <ApplyTheme>
                     {children}
                 </ApplyTheme>
             </QueryClientProvider>
-            </WSProvider>
+            </SIOProvider>
             </ThemeProvider>
         </>
     )

@@ -1,17 +1,20 @@
 import { Router } from 'express';
-import { getFile } from '../controllers/file.controller';
+import { FileController } from '../controllers/file.controller';
+import { SIOServer } from '../socket.io/sio_server';
 
-class FileRoutes {
+export class FileRoutes {
     public router: Router;
+    private controller: FileController;
 
-    constructor() {
+    constructor(sioServer: SIOServer) {
         this.router = Router();
+        this.controller = new FileController(sioServer);
         this.init();
     }
 
     private init() {
-        this.router.get('/getFile/:type/:fileId', getFile);
+        this.router.get('/getFile/:type/:fileId', this.controller.getFile);
     }
 }
 
-export default new FileRoutes().router;
+//export default new FileRoutes().router;

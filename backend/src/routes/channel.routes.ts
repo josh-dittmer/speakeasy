@@ -1,20 +1,23 @@
 import { Router } from 'express';
-import { createChannel, deleteChannel, editChannel, getChannelData } from '../controllers/channel.controller';
+import { ChannelController } from '../controllers/channel.controller';
+import { SIOServer } from '../socket.io/sio_server';
 
-class ChannelRoutes {
+export class ChannelRoutes {
     public router: Router;
+    private controller: ChannelController;
 
-    constructor() {
+    constructor(sioServer: SIOServer) {
         this.router = Router();
+        this.controller = new ChannelController(sioServer);
         this.init();
     }
 
     private init() {
-        this.router.get('/getChannelData/:channelId', getChannelData);
-        this.router.post('/createChannel', createChannel);
-        this.router.post('/editChannel/:channelId', editChannel);
-        this.router.delete('/deleteChannel/:channelId', deleteChannel);
+        this.router.get('/getChannelData/:channelId', this.controller.getChannelData);
+        this.router.post('/createChannel', this.controller.createChannel);
+        this.router.post('/editChannel/:channelId', this.controller.editChannel);
+        this.router.delete('/deleteChannel/:channelId', this.controller.deleteChannel);
     }
 }
 
-export default new ChannelRoutes().router;
+//export default new ChannelRoutes().router;

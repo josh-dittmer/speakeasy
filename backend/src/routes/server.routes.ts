@@ -1,21 +1,24 @@
 import { Router } from 'express';
-import { createServer, editServer, getServerData, getServerList, leaveServer } from '../controllers/server.controller';
+import { ServerController } from '../controllers/server.controller';
+import { SIOServer } from '../socket.io/sio_server';
 
-class ServerRoutes {
+export class ServerRoutes {
     public router: Router;
+    private controller: ServerController;
 
-    constructor() {
+    constructor(sioServer: SIOServer) {
         this.router = Router();
+        this.controller = new ServerController(sioServer);
         this.init();
     }
 
     private init() {
-        this.router.get('/getServerList', getServerList);
-        this.router.get('/getServerData/:serverId', getServerData);
-        this.router.get('/leaveServer/:serverId', leaveServer);
-        this.router.post('/editServer/:serverId', editServer);
-        this.router.post('/createServer', createServer);
+        this.router.get('/getServerList', this.controller.getServerList);
+        this.router.get('/getServerData/:serverId', this.controller.getServerData);
+        this.router.get('/leaveServer/:serverId', this.controller.leaveServer);
+        this.router.post('/editServer/:serverId', this.controller.editServer);
+        this.router.post('/createServer', this.controller.createServer);
     }
 }
 
-export default new ServerRoutes().router;
+//export default new ServerRoutes().router;

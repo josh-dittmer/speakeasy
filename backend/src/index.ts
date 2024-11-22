@@ -1,27 +1,35 @@
 import 'dotenv/config';
 
 import express, { Application, Request, Response, NextFunction } from 'express';
+import http from 'http';
 import cors, { CorsOptions } from 'cors';
 
 import { auth } from './auth';
 
 import Routes from './routes/routes'
+import { SIOServer } from './socket.io/sio_server';
+import { Server } from 'socket.io';
 
 const apiPort = process.env.API_PORT!;
 const allowedOrigin = process.env.ALLOWED_ORIGIN!;
 
-export default class Server {
+export default class SpeakeasyServer {
+    private sioServer: SIOServer;
     private routes: Routes;
 
-    constructor(app: Application) {
+    constructor(app: Application, httpServer: http.Server) {
         this.config(app);
-        this.routes = new Routes(app);
+
+        this.sioServer = new SIOServer(httpServer);
+        this.routes = new Routes(app, this.sioServer);
     }
 
     private config(app: Application): void {
         const corsOptions: CorsOptions = {
             origin: allowedOrigin
         };
+
+        app.disable('x-powered-by');
 
         app.use(cors(corsOptions));
         app.use(express.json());
@@ -31,9 +39,11 @@ export default class Server {
 }
 
 const app: Application = express();
-const server: Server = new Server(app);
+const httpServer: http.Server = http.createServer(app);
 
-app.listen(apiPort, () => {
+const server: SpeakeasyServer = new SpeakeasyServer(app, httpServer);
+
+httpServer.listen(apiPort, () => {
     console.log(`Server listening on ${apiPort}`);
 })
 

@@ -1,21 +1,24 @@
 import { Router } from 'express';
-import { createUserProfile, editUserProfile, getMyUserData, isMyProfileComplete } from '../controllers/user.controller';
+import { UserController } from '../controllers/user.controller';
+import { SIOServer } from '../socket.io/sio_server';
 //import { getLastVisitedServer } from '../controllers/user.controller';
 
-class UserRoutes {
+export class UserRoutes {
     public router: Router;
+    private controller: UserController;
 
-    constructor() {
+    constructor(sioServer: SIOServer) {
         this.router = Router();
+        this.controller = new UserController(sioServer);
         this.init();
     }
 
     private init() {
-        this.router.get('/getMyUserData', getMyUserData);
-        this.router.get('/isMyProfileComplete', isMyProfileComplete);
-        this.router.post('/editUserProfile', editUserProfile);
-        this.router.post('/createUserProfile', createUserProfile);
+        this.router.get('/getMyUserData', this.controller.getMyUserData);
+        this.router.get('/isMyProfileComplete', this.controller.isMyProfileComplete);
+        this.router.post('/editUserProfile', this.controller.editUserProfile);
+        this.router.post('/createUserProfile', this.controller.createUserProfile);
     }
 }
 
-export default new UserRoutes().router;
+//export default new UserRoutes().router;
