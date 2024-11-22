@@ -1,7 +1,8 @@
+import { welcomeServerId } from 'models';
 import { db } from './db';
-import { channelsTable, filesTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
+import { channelsTable, filesTable, invitesTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
 
-async function seed() {
+async function seedTest() {
     try {
         console.log('Seeding...');
 
@@ -190,4 +191,54 @@ async function seed() {
     }
 }
 
-seed();
+async function seedProd() {
+    try {
+        console.log('Seeding...');
+
+        await db.delete(invitesTable);
+        await db.delete(filesTable);
+        await db.delete(messagesTable);
+        await db.delete(membershipsTable);
+        await db.delete(channelsTable);
+        await db.delete(serversTable);
+        await db.delete(usersTable);
+
+        console.log('Cleared database. Inserting...');
+
+        const servers: Array<typeof serversTable.$inferInsert> = [
+            {
+                name: 'Welcome!',
+                serverId: welcomeServerId,
+                imageId: null
+            }
+        ];
+
+        const channels: Array<typeof channelsTable.$inferInsert> = [
+            {
+                channelId: crypto.randomUUID(),
+                serverId: welcomeServerId,
+                name: 'intro'
+            },
+            {
+                channelId: crypto.randomUUID(),
+                serverId: welcomeServerId,
+                name: 'changelog'
+            },
+            {
+                channelId: crypto.randomUUID(),
+                serverId: welcomeServerId,
+                name: 'general'
+            }
+        ];
+
+        await db.insert(serversTable).values(servers);
+        await db.insert(channelsTable).values(channels);
+
+        console.log('Finished seeding.');
+    } catch(err) {
+        console.log(`Error: ${err}`);
+        throw new Error('Seeding failed.');
+    }
+}
+
+seedProd();

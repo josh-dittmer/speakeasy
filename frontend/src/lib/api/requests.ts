@@ -1,4 +1,4 @@
-import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateProfileRequestT, CreateProfileResponse, CreateProfileResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
@@ -123,6 +123,10 @@ export async function createChannel(createChannelRequest: CreateChannelRequestT)
 
 export async function createServer(createServerRequest: CreateServerRequestT): Promise<CreateServerResponseT> {
     return await requestAndDecode('/createServer', postReq(createServerRequest), CreateServerResponse);
+}
+
+export async function createProfile(createProfileRequest: CreateProfileRequestT): Promise<CreateProfileResponseT> {
+    return await requestAndDecode('/createUserProfile', postReq(createProfileRequest), CreateProfileResponse);
 }
 
 export async function editProfile(editProfileRequest: EditProfileRequestT): Promise<EditProfileResponseT> {

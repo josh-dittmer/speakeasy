@@ -48,3 +48,11 @@ export const filesTable = pgTable('files', {
     name: varchar({ length: 255 }).notNull(),
     mimeType: varchar({ length: 255 }).notNull()
 });
+
+export const invitesTable = pgTable('invites', {
+    inviteId: uuid().primaryKey().unique().notNull().$default(() => crypto.randomUUID()),
+    serverId: uuid().references(() => serversTable.serverId),
+    userId: uuid().references(() => usersTable.userId),
+    createdAt: timestamp().notNull().defaultNow(),
+    expiresAt: timestamp().notNull()
+});

@@ -21,8 +21,6 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
         )
     }
 
-    if (!data || !url) return;
-
     return (
         <div className={`flex items-center justify-center rounded-full ${className}`}>
             {isLoading && (
@@ -35,7 +33,7 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
                     alt="User image loading"
                 />
             )}
-            {isSuccess && (
+            {url && isSuccess && (
                 <Image
                     src={url}
                     width={0}

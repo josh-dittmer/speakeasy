@@ -9,24 +9,6 @@ import { verifyServer } from '../util/verify';
 import { allowedMimes } from 'models';
 import { createUploadUrl, deleteFile } from '../util/s3';
 
-/*const createMessageUpload = upload.array('files');
-
-export async function createMessage(req: Request, res: Response) {
-    createMessageUpload(req, res, (err) => {
-        if (err instanceof multer.MulterError) {
-            return badRequest(res);
-        } else if (err) {
-            return serverError(res);
-        }
-
-        console.log(req.file);
-        console.log(req.files);
-        console.log(req.body);
-
-        return badRequest(res);
-    });
-}*/
-
 export async function createMessage(req: Request, res: Response) {
     const decoded = CreateMessageRequest.decode(req.body);
     if (isLeft(decoded)) {

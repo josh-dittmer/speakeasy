@@ -29,6 +29,8 @@ export const maxServerNameLength = 255;
 export const maxUserNameLength = 255;
 export const maxUserBioLength = 511;
 
+export const welcomeServerId = '045a66e6-30cb-4d05-916e-4debe61b9413';
+
 export const Server = t.type({
     serverId: t.string,
     imageId: t.union([ t.string, t.null ]),
@@ -198,8 +200,23 @@ export const EditProfileResponse = t.partial({
 
 export type EditProfileResponseT = t.TypeOf<typeof EditProfileResponse>;
 
-export const IsMyProfileCompleteResponse = t.type({
-    complete: t.boolean
+export const CreateProfileRequest = t.type({
+    name: t.string,
+    bio: t.string,
+    image: t.union([ UploadRequest, t.null ])
 });
+
+export type CreateProfileRequestT = t.TypeOf<typeof CreateProfileRequest>;
+
+export const CreateProfileResponse = t.partial({
+    upload: UploadResponse
+});
+
+export type CreateProfileResponseT = t.TypeOf<typeof CreateProfileResponse>;
+
+export const IsMyProfileCompleteResponse = t.type({
+    complete: t.boolean,
+    email: t.string
+})
 
 export type IsMyProfileCompleteResponseT = t.TypeOf<typeof IsMyProfileCompleteResponse>;

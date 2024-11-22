@@ -10,21 +10,13 @@ import { useEffect } from 'react';
 import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
 
 export default function HomePage() {
-    const router = useRouter();
-
-    const { data: profileCompleteRes, isSuccess: profileCompleteLoadFinished } = isMyProfileCompleteQuery(); 
+    const router = useRouter(); 
 
     const { data: servers } = getServerListQuery();
     const lastServer = servers?.at(0);
 
     const { data: serverData, isSuccess: serverLoadFinished } = getServerDataQueryDependent(lastServer?.serverId);
     const lastChannel = serverData?.channels[0];
-
-    useEffect(() => {
-        if (profileCompleteLoadFinished && !profileCompleteRes?.complete) {
-            router.push(`/signup`);
-        }
-    }, [profileCompleteLoadFinished]);
 
     useEffect(() => {
         if (lastServer && serverLoadFinished) {

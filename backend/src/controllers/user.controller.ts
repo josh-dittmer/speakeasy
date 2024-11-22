@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
-import { allowedImageMimes, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT } from 'models';
-import { filesTable, usersTable } from '../db/schema';
+import { allowedImageMimes, CreateProfileRequest, CreateProfileRequestT, CreateProfileResponseT, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT, welcomeServerId } from 'models';
+import { filesTable, membershipsTable, usersTable } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { badRequest, notFound, serverError } from '../common/response';
 import { isLeft } from 'fp-ts/Either'
@@ -38,7 +38,8 @@ export async function isMyProfileComplete(req: Request, res: Response) {
     }
 
     const response: IsMyProfileCompleteResponseT = {
-        complete: complete
+        complete: complete,
+        email: res.locals.userEmail
     };
 
     res.json(response);
@@ -108,6 +109,61 @@ export async function editUserProfile(req: Request, res: Response) {
         .where(eq(usersTable.userId, res.locals.userId));
 
     const response: EditProfileResponseT = {
+        upload: upload
+    };
+
+    res.json(response);
+}
+
+export async function createUserProfile(req: Request, res: Response) {
+    const decoded = CreateProfileRequest.decode(req.body);
+    if (isLeft(decoded)) {
+        return badRequest(res);
+    }
+
+    const data: CreateProfileRequestT = decoded.right;
+
+    if (data.name.length > maxUserNameLength) {
+        return badRequest(res);
+    }
+
+    let upload: UploadResponseT | undefined;
+    let imageId: string = crypto.randomUUID();
+    
+    await db.insert(usersTable).values([{
+        userId: res.locals.userId,
+        imageId: data.image ? imageId : null,
+        name: data.name,
+        bio: data.bio
+    }]);
+
+    await db.insert(membershipsTable).values([{
+        serverId: welcomeServerId,
+        userId: res.locals.userId
+    }]);
+
+    if (data.image) {
+        if (!allowedImageMimes.includes(data.image.mimeType)) {
+            return badRequest(res);
+        }
+
+        await db.insert(filesTable).values([{
+            fileId: imageId,
+            userId: res.locals.userId,
+            name: data.image.name,
+            mimeType: data.image.mimeType
+        }]);
+
+        const { url, fields } = await createUploadUrl(`${S3Keys.profileImgs}/${imageId}`);
+        upload = {
+            fileId: imageId,
+            url: url,
+            name: data.image.name,
+            fields: fields
+        };
+    }
+
+    const response: CreateProfileResponseT = {
         upload: upload
     };
 

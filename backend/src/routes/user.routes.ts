@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { editUserProfile, getMyUserData, isMyProfileComplete } from '../controllers/user.controller';
+import { createUserProfile, editUserProfile, getMyUserData, isMyProfileComplete } from '../controllers/user.controller';
 //import { getLastVisitedServer } from '../controllers/user.controller';
 
 class UserRoutes {
@@ -14,6 +14,7 @@ class UserRoutes {
         this.router.get('/getMyUserData', getMyUserData);
         this.router.get('/isMyProfileComplete', isMyProfileComplete);
         this.router.post('/editUserProfile', editUserProfile);
+        this.router.post('/createUserProfile', createUserProfile);
     }
 }
 
