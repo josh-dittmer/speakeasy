@@ -2,18 +2,21 @@
 
 import { MessageT, UserArrayT, UserT } from 'models';
 import Image from 'next/image';
-import { createRef, Fragment, useEffect, useMemo, useRef } from 'react';
+import { createRef, Fragment, useContext, useEffect, useMemo, useRef } from 'react';
 
 import LoadingSpinner from '../loading_spinner/loading_spinner';
 import ThemeToggle from '../theme_toggle/theme_toggle';
 import ChatBox from './chat_box/chat_box';
 import { failedMessageState, pendingMessageState } from '@/lib/mutations/create_message';
-import { getChannelDataQuery } from '@/lib/queries/get_channel_data';
+import { getChannelDataKey, getChannelDataQuery } from '@/lib/queries/get_channel_data';
 
 import './chat_area.css';
 import SentMessage, { MessageType } from './chat_message/sent_message';
 import PendingMessage from './chat_message/pending_message';
 import FailedMessage from './chat_message/failed_message';
+import { SIOContext } from '@/contexts/sio_context';
+import { useQueryClient } from '@tanstack/react-query';
+import { Tags } from '@/lib/api/requests';
 
 export default function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }) {
     const userMap: Map<string, UserT> = useMemo(() => {
@@ -33,6 +36,9 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
 
     const { fetchNextPage, data, isLoading, isError, isPending } = getChannelDataQuery(channelId);
 
+    const client = useQueryClient();
+    const sio = useContext(SIOContext);
+
     const onMessagesScrolled = () => {
         const st = chatAreaRef.current?.scrollTop;
         const sh = chatAreaRef?.current?.scrollHeight;
@@ -50,13 +56,12 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
     const getMessageType = (curr: MessageT, prev: MessageT | undefined): MessageType => {
         if (!prev) return MessageType.FULL;
 
-        if (curr.userId === prev.userId && curr.date === prev.date) {
+        if (curr.userId === prev.userId && curr.date - prev.date < 180000) {
             return MessageType.MINIMAL;
         }
 
         return MessageType.FULL;
     };
-
 
     // scroll to appropriate position when new messages are loaded
     // please do not ask me wtf is going on here i tried different combos until it worked
@@ -81,7 +86,18 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
 
             //console.log(chatAreaRef.current.scrollTop);
         }
-    }, [data?.pages, prevHeight]);
+    }, [data, prevHeight]);
+
+    useEffect(() => {
+        if (sio && data?.pages[0]) {
+            sio.sub(`${data.pages[0].channel.serverId}_${channelId}`, (event) => {
+                // TODO: change this, this is extremely slow and bad
+                client.invalidateQueries({ queryKey: [Tags.channelData, getChannelDataKey(channelId)] });
+            });
+
+            return () => sio?.unsub(`${data.pages[0].channel.serverId}_${channelId}`)
+        }
+    }, [data, sio]);
 
     if (isLoading) {
         return <LoadingSpinner />

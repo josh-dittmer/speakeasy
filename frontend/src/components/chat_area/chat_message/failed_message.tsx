@@ -7,7 +7,7 @@ import { createMessageMutation } from '@/lib/mutations/create_message';
 import { useQueryClient } from '@tanstack/react-query';
 
 export default function FailedMessage({ messageReq }: { messageReq: CreateMessageRequestT }) {
-    const { data, isSuccess } = getMyUserDataQuery();
+    /*const { data, isSuccess } = getMyUserDataQuery();
     
     const queryClient = useQueryClient();
     const { mutate } = createMessageMutation(queryClient, messageReq.channelId);
@@ -37,5 +37,6 @@ export default function FailedMessage({ messageReq }: { messageReq: CreateMessag
                 </div>
             </div>
         </div>
-    )
+    )*/
+   return <p>Error</p>
 }

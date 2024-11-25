@@ -13,7 +13,7 @@ export class FileRoutes {
     }
 
     private init() {
-        this.router.get('/getFile/:type/:fileId', this.controller.getFile);
+        this.router.get('/getFile/:type/:fileId', (req, res) => this.controller.getFile(req, res));
     }
 }
 

@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { db } from '../db/db';
 import { eq, asc, desc } from 'drizzle-orm';
 import { channelsTable, filesTable, messagesTable } from '../db/schema';
-import { ChannelArrayT, ChannelDataT, CreateChannelRequest, CreateChannelRequestT, CreateChannelResponseT, EditChannelRequest, EditChannelRequestT, FileArrayT, maxChannelNameLength, MessageArrayT } from 'models';
+import { ChannelArrayT, ChannelDataT, CreateChannelRequest, CreateChannelRequestT, CreateChannelResponseT, DeleteChannelRequest, DeleteChannelRequestT, EditChannelRequest, EditChannelRequestT, FileArrayT, maxChannelNameLength, MessageArrayT } from 'models';
 import { isLeft } from 'fp-ts/Either'
 import { badRequest, forbidden, notFound } from '../common/response';
-import { formatDate } from '../util/date';
 import { verifyServer } from '../util/verify';
 import { SIOServer } from '../socket.io/sio_server';
 
@@ -85,7 +84,7 @@ export class ChannelController {
                 userId: message.userId,
                 serverId: message.serverId,
                 content: message.content,
-                date: formatDate(message.date),
+                date: message.date.getTime(),
                 isMine: message.userId === res.locals.userId,
                 files: files
             });
@@ -103,6 +102,13 @@ export class ChannelController {
         if (!req.params.channelId) {
             return badRequest(res);
         }
+
+        const decoded = DeleteChannelRequest.decode(req.body);
+        if (isLeft(decoded)) {
+            return badRequest(res);
+        }
+
+        const data: DeleteChannelRequestT = decoded.right;
 
         const result = await db.select({
             channelId: channelsTable.channelId,
@@ -123,6 +129,14 @@ export class ChannelController {
         }
 
         await db.delete(channelsTable).where(eq(channelsTable.channelId, channelInfo.channelId));
+
+        this.sioServer.emitEvent({
+            type: 'CHANNEL_DELETED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: channelInfo.serverId,
+            channelId: channelInfo.channelId
+        });
 
         res.json({});
     }
@@ -165,6 +179,14 @@ export class ChannelController {
             .set({ name: data.name })
             .where(eq(channelsTable.channelId, channelInfo.channelId));
 
+        this.sioServer.emitEvent({
+            type: 'CHANNEL_EDITED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: channelInfo.serverId,
+            channelId: channelInfo.channelId
+        });
+
         res.json({});
     }
 
@@ -200,6 +222,14 @@ export class ChannelController {
             serverId: data.serverId,
             channelId: channelId
         }
+
+        this.sioServer.emitEvent({
+            type: 'CHANNEL_CREATED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: data.serverId,
+            channelId: channelId
+        });
 
         res.json(response);
     }

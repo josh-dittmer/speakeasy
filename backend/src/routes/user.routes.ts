@@ -14,10 +14,10 @@ export class UserRoutes {
     }
 
     private init() {
-        this.router.get('/getMyUserData', this.controller.getMyUserData);
-        this.router.get('/isMyProfileComplete', this.controller.isMyProfileComplete);
-        this.router.post('/editUserProfile', this.controller.editUserProfile);
-        this.router.post('/createUserProfile', this.controller.createUserProfile);
+        this.router.get('/getMyUserData', (req, res) => this.controller.getMyUserData(req, res));
+        this.router.get('/isMyProfileComplete', (req, res) => this.controller.isMyProfileComplete(req, res));
+        this.router.post('/editUserProfile', (req, res) => this.controller.editUserProfile(req, res));
+        this.router.post('/createUserProfile', (req, res) => this.controller.createUserProfile(req, res));
     }
 }
 

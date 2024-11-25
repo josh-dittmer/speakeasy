@@ -13,11 +13,11 @@ export class ServerRoutes {
     }
 
     private init() {
-        this.router.get('/getServerList', this.controller.getServerList);
-        this.router.get('/getServerData/:serverId', this.controller.getServerData);
-        this.router.get('/leaveServer/:serverId', this.controller.leaveServer);
-        this.router.post('/editServer/:serverId', this.controller.editServer);
-        this.router.post('/createServer', this.controller.createServer);
+        this.router.get('/getServerList', (req, res) => this.controller.getServerList(req, res));
+        this.router.get('/getServerData/:serverId', (req, res) => this.controller.getServerData(req, res));
+        this.router.post('/leaveServer/:serverId', (req, res) => this.controller.leaveServer(req, res));
+        this.router.post('/editServer/:serverId', (req, res) => this.controller.editServer(req, res));
+        this.router.post('/createServer', (req, res) => this.controller.createServer(req, res));
     }
 }
 

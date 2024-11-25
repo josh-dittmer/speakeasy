@@ -1,5 +1,7 @@
 import * as t from 'io-ts';
 
+export * from './events';
+
 export const allowedImageMimes = [
     'image/png',
     'image/jpeg',
@@ -85,7 +87,7 @@ export const Message = t.type({
     channelId: t.string,
     serverId: t.string,
     content: t.string,
-    date: t.string,
+    date: t.number,
     isMine: t.boolean,
     files: FileArray
 });
@@ -120,10 +122,17 @@ export type UploadRequestT = t.TypeOf<typeof UploadRequest>;
 export const CreateMessageRequest = t.type({
     channelId: t.string,
     content: t.string,
-    files: t.array(UploadRequest)
+    files: t.array(UploadRequest),
+    clientId: t.string
 });
 
 export type CreateMessageRequestT = t.TypeOf<typeof CreateMessageRequest>;
+
+export const DeleteMessageRequest = t.type({
+    clientId: t.string
+})
+
+export type DeleteMessageRequestT = t.TypeOf<typeof DeleteMessageRequest>;
 
 export const UploadResponse = t.type({
     fileId: t.string,
@@ -142,7 +151,8 @@ export type CreateMessageResponseT = t.TypeOf<typeof CreateMessageResponse>;
 
 export const CreateChannelRequest = t.type({
     serverId: t.string,
-    name: t.string
+    name: t.string,
+    clientId: t.string
 });
 
 export type CreateChannelRequestT = t.TypeOf<typeof CreateChannelRequest>;
@@ -154,15 +164,23 @@ export const CreateChannelResponse = t.type({
 
 export type CreateChannelResponseT = t.TypeOf<typeof CreateChannelResponse>;
 
+export const DeleteChannelRequest = t.type({
+    clientId: t.string
+})
+
+export type DeleteChannelRequestT = t.TypeOf<typeof DeleteChannelRequest>;
+
 export const EditChannelRequest = t.type({
-    name: t.string
+    name: t.string,
+    clientId: t.string
 })
 
 export type EditChannelRequestT = t.TypeOf<typeof EditChannelRequest>;
 
 export const EditServerRequest = t.type({
     name: t.string,
-    image: t.union([ UploadRequest, t.null ])
+    image: t.union([ UploadRequest, t.null ]),
+    clientId: t.string
 });
 
 export type EditServerRequestT = t.TypeOf<typeof EditServerRequest>;
@@ -175,7 +193,8 @@ export type EditServerResponseT = t.TypeOf<typeof EditServerResponse>;
 
 export const CreateServerRequest = t.type({
     name: t.string,
-    image: t.union([ UploadRequest, t.null ])
+    image: t.union([ UploadRequest, t.null ]),
+    clientId: t.string
 });
 
 export type CreateServerRequestT = t.TypeOf<typeof CreateServerRequest>;
@@ -186,10 +205,17 @@ export const CreateServerResponse = t.partial({
 
 export type CreateServerResponseT = t.TypeOf<typeof CreateServerResponse>;
 
+export const LeaveServerRequest = t.type({
+    clientId: t.string
+})
+
+export type LeaveServerRequestT = t.TypeOf<typeof LeaveServerRequest>;
+
 export const EditProfileRequest = t.type({
     name: t.string,
     bio: t.string,
-    image: t.union([ UploadRequest, t.null ])
+    image: t.union([ UploadRequest, t.null ]),
+    clientId: t.string
 });
 
 export type EditProfileRequestT = t.TypeOf<typeof EditProfileRequest>;

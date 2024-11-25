@@ -4,21 +4,46 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { ChannelArrayT, ChannelT, ServerT } from 'models';
 import { ChevronDown, ChevronUp, Plus, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import EditChannel from './forms/edit_channel';
 import CreateChannel from './forms/create_channel';
 
 import './channel_bar.css'
 import ServerMenu from './forms/server_menu';
 import ProfileInfo from '../profile_info/profile_info';
+import { SIOContext } from '@/contexts/sio_context';
+import { useQueryClient } from '@tanstack/react-query';
+import { Tags } from '@/lib/api/requests';
+import { getServerDataKey } from '@/lib/queries/get_server_data';
 
-function TextChannel({ channel, server, selectedChannelId, channels } : { channel: ChannelT, server: ServerT, selectedChannelId: string, channels: ChannelArrayT }) {    
+function TextChannel({ channel, server, channels } : { channel: ChannelT, server: ServerT, channels: ChannelArrayT }) {    
+    const pathname = usePathname();
+    const selectedChannelId = pathname.split('/')[3];
+    
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
     const router = useRouter();
+
+    const client = useQueryClient();
+    const sio = useContext(SIOContext);
 
     const visitChannel = () => {
         router.push(`/home/${channel.serverId}/${channel.channelId}`);
     }
+
+    useEffect(() => {
+        if (sio) {
+            sio.sub(`${server.serverId}`, (event) => {
+                if (event.type === 'CHANNEL_DELETED' && event.channelId == selectedChannelId) {
+                    const next = channels.find((channel) => channel.channelId !== selectedChannelId);
+                    router.push((next) ? `/home/${server.serverId}/${next.channelId}` : `/home/${server.serverId}/empty`);
+                }
+
+                client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(server.serverId)] });
+            });
+
+            return () => sio?.unsub(`${server.serverId}`);
+        }
+    }, [sio, pathname]);
 
     return (
         <>
@@ -41,8 +66,6 @@ function TextChannel({ channel, server, selectedChannelId, channels } : { channe
 }
 
 export default function ChannelBar({ channels, server }: { channels: ChannelArrayT, server: ServerT }) {    
-    const selectedChannelId = usePathname().split('/')[3];
-
     const [createChannelOpen, setCreateChannelOpen] = useState<boolean>(false);
     const [serverMenuOpen, setServerMenuOpen] = useState<boolean>(false);
 
@@ -72,7 +95,7 @@ export default function ChannelBar({ channels, server }: { channels: ChannelArra
             <div className="p-3 pt-0 overflow-y-scroll grow">
                 <div>
                     {channels.map((channel) => {
-                        return <TextChannel key={channel.channelId} channel={channel} server={server} selectedChannelId={selectedChannelId} channels={channels} />
+                        return <TextChannel key={channel.channelId} channel={channel} server={server} channels={channels} />
                     })}
                 </div>
             </div>

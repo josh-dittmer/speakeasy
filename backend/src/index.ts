@@ -1,17 +1,18 @@
 import 'dotenv/config';
 
-import express, { Application, Request, Response, NextFunction } from 'express';
+import express, { Application } from 'express';
 import http from 'http';
 import cors, { CorsOptions } from 'cors';
 
-import { auth } from './auth';
-
 import Routes from './routes/routes'
 import { SIOServer } from './socket.io/sio_server';
-import { Server } from 'socket.io';
+import { expressAuth } from './auth/express';
 
 const apiPort = process.env.API_PORT!;
+const apiVersion = process.env.API_VERSION!;
 const allowedOrigin = process.env.ALLOWED_ORIGIN!;
+
+export const API_PREFIX = `/api/v${apiVersion}`;
 
 export default class SpeakeasyServer {
     private sioServer: SIOServer;
@@ -34,7 +35,7 @@ export default class SpeakeasyServer {
         app.use(cors(corsOptions));
         app.use(express.json());
         app.use(express.urlencoded({ extended: true }));
-        app.use(auth);
+        app.use(expressAuth);
     }
 }
 

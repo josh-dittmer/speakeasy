@@ -7,6 +7,7 @@ export default function MessageFile({ file }: { file: FileT }) {
     const { data, isLoading, isError } = getFileQuery(S3Keys.messageFiles, file.fileId);
     const url = useMemo(() => (data) ? URL.createObjectURL(data) : undefined, [data]);
 
+
     if (isLoading) {
         return (
             <Image
@@ -43,6 +44,10 @@ export default function MessageFile({ file }: { file: FileT }) {
                         alt="Message image"
                     />
                 </div>
+            )
+        default:
+            return (
+                <p className="text-red-600">File previews for non-images coming soon!</p>
             )
     }
 }

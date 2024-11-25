@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { badRequest, forbidden, notFound } from '../common/response';
-import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, UploadResponseT, S3Keys, maxMessageLength } from 'models';
+import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, UploadResponseT, S3Keys, maxMessageLength, FileT, DeleteMessageRequest, DeleteMessageRequestT } from 'models';
 import { isLeft } from 'fp-ts/Either'
 import { channelsTable, filesTable, messagesTable } from '../db/schema';
 import { db } from '../db/db';
@@ -9,6 +9,7 @@ import { verifyServer } from '../util/verify';
 import { allowedMimes } from 'models';
 import { createUploadUrl, deleteFile } from '../util/s3';
 import { SIOServer } from '../socket.io/sio_server';
+import { Event } from 'models';
 
 export class MessageController {
     private sioServer: SIOServer;
@@ -60,6 +61,7 @@ export class MessageController {
         }
 
         const messageId = crypto.randomUUID();
+        const date = new Date();
 
         type MessageSchema = typeof messagesTable.$inferInsert;
         const message: MessageSchema = {
@@ -68,23 +70,23 @@ export class MessageController {
             channelId: data.channelId,
             serverId: serverId,
             content: data.content,
+            date: date,
             hasFiles: hasFiles
         };
 
         await db.insert(messagesTable).values([message]);
 
-        if (!hasFiles) {
-            res.json({});
-            return;
-        }
-
         type FileSchema = typeof filesTable.$inferInsert;
         const files: Array<FileSchema> = [];
         const uploads: Array<UploadResponseT> = [];
 
+        // file array for new message notification
+        const notificationFiles: Array<FileT> = [];
+
         for (let i = 0; i < data.files.length; i++) {
             const fileId = crypto.randomUUID();
 
+            // data for file table in db
             files.push({
                 fileId: fileId,
                 messageId: messageId,
@@ -93,6 +95,7 @@ export class MessageController {
                 mimeType: data.files[i].mimeType
             });
 
+            // data for http response
             const { url, fields } = await createUploadUrl(`${S3Keys.messageFiles}/${fileId}`);
             uploads.push({
                 fileId: fileId,
@@ -100,9 +103,29 @@ export class MessageController {
                 name: data.files[i].name,
                 fields: fields
             })
+
+            // data for notification
+            notificationFiles.push({
+                fileId: fileId,
+                messageId: messageId,
+                serverId: serverId,
+                userId: res.locals.userId,
+                name: data.files[i].name,
+                mimeType: data.files[i].mimeType
+            })
         };
 
-        await db.insert(filesTable).values(files);
+        if (hasFiles) {
+            await db.insert(filesTable).values(files);
+        }
+        
+        this.sioServer.emitEvent({
+            type: 'MESSAGE_SENT',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: serverId,
+            channelId: data.channelId
+        });
 
         const response: CreateMessageResponseT = {
             uploads: uploads
@@ -116,10 +139,18 @@ export class MessageController {
             return badRequest(res);
         }
 
+        const decoded = DeleteMessageRequest.decode(req.body);
+        if (isLeft(decoded)) {
+            return badRequest(res);
+        }
+
+        const data: DeleteMessageRequestT = decoded.right;
+
         const result = await db.select({
             messageId: messagesTable.messageId,
             userId: messagesTable.userId,
             channelId: messagesTable.channelId,
+            serverId: messagesTable.serverId,
             hasFiles: messagesTable.hasFiles
         })
         .from(messagesTable)
@@ -147,6 +178,14 @@ export class MessageController {
         });
 
         await db.delete(messagesTable).where(eq(messagesTable.messageId, messageInfo.messageId));
+
+        this.sioServer.emitEvent({
+            type: 'MESSAGE_DELETED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: messageInfo.serverId,
+            channelId: messageInfo.channelId
+        });
 
         res.json({});
     }

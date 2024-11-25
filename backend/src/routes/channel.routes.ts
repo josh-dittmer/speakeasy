@@ -13,10 +13,10 @@ export class ChannelRoutes {
     }
 
     private init() {
-        this.router.get('/getChannelData/:channelId', this.controller.getChannelData);
-        this.router.post('/createChannel', this.controller.createChannel);
-        this.router.post('/editChannel/:channelId', this.controller.editChannel);
-        this.router.delete('/deleteChannel/:channelId', this.controller.deleteChannel);
+        this.router.get('/getChannelData/:channelId', (req, res) => this.controller.getChannelData(req, res));
+        this.router.post('/createChannel', (req, res) => this.controller.createChannel(req, res));
+        this.router.post('/editChannel/:channelId', (req, res) => this.controller.editChannel(req, res));
+        this.router.delete('/deleteChannel/:channelId', (req, res) => this.controller.deleteChannel(req, res));
     }
 }
 

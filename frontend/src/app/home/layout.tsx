@@ -9,6 +9,7 @@ import { getServerListQuery } from '@/lib/queries/get_server_list';
 import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { SIOProvider } from '@/contexts/sio_context';
 
 export default function HomeLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const router = useRouter();
@@ -24,9 +25,11 @@ export default function HomeLayout({ children }: Readonly<{ children: React.Reac
     if (!profileCompleteLoadFinished || !profileCompleteRes.complete) return;
 
     return (
-        <div className="home-layout">
-            <ServerBar />
-            {children}
-        </div>
+        <SIOProvider>
+            <div className="home-layout">
+                <ServerBar />
+                {children}
+            </div>
+        </SIOProvider>
     )
 }

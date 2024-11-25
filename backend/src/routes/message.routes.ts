@@ -13,8 +13,8 @@ export class MessageRoutes {
     }
 
     private init() {
-        this.router.post('/createMessage', this.controller.createMessage);
-        this.router.delete('/deleteMessage/:messageId', this.controller.deleteMessage);
+        this.router.post('/createMessage', (req, res) => this.controller.createMessage(req, res));
+        this.router.delete('/deleteMessage/:messageId', (req, res) => this.controller.deleteMessage(req, res));
     }
 }
 

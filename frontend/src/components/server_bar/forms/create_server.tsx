@@ -10,6 +10,7 @@ import { editServerMutation } from '@/lib/mutations/edit_server';
 import Image from 'next/image';
 import { getFileQuery } from '@/lib/queries/get_file';
 import { createServerMutation } from '@/lib/mutations/create_server';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 function ServerImage({ newImageFile }: { newImageFile: File | undefined }) {    
     if (!newImageFile) {
@@ -39,7 +40,7 @@ export default function CreateServer({ menuOpen, setMenuOpen } : { menuOpen: boo
     const serverImageRef = createRef<HTMLInputElement>()
 
     const client = useQueryClient();
-    const { mutate } = createServerMutation(client);
+    const { mutate } = createServerMutation(client, CLIENT_ID);
 
     const handleServerCreate = () => {
         if (serverName.length < maxServerNameLength && serverName.length > 0) {

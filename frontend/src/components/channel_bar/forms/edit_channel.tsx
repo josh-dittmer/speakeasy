@@ -8,6 +8,7 @@ import Popup from '@/components/ui/popup/popup';
 import { Settings, Trash } from 'lucide-react';
 import { getChannelDataKey } from '@/lib/queries/get_channel_data';
 import { getServerDataKey } from '@/lib/queries/get_server_data';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 export default function EditChannel({ channel, server, selectedChannelId, channels, menuOpen, setMenuOpen } : { channel: ChannelT, server: ServerT, selectedChannelId: string, channels: ChannelArrayT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [channelName, setChannelName] = useState<string>(channel.name);
@@ -18,14 +19,16 @@ export default function EditChannel({ channel, server, selectedChannelId, channe
     const router = useRouter();
 
     const handleDeleteChannel = async () => {
-        await deleteChannel(channel.channelId);
+        await deleteChannel(channel.channelId, {
+            clientId: CLIENT_ID
+        });
         client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(server.serverId)] });
 
         if (selectedChannelId === channel.channelId) {
             const next = channels.find((channel) => channel.channelId !== selectedChannelId);
             router.push((next) ? `/home/${server.serverId}/${next.channelId}` : `/home/${server.serverId}/empty`);
         } else {
-            router.refresh();
+            //router.refresh();
         }
     };
 
@@ -37,7 +40,8 @@ export default function EditChannel({ channel, server, selectedChannelId, channe
 
         if (channelName.length < maxChannelNameLength && channelName.length > 0) {
             mutate({
-                name: channelName
+                name: channelName,
+                clientId: CLIENT_ID
             });
             setMenuOpen(false);
         } else {

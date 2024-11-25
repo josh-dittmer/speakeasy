@@ -5,6 +5,7 @@ import { FileRoutes } from './file.routes';
 import { MessageRoutes } from './message.routes';
 import { ServerRoutes } from './server.routes';
 import { UserRoutes } from './user.routes';
+import { API_PREFIX } from '..';
 
 const apiVersion = parseInt(process.env.API_VERSION!);
 
@@ -28,7 +29,7 @@ export default class Routes {
 
         this.init();
 
-        app.use(`/api/v${apiVersion}`, this.router);
+        app.use(`${API_PREFIX}`, this.router);
     }
 
     private init() {

@@ -12,6 +12,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { getChannelDataKey } from '@/lib/queries/get_channel_data';
 import MessageFile from './message_file';
 import ProfileImage from '@/components/profile_image/profile_image';
+import { formatDate } from '@/lib/util/date';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 export enum MessageType {
     FULL, MINIMAL
@@ -29,7 +31,9 @@ export default function SentMessage({ message, user, type }: { message: MessageT
     };
 
     const handleDeleteMessage = async () => {
-        await deleteMessage(message.messageId);
+        await deleteMessage(message.messageId, {
+            clientId: CLIENT_ID
+        });
         queryClient.invalidateQueries({
             queryKey: [Tags.channelData, getChannelDataKey(message.channelId)]
         });
@@ -51,7 +55,7 @@ export default function SentMessage({ message, user, type }: { message: MessageT
                 {isFull && (
                     <div className="flex items-center">
                         <p className="text-sm text-fg-dark font-bold">{user?.name}</p>
-                        <p className="ml-3 text-xs text-fg-light">{message.date}</p>
+                        <p className="ml-3 text-xs text-fg-light">{formatDate(new Date(message.date))}</p>
                     </div>
                 )}
                 <div className="">

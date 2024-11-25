@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { getMyUserDataQuery } from '@/lib/queries/get_my_user_data';
 
 export default function PendingMessage({ messageReq }: { messageReq: CreateMessageRequestT }) {
-    const { data, isSuccess } = getMyUserDataQuery();
+    /*const { data, isSuccess } = getMyUserDataQuery();
     
     return (
         <div className="flex ml-5 mb-5 truncate opacity-50">
@@ -32,5 +32,6 @@ export default function PendingMessage({ messageReq }: { messageReq: CreateMessa
                 </div>
             </div>
         </div>
-    )
+    )*/
+   return <p>Loading</p>
 }

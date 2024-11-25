@@ -1,18 +1,23 @@
+import { getClientId } from '@/app/actions';
 import { endpoints } from '@/lib/api/endpoints';
+import { getAccessToken } from '@/lib/auth/auth';
+import { CLIENT_ID } from '@/lib/util/client_id';
+import { isLeft } from 'fp-ts/lib/Either';
+import { Event, EventT } from 'models';
 import { createContext, useEffect, useRef, ReactNode } from 'react';
 import io, { Socket } from 'socket.io-client';
 
 export const ROOT_CHANNEL = 'root';
 
-type SIOCallback = (data: string) => void;
+type SIOCallback = (event: EventT) => void;
 
 type SIOSubscribe = (channel: string, callback: SIOCallback) => void;
 type SIOUnsubscribe = (channel: string) => void;
 
-type SIOContextType = [
-	subFunc: SIOSubscribe,
-	unsubFunc: SIOUnsubscribe
-]
+type SIOContextType = {
+	sub: SIOSubscribe,
+	unsub: SIOUnsubscribe
+}
 
 const SIOContext = createContext<SIOContextType | null>(null);
 
@@ -31,7 +36,45 @@ function SIOProvider({ children } : { children: ReactNode }) {
 
 	useEffect(() => {
 		ioInst.current = io(endpoints.MAIN_API, {
-			path: '/api/v1/gateway/'
+			path: '/api/v1/gateway/',
+			auth: async (cb) => {
+				const token = await getAccessToken(await getClientId());
+				cb({
+					token: token
+				})
+			}
+		});
+
+		ioInst.current.on('connect_error', (err) => {
+			console.log(`GATEWAY CONNECTION ERROR: ${err}`)
+			ioInst.current?.disconnect();
+		})
+
+		ioInst.current.on('event_message', (event) => {
+			const decoded = Event.decode(event);
+			if (isLeft(decoded)) {
+				throw new Error(`malformed event`);
+			}
+
+			const data: EventT = decoded.right;
+
+			// if client ID matches, the event originated from this client instance, so it should be ignored
+			if (data.clientId === CLIENT_ID) {
+				return;
+			}
+
+			switch(data.type) {
+				case 'MESSAGE_SENT':
+				case 'MESSAGE_DELETED':
+				case 'MESSAGE_EDITED':
+					ioChannels.current.get(`${data.serverId}_${data.channelId}`)?.(data);
+					break;
+				case 'CHANNEL_CREATED':
+				case 'CHANNEL_DELETED':
+				case 'CHANNEL_EDITED':
+					ioChannels.current.get(`${data.serverId}`)?.(data);
+					break;
+			}
 		});
 		/*wsInst.current = new WebSocket(url);
 
@@ -67,7 +110,7 @@ function SIOProvider({ children } : { children: ReactNode }) {
 	}, []);
 
 	return (
-		<SIOContext.Provider value={[subscribe, unsubscribe]}>
+		<SIOContext.Provider value={{sub: subscribe, unsub: unsubscribe}}>
 			{children}
 		</SIOContext.Provider>
 	)

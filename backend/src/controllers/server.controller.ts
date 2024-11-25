@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { db } from '../db/db';
 import { and, eq } from 'drizzle-orm';
 import { channelsTable, filesTable, membershipsTable, serversTable, usersTable } from '../db/schema';
-import { allowedImageMimes, ChannelArrayT, CreateServerRequest, CreateServerRequestT, CreateServerResponseT, EditServerRequest, EditServerRequestT, EditServerResponseT, maxServerNameLength, S3Keys, ServerArrayT, ServerDataT, UploadResponse, UploadResponseT, UserArrayT } from 'models';
+import { allowedImageMimes, ChannelArrayT, CreateServerRequest, CreateServerRequestT, CreateServerResponseT, EditServerRequest, EditServerRequestT, EditServerResponseT, LeaveServerRequest, LeaveServerRequestT, maxServerNameLength, S3Keys, ServerArrayT, ServerDataT, UploadResponse, UploadResponseT, UserArrayT } from 'models';
 import { isLeft } from 'fp-ts/Either'
 import { badRequest, forbidden, notFound } from '../common/response';
 import { verifyServer } from '../util/verify';
@@ -132,6 +132,8 @@ export class ServerController {
             };
         }
 
+        this.sioServer.register(res.locals.userId, serverId);
+
         const response: CreateServerResponseT = {
             upload: upload
         }
@@ -222,6 +224,13 @@ export class ServerController {
         if (!req.params.serverId) {
             return badRequest(res);
         }
+
+        const decoded = LeaveServerRequest.decode(req.body);
+        if (isLeft(decoded)) {
+            return badRequest(res);
+        }
+
+        const data: LeaveServerRequestT = decoded.right;
 
         const serverId = req.params.serverId;
 

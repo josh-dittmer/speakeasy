@@ -11,7 +11,7 @@ type CreateMessageMutationVars = {
     files: Array<File>
 };
 
-export const createMessageMutation = (client: QueryClient, channelId: string) => {
+export const createMessageMutation = (client: QueryClient, channelId: string, clientId: string) => {
     const { mutate } = uploadFileMutation(client);
     
     return useMutation({
@@ -21,7 +21,8 @@ export const createMessageMutation = (client: QueryClient, channelId: string) =>
             files: vars.files.map(file => ({
                 name: file.name,
                 mimeType: file.type
-            }))
+            })),
+            clientId: clientId
         }),
         onSettled: () => client.invalidateQueries({ queryKey: [Tags.channelData, getChannelDataKey(channelId)] }),
         mutationKey: [createMessageKey(channelId)],

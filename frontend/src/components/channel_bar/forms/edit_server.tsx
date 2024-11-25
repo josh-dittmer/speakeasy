@@ -9,6 +9,7 @@ import { Plus, Settings, Trash } from 'lucide-react';
 import { editServerMutation } from '@/lib/mutations/edit_server';
 import Image from 'next/image';
 import { getFileQuery } from '@/lib/queries/get_file';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 function ServerImage({ imageId, newImageFile }: { imageId: string | null, newImageFile: File | undefined }) {
     if (newImageFile) {
@@ -74,7 +75,7 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
     const serverImageRef = createRef<HTMLInputElement>()
 
     const client = useQueryClient();
-    const { mutate } = editServerMutation(client, server.serverId);
+    const { mutate } = editServerMutation(client, server.serverId, CLIENT_ID);
 
     const handleDeleteServer = async () => {
         /*await deleteChannel(channel.channelId);

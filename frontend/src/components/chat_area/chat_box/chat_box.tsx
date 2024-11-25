@@ -9,6 +9,7 @@ import Image from 'next/image';
 import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useMemo, useState } from 'react';
 
 import './chat_box.css'
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 function FilePreview({ file, removeFile }: { file: File, removeFile: (file: File) => void }) {
     const isImg = allowedImageMimes.includes(file.type);
@@ -54,7 +55,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
     const fileUploadRef = createRef<HTMLInputElement>();
 
     const queryClient = useQueryClient();
-    const { mutate } = createMessageMutation(queryClient, channel.channelId);
+    const { mutate } = createMessageMutation(queryClient, channel.channelId, CLIENT_ID);
 
     const onMessageInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setMessageContent(e.target.value);

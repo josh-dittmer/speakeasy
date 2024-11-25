@@ -8,13 +8,16 @@ import Popup from '@/components/ui/popup/popup';
 import { LogOut, Plus, Settings, Trash } from 'lucide-react';
 import { createChannelMutation } from '@/lib/mutations/create_channel';
 import { getServerListKey } from '@/lib/queries/get_server_list';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 export default function LeaveServer({ server, menuOpen, setMenuOpen } : { server: ServerT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const router = useRouter();
     const client = useQueryClient();
     
     const handleLeaveServer = async () => {
-        await leaveServer(server.serverId);
+        await leaveServer(server.serverId, {
+            clientId: CLIENT_ID
+        });
         client.invalidateQueries({ queryKey: [getServerListKey()] });
 
         router.push('/home');

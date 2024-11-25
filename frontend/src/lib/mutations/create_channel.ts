@@ -11,7 +11,7 @@ type CreateChannelMutationVars = {
     name: string
 };
 
-export const createChannelMutation = (serverId: string) => {
+export const createChannelMutation = (serverId: string, clientId: string) => {
     const router = useRouter();
     const client = useQueryClient();
 
@@ -19,6 +19,7 @@ export const createChannelMutation = (serverId: string) => {
         mutationFn: (vars: CreateChannelMutationVars) => createChannel({
             serverId: serverId,
             name: vars.name,
+            clientId: clientId
         }),
         mutationKey: [createChannelKey(serverId)],
         onSuccess: (data, variables, context) => {

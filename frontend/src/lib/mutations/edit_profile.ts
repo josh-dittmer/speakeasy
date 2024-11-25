@@ -11,7 +11,7 @@ type EditProfileMutationVars = {
     imageFile: File | null
 }
 
-export const editProfileMutation = (client: QueryClient) => {
+export const editProfileMutation = (client: QueryClient, clientId: string) => {
     const { mutate } = uploadFileMutation(client);
     const router = useRouter();
 
@@ -22,7 +22,8 @@ export const editProfileMutation = (client: QueryClient) => {
             image: (vars.imageFile) ? {
                 name: vars.imageFile.name,
                 mimeType: vars.imageFile.type
-            } : null
+            } : null,
+            clientId: clientId
         }),
         mutationKey: [editProfileKey()],
         onSuccess: (data, variables, context) => {

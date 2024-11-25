@@ -1,4 +1,4 @@
-import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateProfileRequestT, CreateProfileResponse, CreateProfileResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateProfileRequestT, CreateProfileResponse, CreateProfileResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, DeleteChannelRequestT, DeleteMessageRequestT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, LeaveServerRequestT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
@@ -37,9 +37,13 @@ const postReqMultipart = (data: FormData): RequestInit => {
     return init;
 }
 
-const deleteReq = (): RequestInit => {
+const deleteReq = <ReqType>(data: ReqType): RequestInit => {
     const init: RequestInit = {
-        method: 'delete'
+        method: 'delete',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
     };
 
     return init;
@@ -141,16 +145,16 @@ export async function editServer(serverId: string, editServerRequest: EditServer
     return await requestAndDecode(`/editServer/${serverId}`, postReq(editServerRequest), EditServerResponse);
 }
 
-export async function leaveServer(serverId: string) {
-    return await requestAndDecode(`/leaveServer/${serverId}`, getReq(), t.type({}));
+export async function leaveServer(serverId: string, leaveServerRequest: LeaveServerRequestT) {
+    return await requestAndDecode(`/leaveServer/${serverId}`, postReq(leaveServerRequest), t.type({}));
 }
 
-export async function deleteMessage(messageId: string) {
-    return await requestAndDecode(`/deleteMessage/${messageId}`, deleteReq(), t.type({}));
+export async function deleteMessage(messageId: string, deleteMessageRequest: DeleteMessageRequestT) {
+    return await requestAndDecode(`/deleteMessage/${messageId}`, deleteReq(deleteMessageRequest), t.type({}));
 }
 
-export async function deleteChannel(channelId: string) {
-    return await requestAndDecode(`/deleteChannel/${channelId}`, deleteReq(), t.type({}));
+export async function deleteChannel(channelId: string, deleteChannelRequest: DeleteChannelRequestT) {
+    return await requestAndDecode(`/deleteChannel/${channelId}`, deleteReq(deleteChannelRequest), t.type({}));
 }
 
 export type UploadFileData = {

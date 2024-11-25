@@ -24,13 +24,11 @@ export default function Client({ children }: Readonly<{ children: React.ReactNod
     return (
         <>
             <ThemeProvider defaultTheme={'dark'}>
-            <SIOProvider>
             <QueryClientProvider client={queryClient}>
                 <ApplyTheme>
                     {children}
                 </ApplyTheme>
             </QueryClientProvider>
-            </SIOProvider>
             </ThemeProvider>
         </>
     )

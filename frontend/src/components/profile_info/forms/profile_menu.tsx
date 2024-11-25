@@ -1,6 +1,6 @@
 import Menu, { MenuItem, MenuSeparator, MenuUp } from "@/components/ui/menu/menu";
 import { LogOut, Pencil, Plus, Settings, Trash, Users } from "lucide-react";
-import { ChangeEvent, createRef, Dispatch, SetStateAction, useState } from "react";
+import { ChangeEvent, createRef, Dispatch, SetStateAction, useMemo, useState } from "react";
 import { allowedImageMimes, maxFileSize, maxUserBioLength, maxUserNameLength, S3Keys, ServerT, UserT } from "models";
 import { useQueryClient } from "@tanstack/react-query";
 import { editProfileMutation } from "@/lib/mutations/edit_profile";
@@ -9,6 +9,7 @@ import { getFileQuery } from "@/lib/queries/get_file";
 import { usePathname, useRouter } from "next/navigation";
 import { handleRevokeTokens } from "@/lib/auth/auth";
 import { getClientId } from "@/app/actions";
+import { CLIENT_ID } from "@/lib/util/client_id";
 
 function UserImage({ imageId, newImageFile }: { imageId: string | null, newImageFile: File | undefined }) {
     if (newImageFile) {
@@ -32,20 +33,8 @@ function UserImage({ imageId, newImageFile }: { imageId: string | null, newImage
         )
     }
 
-    const { data, isLoading, isError } = getFileQuery(S3Keys.profileImgs, imageId);
-
-    if (isLoading) {
-        return (
-            <Image
-                src={'/img/image_loading.gif'}
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-16 h-16"
-                alt="User image loading"
-            />
-        )
-    }
+    const { data, isLoading, isError, isSuccess } = getFileQuery(S3Keys.profileImgs, imageId);
+    const url = useMemo(() => (data) ? URL.createObjectURL(data) : undefined, [data]);
 
     if (isError) {
         return (
@@ -53,17 +42,29 @@ function UserImage({ imageId, newImageFile }: { imageId: string | null, newImage
         )
     }
 
-    if (!data) return;
-
     return (
-        <Image
-            src={URL.createObjectURL(data)}
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="w-[75px] h-[75px] rounded-full border-2 border-fg-light"
-            alt="User image"
-        />
+        <>
+            {isLoading && (
+                <Image
+                    src={'/img/image_loading.gif'}
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    className="w-16 h-16"
+                    alt="User image loading"
+                />
+            )}
+            {url && isSuccess && (
+                <Image
+                    src={url}
+                    width={0}
+                    height={0}
+                    sizes="100vw"
+                    className="w-[75px] h-[75px] rounded-full border-2 border-fg-light"
+                    alt="User image"
+                />
+            )}
+        </>
     )
 }
 
@@ -78,7 +79,7 @@ export default function ProfileMenu({ user, open, setOpen }: { user: UserT, open
     const userImageRef = createRef<HTMLInputElement>();
 
     const client = useQueryClient();
-    const { mutate } = editProfileMutation(client);
+    const { mutate } = editProfileMutation(client, CLIENT_ID);
 
     const router = useRouter();
 

@@ -11,7 +11,7 @@ type CreateServerMutationVars = {
     imageFile: File | null
 }
 
-export const createServerMutation = (client: QueryClient) => {
+export const createServerMutation = (client: QueryClient, clientId: string) => {
     const { mutate } = uploadFileMutation(client);
     const router = useRouter();
 
@@ -21,7 +21,8 @@ export const createServerMutation = (client: QueryClient) => {
             image: (vars.imageFile) ? {
                 name: vars.imageFile.name,
                 mimeType: vars.imageFile.type
-            } : null
+            } : null,
+            clientId: clientId
         }),
         mutationKey: [createServerKey()],
         onSuccess: (data, variables, context) => {

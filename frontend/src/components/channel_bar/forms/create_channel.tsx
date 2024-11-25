@@ -7,11 +7,12 @@ import { ChannelArrayT, ChannelT, maxChannelNameLength, ServerT } from 'models';
 import Popup from '@/components/ui/popup/popup';
 import { Plus, Settings, Trash } from 'lucide-react';
 import { createChannelMutation } from '@/lib/mutations/create_channel';
+import { CLIENT_ID } from '@/lib/util/client_id';
 
 export default function CreateChannel({ server, menuOpen, setMenuOpen } : { server: ServerT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [channelName, setChannelName] = useState<string>('');
 
-    const { mutate } = createChannelMutation(server.serverId);
+    const { mutate } = createChannelMutation(server.serverId, CLIENT_ID);
 
     const handleCreateChannel = async () => {
         if (channelName.length < maxChannelNameLength && channelName.length > 0) {
