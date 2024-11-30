@@ -11,125 +11,49 @@ import Image from 'next/image';
 import { getFileQuery } from '@/lib/queries/get_file';
 import { createServerMutation } from '@/lib/mutations/create_server';
 import { CLIENT_ID } from '@/lib/util/client_id';
-
-function ServerImage({ newImageFile }: { newImageFile: File | undefined }) {    
-    if (!newImageFile) {
-        return (
-            <div className="w-[100px] h-[100px] rounded-full border-2 border-fg-light bg-bg-light flex justify-center items-center">
-                <Plus width={32} height={32} className="text-fg-dark" />
-            </div>
-        )
-    }
-
-    return (
-        <Image
-            src={URL.createObjectURL(newImageFile)}
-            width={0}
-            height={0}
-            sizes="100vw"
-            className="w-[100px] h-[100px] rounded-full border-2 border-fg-light"
-            alt="Server image"
-        />
-    )
-}
+import TitleSection from '@/components/ui/forms/section/title_section';
+import ImageUpload from '@/components/ui/forms/file_upload/image_upload';
+import TextBox from '@/components/ui/forms/text_box/text_box';
+import ButtonSection from '@/components/ui/forms/section/button_section';
+import { CancelButton, SubmitButton } from '@/components/ui/forms/button/button';
+import { NormalForm } from '@/components/ui/forms/form/form';
 
 export default function CreateServer({ menuOpen, setMenuOpen } : { menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [serverName, setServerName] = useState<string>('');
+    const [serverNameValid, setServerNameValid] = useState<boolean>();
 
     const [serverImage, setServerImage] = useState<File>();
-    const serverImageRef = createRef<HTMLInputElement>()
+
+    const [submitted, setSubmitted] = useState<boolean>();
+
+    const valid = serverNameValid;
 
     const client = useQueryClient();
     const { mutate } = createServerMutation(client, CLIENT_ID);
 
     const handleServerCreate = () => {
-        if (serverName.length < maxServerNameLength && serverName.length > 0) {
-            mutate({
-                name: serverName,
-                imageFile: serverImage || null
-            });
-            setMenuOpen(false);
-        } else {
+        mutate({
+            name: serverName,
+            imageFile: serverImage || null
+        });
 
-        }
+        setServerName('');
+        setServerImage(undefined);
+
+        setMenuOpen(false);
     };
-
-    const clearImage = () => {
-        if (serverImageRef.current) {
-            serverImageRef.current.value = '';
-        }
-    }
-
-    const onAddImage = (e: ChangeEvent<HTMLInputElement>) => {
-        if (!e.target.files || !e.target.files[0]) return;
-        const file = e.target.files[0];
-
-        if (file.size > maxFileSize) {
-            // file too big
-            return;
-        }
-
-        else if (!allowedImageMimes.includes(file.type)) {
-            // file is not a valid image type
-            return;
-        }
-
-        setServerImage(file);
-        clearImage();
-    }
 
     return (
         <Popup open={menuOpen}>
-            <div className="flex items-center p-3">
-                <Plus width={25} height={25} className="text-fg-medium" />
-                <h1 className="ml-3 text-fg-dark text-2xl">New Server</h1>
-            </div>
-            <div className="w-full flex flex-col items-center p-3">
-                <p className="text-fg-medium mb-2">Server Icon</p>
-                <input 
-                    type="file"
-                    id="file-c-server"
-                    ref={serverImageRef}
-                    onChange={onAddImage}
-                    className="hidden"
-                />
-                <label
-                    htmlFor="file-c-server"
-                    className=""
-                >
-                    <ServerImage newImageFile={serverImage} />
-                </label>
-            </div>
-            <div className="p-3">
-                <p className="text-fg-medium mb-2">Server Name</p>
-                <input 
-                    type="text"
-                    placeholder="Server name..."
-                    className="outline-none bg-bg-medium p-2 w-96 rounded text-fg-dark"
-                    value={serverName}
-                    onChange={(e) => setServerName(e.target.value)}
-                />
-            </div>
-            <div className="flex items-center p-3">
-                <div className="flex grow justify-end">
-                    <button
-                        onClick={() => {
-                            setServerImage(undefined);
-                            clearImage();
-                            setMenuOpen(false);
-                        }}
-                        className="text-fg-dark bg-bg-light hover:bg-bg-medium p-2 rounded mr-3"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleServerCreate}
-                        className="text-fg-accent bg-bg-accent hover:bg-bg-accent-dark p-2 rounded"
-                    >
-                        Save
-                    </button>
-                </div>
-            </div>
+            <NormalForm>
+                <TitleSection title={'New Server'} icon={Plus} />
+                <ImageUpload existingImageId={null} existingImageLocation={S3Keys.serverImgs} title={'Server Icon'} maxSize={maxFileSize} file={serverImage} setFile={setServerImage} onInvalid={(message) => console.log(message)} />
+                <TextBox value={serverName} setValue={setServerName} title={'Server Name'} placeholder={'Server name...'} maxChars={maxServerNameLength} submitted={submitted} setValid={setServerNameValid} />
+                <ButtonSection>
+                    <CancelButton onClick={() => setMenuOpen(false)} />
+                    <SubmitButton onClick={handleServerCreate} enabled={valid} />
+                </ButtonSection>
+            </NormalForm>
         </Popup>
     )
 }

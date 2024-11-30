@@ -33,5 +33,16 @@ export default function PendingMessage({ messageReq }: { messageReq: CreateMessa
             </div>
         </div>
     )*/
-   return <p>Loading</p>
+   return (
+        <div className="ml-4">
+            <Image
+                src={'/img/image_loading.gif'}
+                width={0}
+                height={0}
+                sizes="100vw"
+                className="w-8 h-8"
+                alt="Message sending"
+            />
+        </div>
+   )
 }

@@ -116,7 +116,7 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
             <div className="w-full bg-bg-light flex items-center p-3 shadow-b z-10 h-header">
                 <p className="mr-2 text-fg-medium text-xl font-bold">T</p>
                 <p className="text-lg text-fg-medium">{data?.pages[0]?.channel.name}</p>
-                <div className="block md:hidden flex grow justify-end items-center">
+                <div className="block lg:hidden flex grow justify-end items-center">
                     <ThemeToggle />
                 </div>
             </div>

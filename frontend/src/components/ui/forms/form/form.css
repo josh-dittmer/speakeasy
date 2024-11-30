@@ -1,0 +1,14 @@
+.normal-form {
+    --form-main-padding: 0.75rem;
+    --form-image-preview-width: 100px;
+    --form-image-preview-height: 100px;
+    --form-text-box-width: 24rem;
+    --form-submit-button-padding: 0.5rem;
+}
+
+.small-form {
+    --form-main-padding: 0.5rem;
+    --form-image-preview-width: 75px;
+    --form-image-preview-height: 75px;
+    --form-submit-button-padding: 0.25rem;
+}

@@ -16,7 +16,7 @@ export const editChannelMutation = (client: QueryClient, serverId: string, chann
         onSuccess: () => {
             client.invalidateQueries({ queryKey: [Tags.channelData, getChannelDataKey(channelId)] });
             client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(serverId)] });
-            router.refresh();
+            //router.refresh();
         }
     })
 }

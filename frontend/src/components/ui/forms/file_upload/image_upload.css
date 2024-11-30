@@ -1,0 +1,4 @@
+.image-preview {
+    width: var(--form-image-preview-width);
+    height: var(--form-image-preview-height);
+}

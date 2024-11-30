@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 export default function ProfileImage({ name, imageId, className }: { name: string, imageId: string | null, className: string }) {    
     if (!imageId) {
         return (
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${className}`}>
+            <div className={`w-11 h-11 rounded-full flex items-center justify-center ${className}`}>
                 <p className="text-fg-dark">{name[0]}</p>
             </div>
         )
@@ -29,7 +29,7 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
                     width={0}
                     height={0}
                     sizes="100vw"
-                    className={`w-12 h-12 rounded-full`}
+                    className={`w-11 h-11 rounded-full`}
                     alt="User image loading"
                 />
             )}
@@ -39,7 +39,7 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
                     width={0}
                     height={0}
                     sizes="100vw"
-                    className={`w-12 h-12 rounded-full`}
+                    className={`w-11 h-11 rounded-full`}
                     alt="User image"
                 />
             )}

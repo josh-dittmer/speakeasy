@@ -8,56 +8,41 @@ import Popup from '@/components/ui/popup/popup';
 import { Plus, Settings, Trash } from 'lucide-react';
 import { createChannelMutation } from '@/lib/mutations/create_channel';
 import { CLIENT_ID } from '@/lib/util/client_id';
+import TitleSection from '@/components/ui/forms/section/title_section';
+import TextBox from '@/components/ui/forms/text_box/text_box';
+import ButtonSection from '@/components/ui/forms/section/button_section';
+import { CancelButton, SubmitButton } from '@/components/ui/forms/button/button';
+import { NormalForm } from '@/components/ui/forms/form/form';
 
 export default function CreateChannel({ server, menuOpen, setMenuOpen } : { server: ServerT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [channelName, setChannelName] = useState<string>('');
+    const [channelNameValid, setChannelNameValid] = useState<boolean>();
+
+    const [submitted, setSubmitted] = useState<boolean>();
+
+    const valid = channelNameValid;
 
     const { mutate } = createChannelMutation(server.serverId, CLIENT_ID);
 
     const handleCreateChannel = async () => {
-        if (channelName.length < maxChannelNameLength && channelName.length > 0) {
-            mutate({
-                name: channelName
-            });
-            setChannelName('');
-            setMenuOpen(false);
-        } else {
+        mutate({
+            name: channelName
+        });
 
-        }
+        setChannelName('');
+        setMenuOpen(false);
     };
 
     return (
         <Popup open={menuOpen}>
-            <div className="flex items-center p-3">
-                <Plus width={25} height={25} className="text-fg-medium" />
-                <h1 className="ml-3 text-fg-dark text-2xl">Create New Channel</h1>
-            </div>
-            <div className="p-3">
-                <p className="text-fg-medium mb-2">Channel Name</p>
-                <input 
-                    type="text"
-                    placeholder="Channel name..."
-                    className="outline-none bg-bg-medium p-2 w-96 rounded text-fg-dark"
-                    value={channelName}
-                    onChange={(e) => setChannelName(e.target.value)}
-                />
-            </div>
-            <div className="flex items-center p-3">
-                <div className="flex grow justify-end">
-                    <button
-                        onClick={() => setMenuOpen(false)}
-                        className="text-fg-dark bg-bg-light hover:bg-bg-medium p-2 rounded mr-3"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={handleCreateChannel}
-                        className="text-fg-accent bg-bg-accent hover:bg-bg-accent-dark p-2 rounded"
-                    >
-                        Create
-                    </button>
-                </div>
-            </div>
+            <NormalForm>
+                <TitleSection title={server.name} icon={Plus} />
+                <TextBox value={channelName} setValue={setChannelName} title={'Channel Name'} placeholder={'Channel name...'} maxChars={maxChannelNameLength} submitted={submitted} setValid={setChannelNameValid} />
+                <ButtonSection>
+                    <CancelButton onClick={() => setMenuOpen(false)} />
+                    <SubmitButton onClick={handleCreateChannel} enabled={valid} />
+                </ButtonSection>
+            </NormalForm>
         </Popup>
     )
 }

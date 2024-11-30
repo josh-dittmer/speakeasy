@@ -30,20 +30,21 @@ export function MenuItem({ children, onClick }: { children: React.ReactNode, onC
     )
 }
 
-export function MenuUp({ children, menuState }: { children: React.ReactNode[], menuState: MenuState }) {
+export function MenuUp({ children, menuState }: { children: React.ReactNode | React.ReactNode[], menuState: MenuState }) {
     return (
         <>
             {menuState.open && (
                 <div className="relative">
                     <div className="absolute menu-up w-full">
                         <div className="m-3 bg-bg-light p-2 rounded shadow">
-                            {children.map((item, index) => {
+                            {/*children.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
                                         {item}
                                     </Fragment>
                                 )
-                            })}
+                            })*/}
+                            {children}
                         </div>
                     </div>
                 </div>
@@ -52,20 +53,21 @@ export function MenuUp({ children, menuState }: { children: React.ReactNode[], m
     )
 }
 
-export default function Menu({ children, menuState }: { children: React.ReactNode[], menuState: MenuState }) {
+export default function Menu({ children, menuState }: { children: React.ReactNode | React.ReactNode[], menuState: MenuState }) {
     return (
         <>
             {menuState.open && (
                 <div className="relative">
                     <div className="absolute menu w-full">
                         <div className="m-3 bg-bg-light p-2 rounded shadow">
-                            {children.map((item, index) => {
+                            {/*children.map((item, index) => {
                                 return (
                                     <Fragment key={index}>
                                         {item}
                                     </Fragment>
                                 )
-                            })}
+                            })*/}
+                            {children}
                         </div>
                     </div>
                 </div>
