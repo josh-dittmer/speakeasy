@@ -64,8 +64,8 @@ export default function SentMessage({ message, user, type }: { message: MessageT
                     <div className={(isFull ? 'pt-1' : '')}>
                         {message.files.map((file) => {
                             return (
-                                <div className="pb-1">
-                                    <MessageFile key={file.fileId} file={file} />
+                                <div key={file.fileId} className="pb-1">
+                                    <MessageFile file={file} />
                                 </div>
                             )
                         })}

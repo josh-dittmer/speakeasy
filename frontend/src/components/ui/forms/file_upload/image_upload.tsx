@@ -29,10 +29,10 @@ function ExistingImagePreview({ imageId, imageLocation }: { imageId: string, ima
             {isLoading && (
                 <Image
                     src={'/img/image_loading.gif'}
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    className="w-16 h-16"
+                    width={64}
+                    height={64}
+                    //sizes="100vw"
+                    //className="w-16 h-16"
                     alt="Server image loading"
                 />
             )}

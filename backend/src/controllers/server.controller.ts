@@ -62,7 +62,7 @@ export class ServerController {
         .innerJoin(channelsTable, eq(serversTable.serverId, channelsTable.serverId))
         .where(eq(serversTable.serverId, serverId));
 
-        const userResult: UserArrayT = await db.select({
+        const userResult = await db.select({
             userId: membershipsTable.userId,
             imageId: usersTable.imageId,
             name: usersTable.name,
@@ -72,10 +72,36 @@ export class ServerController {
         .innerJoin(usersTable, eq(membershipsTable.userId, usersTable.userId))
         .where(eq(membershipsTable.serverId, serverResult[0].serverId));
 
+        const userMap = new Map<string, typeof usersTable.$inferSelect>();
+        userResult.forEach((result) => {
+            userMap.set(result.userId, result);
+        })
+
+        const userIds = new Set<string>();
+        userResult.forEach((result) => {
+            userIds.add(result.userId);
+        })
+
+        const users: UserArrayT = [];
+        const statuses = await this.sioServer.getUserStatuses(userIds);
+
+        statuses.forEach((status, userId) => {
+            const user = userMap.get(userId);
+            if (!user) return;
+            
+            users.push({
+                userId: userId,
+                imageId: user.imageId,
+                name: user.name,
+                bio: user.bio,
+                status: status
+            });
+        });
+
         const result: ServerDataT = {
             server: serverResult[0],
             channels: channelResult,
-            users: userResult
+            users: users
         };
 
         //await new Promise((res) => setTimeout(res, 2000));
@@ -213,6 +239,14 @@ export class ServerController {
             })
             .where(eq(serversTable.serverId, serverInfo.serverId));
 
+        this.sioServer.emitEvent({
+            type: 'SERVER_EDITED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: serverInfo.serverId,
+            channelId: null
+        });
+
         const response: EditServerResponseT = {
             upload: upload
         };
@@ -235,6 +269,14 @@ export class ServerController {
         const serverId = req.params.serverId;
 
         await db.delete(membershipsTable).where(and(eq(membershipsTable.userId, res.locals.userId), eq(membershipsTable.serverId, serverId)));
+
+        this.sioServer.emitEvent({
+            type: 'SERVER_USER_LEAVE',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: serverId,
+            channelId: null
+        });
 
         res.json({});
     }

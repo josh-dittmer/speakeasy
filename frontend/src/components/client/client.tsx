@@ -1,6 +1,5 @@
 'use client';
 
-import { SIOProvider } from '@/contexts/sio_context';
 import { ThemeContext, ThemeProvider } from "@/contexts/theme_context";
 import { useContext, useState } from "react";
 

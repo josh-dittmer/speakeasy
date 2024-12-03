@@ -61,7 +61,7 @@ export default function TextBox({ value, setValue, title, multiline, placeholder
                 )}
                 {!(hideCount) && (
                     <div className="p-1">
-                        <p className={'text-xs ' + (isValid(value) ? 'text-fg-medium' : 'text-red-500')}>
+                        <p className={'text-xs ' + (isValid(value) ? 'text-fg-medium' : 'text-red-600')}>
                             {value.length}/{maxChars}
                         </p>
                     </div>

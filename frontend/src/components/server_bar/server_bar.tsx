@@ -7,10 +7,12 @@ import './server_bar.css';
 import { usePathname, useRouter } from 'next/navigation';
 import { Plus } from 'lucide-react';
 import { getFileQuery } from '@/lib/queries/get_file';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import CreateServer from './forms/create_server';
-import { getServerListQuery } from '@/lib/queries/get_server_list'
-import { getServerDataQuery } from '@/lib/queries/get_server_data';
+import { getServerListKey, getServerListQuery } from '@/lib/queries/get_server_list'
+import { getServerDataKey, getServerDataQuery } from '@/lib/queries/get_server_data';
+import { useQueryClient } from '@tanstack/react-query';
+import { Tags } from '@/lib/api/requests';
 
 function ServerImage({ serverName, imageId }: { serverName: string, imageId: string | null }) {    
     if (!imageId) {
@@ -38,10 +40,10 @@ function ServerImage({ serverName, imageId }: { serverName: string, imageId: str
                 {isLoading && (
                     <Image
                         src={'/img/image_loading.gif'}
-                        width={0}
-                        height={0}
-                        sizes="100vw"
-                        className="w-16 h-16"
+                        width={64}
+                        height={64}
+                        //sizes="100vw"
+                        //className="w-16 h-16"
                         alt="Server image loading"
                     />
                 )}

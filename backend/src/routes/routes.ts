@@ -6,6 +6,7 @@ import { MessageRoutes } from './message.routes';
 import { ServerRoutes } from './server.routes';
 import { UserRoutes } from './user.routes';
 import { API_PREFIX } from '..';
+import { InviteRoutes } from './invite.routes';
 
 const apiVersion = parseInt(process.env.API_VERSION!);
 
@@ -17,6 +18,7 @@ export default class Routes {
     private messageRoutes: MessageRoutes;
     private serverRoutes: ServerRoutes;
     private userRoutes: UserRoutes;
+    private inviteRoutes: InviteRoutes;
 
     constructor(app: Application, sioServer: SIOServer) {
         this.router = Router();
@@ -26,6 +28,7 @@ export default class Routes {
         this.messageRoutes = new MessageRoutes(sioServer);
         this.serverRoutes = new ServerRoutes(sioServer);
         this.userRoutes = new UserRoutes(sioServer);
+        this.inviteRoutes = new InviteRoutes(sioServer);
 
         this.init();
 
@@ -38,5 +41,6 @@ export default class Routes {
         this.router.use(this.messageRoutes.router);
         this.router.use(this.serverRoutes.router);
         this.router.use(this.userRoutes.router);
+        this.router.use(this.inviteRoutes.router);
     }
 }

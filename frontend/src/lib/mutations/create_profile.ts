@@ -3,6 +3,7 @@ import { uploadFileMutation } from "./upload_file";
 import { createProfile, editProfile, editServer, Tags } from "../api/requests";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
+import { CLIENT_ID } from "../util/client_id";
 
 export const createProfileKey = (): string => `createProfile`;
 
@@ -23,7 +24,8 @@ export const createProfileMutation = (client: QueryClient, redirectPath: string)
             image: (vars.imageFile) ? {
                 name: vars.imageFile.name,
                 mimeType: vars.imageFile.type
-            } : null
+            } : null,
+            clientId: CLIENT_ID
         }),
         mutationKey: [createProfileKey()],
         onSuccess: (data, variables, context) => {

@@ -55,10 +55,10 @@ export default function CallbackPage() {
         <div className="w-screen h-screen flex flex-col justify-center items-center">
             <Image
                 src={'/img/image_loading.gif'}
-                width={0}
-                height={0}
-                sizes="100vw"
-                className="w-16 h-16"
+                width={64}
+                height={64}
+                //sizes="100vw"
+                //className="w-16 h-16"
                 alt="Loading"
             />
             <p className="text-fg-dark">Login complete!</p>

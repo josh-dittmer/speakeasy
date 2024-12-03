@@ -55,11 +55,18 @@ export type ChannelT = t.TypeOf<typeof Channel>
 export const ChannelArray = t.array(Channel);
 export type ChannelArrayT = t.TypeOf<typeof ChannelArray>;
 
+export const UserStatus = t.union([
+    t.literal('ONLINE'), t.literal('OFFLINE')
+]);
+
+export type UserStatusT = t.TypeOf<typeof UserStatus>;
+
 export const User = t.type({
     userId: t.string,
     imageId: t.union([ t.string, t.null ]),
     name: t.string,
-    bio: t.union([ t.string, t.null ])
+    bio: t.union([ t.string, t.null ]),
+    status: UserStatus
 });
 
 export type UserT = t.TypeOf<typeof User>;
@@ -229,7 +236,8 @@ export type EditProfileResponseT = t.TypeOf<typeof EditProfileResponse>;
 export const CreateProfileRequest = t.type({
     name: t.string,
     bio: t.string,
-    image: t.union([ UploadRequest, t.null ])
+    image: t.union([ UploadRequest, t.null ]),
+    clientId: t.string
 });
 
 export type CreateProfileRequestT = t.TypeOf<typeof CreateProfileRequest>;
@@ -246,3 +254,32 @@ export const IsMyProfileCompleteResponse = t.type({
 })
 
 export type IsMyProfileCompleteResponseT = t.TypeOf<typeof IsMyProfileCompleteResponse>;
+
+export const CreateInviteRequest = t.type({
+    serverId: t.string,
+    validFor: t.union([ t.number, t.null ])
+});
+
+export type CreateInviteRequestT = t.TypeOf<typeof CreateInviteRequest>;
+
+export const CreateInviteResponse = t.type({
+    inviteId: t.string
+})
+
+export type CreateInviteResponseT = t.TypeOf<typeof CreateInviteResponse>;
+
+export const ConsumeInviteResponse = t.type({
+    success: t.boolean,
+    expiresAt: t.union([ t.number, t.null ])
+});
+
+export type ConsumeInviteResponseT = t.TypeOf<typeof ConsumeInviteResponse>;
+
+export const PreviewInviteResponse = t.type({
+    serverName: t.string,
+    serverImageId: t.union([ t.string, t.null ]),
+    userName: t.string,
+    expiresAt: t.union([ t.number, t.null ])
+});
+
+export type PreviewInviteResponseT = t.TypeOf<typeof PreviewInviteResponse>;

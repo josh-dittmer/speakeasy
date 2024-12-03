@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { db } from '../db/db';
-import { allowedImageMimes, CreateProfileRequest, CreateProfileRequestT, CreateProfileResponseT, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT, welcomeServerId } from 'models';
+import { allowedImageMimes, CreateProfileRequest, CreateProfileRequestT, CreateProfileResponseT, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT, UserT, welcomeServerId } from 'models';
 import { filesTable, membershipsTable, usersTable } from '../db/schema';
 import { eq } from 'drizzle-orm';
 import { badRequest, notFound, serverError } from '../common/response';
@@ -16,7 +16,7 @@ export class UserController {
     }
 
     async getMyUserData(req: Request, res: Response) {
-        const result: UserArrayT = await db.select({
+        const result = await db.select({
             userId: usersTable.userId,
             imageId: usersTable.imageId,
             name: usersTable.name,
@@ -29,7 +29,15 @@ export class UserController {
             return notFound(res, `user ${res.locals.userId}`);
         }
 
-        res.json(result[0]);
+        const response: UserT = {
+            userId: result[0].userId,
+            imageId: result[0].imageId,
+            name: result[0].name,
+            bio: result[0].bio,
+            status: 'ONLINE'
+        }
+
+        res.json(response);
     }
 
     async isMyProfileComplete(req: Request, res: Response) {
@@ -116,6 +124,14 @@ export class UserController {
             })
             .where(eq(usersTable.userId, res.locals.userId));
 
+        this.sioServer.emitEvent({
+            type: 'USER_PROFILE_EDITED',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: null,
+            channelId: null
+        });
+
         const response: EditProfileResponseT = {
             upload: upload
         };
@@ -170,6 +186,14 @@ export class UserController {
                 fields: fields
             };
         }
+
+        this.sioServer.emitEvent({
+            type: 'SERVER_USER_JOIN',
+            clientId: data.clientId,
+            userId: res.locals.userId,
+            serverId: welcomeServerId,
+            channelId: null
+        });
 
         const response: CreateProfileResponseT = {
             upload: upload

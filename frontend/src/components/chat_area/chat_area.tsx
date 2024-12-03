@@ -14,19 +14,23 @@ import './chat_area.css';
 import SentMessage, { MessageType } from './chat_message/sent_message';
 import PendingMessage from './chat_message/pending_message';
 import FailedMessage from './chat_message/failed_message';
-import { SIOContext } from '@/contexts/sio_context';
 import { useQueryClient } from '@tanstack/react-query';
 import { Tags } from '@/lib/api/requests';
+import { getServerDataQuery } from '@/lib/queries/get_server_data';
 
-export default function ChatArea({ channelId, users }: { channelId: string, users: UserArrayT }) {
-    const userMap: Map<string, UserT> = useMemo(() => {
+export default function ChatArea({ serverId, channelId }: { serverId: string, channelId: string }) {
+    const { data: serverData } = getServerDataQuery(serverId);
+    
+    const userMap = useMemo(() => {
+        if (!serverData) return null;
+
         const m = new Map<string, UserT>();
-        users.map((user) => {
+        serverData.users.map((user) => {
             m.set(user.userId, user);
         });
 
         return m;
-    }, [users]);
+    }, [serverData]);
 
     const pendingMessages = pendingMessageState(channelId);
     const failedMessages = failedMessageState(channelId);
@@ -35,9 +39,6 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
     const prevHeight = useRef<number>(0);
 
     const { fetchNextPage, data, isLoading, isError, isPending } = getChannelDataQuery(channelId);
-
-    const client = useQueryClient();
-    const sio = useContext(SIOContext);
 
     const onMessagesScrolled = () => {
         const st = chatAreaRef.current?.scrollTop;
@@ -88,17 +89,6 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
         }
     }, [data, prevHeight]);
 
-    useEffect(() => {
-        if (sio && data?.pages[0]) {
-            sio.sub(`${data.pages[0].channel.serverId}_${channelId}`, (event) => {
-                // TODO: change this, this is extremely slow and bad
-                client.invalidateQueries({ queryKey: [Tags.channelData, getChannelDataKey(channelId)] });
-            });
-
-            return () => sio?.unsub(`${data.pages[0].channel.serverId}_${channelId}`)
-        }
-    }, [data, sio]);
-
     if (isLoading) {
         return <LoadingSpinner />
     }
@@ -111,18 +101,20 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
         )
     }
 
+    if (!data || !userMap) return;
+
     return (
         <div className="chat-area h-screen bg-bg-light min-w-0">
             <div className="w-full bg-bg-light flex items-center p-3 shadow-b z-10 h-header">
                 <p className="mr-2 text-fg-medium text-xl font-bold">T</p>
-                <p className="text-lg text-fg-medium">{data?.pages[0]?.channel.name}</p>
+                <p className="text-lg text-fg-medium">{data.pages[0]?.channel.name}</p>
                 <div className="block lg:hidden flex grow justify-end items-center">
                     <ThemeToggle />
                 </div>
             </div>
             <div className="grow flex flex-col-reverse w-full overflow-y-scroll overflow-x-hidden" ref={chatAreaRef} onScroll={() => onMessagesScrolled()}>
                 <div className="mt-2">
-                    {data?.pages.map((page, pIndex) => (
+                    {data.pages.map((page, pIndex) => (
                         <Fragment key={pIndex}>
                             {page.messages.map((message, mIndex) => {
                                 let type: MessageType = MessageType.MINIMAL;
@@ -152,7 +144,7 @@ export default function ChatArea({ channelId, users }: { channelId: string, user
                     </Fragment>
                 </div>
             </div>
-            {data?.pages[0]?.channel && (
+            {data.pages[0]?.channel && (
                 <ChatBox channel={data.pages[0].channel} />
             )}
         </div>

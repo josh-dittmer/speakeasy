@@ -15,7 +15,7 @@ import ButtonSection from '@/components/ui/forms/section/button_section';
 import { CancelButton, DeleteButton, SubmitButton } from '@/components/ui/forms/button/button';
 import { NormalForm } from '@/components/ui/forms/form/form';
 
-export default function EditChannel({ channel, server, selectedChannelId, channels, menuOpen, setMenuOpen } : { channel: ChannelT, server: ServerT, selectedChannelId: string, channels: ChannelArrayT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
+export default function EditChannel({ channel, server, selected, channels, menuOpen, setMenuOpen } : { channel: ChannelT, server: ServerT, selected: boolean, channels: ChannelArrayT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
     const [channelName, setChannelName] = useState<string>(channel.name);
     const [channelNameValid, setChannelNameValid] = useState<boolean>();
 
@@ -35,8 +35,8 @@ export default function EditChannel({ channel, server, selectedChannelId, channe
         
         client.invalidateQueries({ queryKey: [Tags.serverData, getServerDataKey(server.serverId)] });
 
-        if (selectedChannelId === channel.channelId) {
-            const next = channels.find((channel) => channel.channelId !== selectedChannelId);
+        if (selected) {
+            const next = channels.find((c) => c.channelId !== channel.channelId);
             router.push((next) ? `/home/${server.serverId}/${next.channelId}` : `/home/${server.serverId}/empty`);
         }
     };

@@ -1,4 +1,4 @@
-import { ChannelData, ChannelDataT, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateProfileRequestT, CreateProfileResponse, CreateProfileResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, DeleteChannelRequestT, DeleteMessageRequestT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, LeaveServerRequestT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
+import { ChannelData, ChannelDataT, ConsumeInviteResponse, CreateChannelRequestT, CreateChannelResponse, CreateChannelResponseT, CreateInviteRequestT, CreateInviteResponse, CreateInviteResponseT, CreateMessageRequestT, CreateMessageResponse, CreateMessageResponseT, CreateProfileRequestT, CreateProfileResponse, CreateProfileResponseT, CreateServerRequestT, CreateServerResponse, CreateServerResponseT, DeleteChannelRequestT, DeleteMessageRequestT, EditChannelRequestT, EditProfileRequestT, EditProfileResponse, EditProfileResponseT, EditServerRequestT, EditServerResponse, EditServerResponseT, IsMyProfileCompleteResponse, IsMyProfileCompleteResponseT, LeaveServerRequestT, PreviewInviteResponse, PreviewInviteResponseT, ServerArray, ServerArrayT, ServerData, ServerDataT, User, UserT } from 'models';
 import { endpoints } from './endpoints';
 import { isLeft } from 'fp-ts/Either'
 import * as t from 'io-ts';
@@ -155,6 +155,18 @@ export async function deleteMessage(messageId: string, deleteMessageRequest: Del
 
 export async function deleteChannel(channelId: string, deleteChannelRequest: DeleteChannelRequestT) {
     return await requestAndDecode(`/deleteChannel/${channelId}`, deleteReq(deleteChannelRequest), t.type({}));
+}
+
+export async function createInvite(createInviteRequest: CreateInviteRequestT): Promise<CreateInviteResponseT> {
+    return await requestAndDecode(`/createInvite`, postReq(createInviteRequest), CreateInviteResponse);
+}
+
+export async function consumeInvite(inviteId: string) {
+    return await requestAndDecode(`/consumeInvite/${inviteId}`, getReq(), ConsumeInviteResponse);
+}
+
+export async function previewInvite(inviteId: string): Promise<PreviewInviteResponseT> {
+    return await requestAndDecode(`/previewInvite/${inviteId}`, getReq(), PreviewInviteResponse);
 }
 
 export type UploadFileData = {

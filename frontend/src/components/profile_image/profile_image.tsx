@@ -26,10 +26,11 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
             {isLoading && (
                 <Image
                     src={'/img/image_loading.gif'}
-                    width={0}
-                    height={0}
-                    sizes="100vw"
-                    className={`w-11 h-11 rounded-full`}
+                    width={44}
+                    height={44}
+                    //sizes="100vw"
+                    //className={`w-11 h-11 rounded-full`}
+                    className={`rounded-full`}
                     alt="User image loading"
                 />
             )}
@@ -40,6 +41,7 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
                     height={0}
                     sizes="100vw"
                     className={`w-11 h-11 rounded-full`}
+                    //className={`rounded-full`}
                     alt="User image"
                 />
             )}
