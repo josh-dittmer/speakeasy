@@ -7,6 +7,5 @@ export const useConsumeInviteQuery = (inviteId: string, clientId: string) =>
     useQuery({
         queryKey: [consumeInviteKey(inviteId)],
         queryFn: () => consumeInvite(inviteId, clientId),
-        staleTime: Infinity,
-        retry: false
+        staleTime: 0
     });

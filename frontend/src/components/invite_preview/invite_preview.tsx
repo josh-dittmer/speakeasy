@@ -1,6 +1,8 @@
 import useVisitServer from "@/hooks/visit_server";
+import { consumeInviteKey } from "@/lib/queries/consume_invite";
 import { usePreviewInviteQuery } from "@/lib/queries/preview_invite_query";
 import { formatDate } from "@/lib/util/date";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import ServerImage from "../server_image/server_image";
 import { SubmitButton } from "../ui/forms/button/button";
@@ -16,9 +18,12 @@ function ServerLink({ serverName, serverId }: { serverName: string, serverId: st
 
 export default function InvitePreview({ inviteId }: { inviteId: string }) {
     const { data } = usePreviewInviteQuery(inviteId);
+
+    const client = useQueryClient();
     const router = useRouter();
 
-    const handleJoinServer = () => {
+    const handleJoinServer = async () => {
+        client.invalidateQueries({ queryKey: [consumeInviteKey(inviteId)], refetchType: 'all' });
         router.push(`/join/${inviteId}`);
     };
 

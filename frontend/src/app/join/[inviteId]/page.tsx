@@ -42,8 +42,6 @@ export default function JoinPage({ params }: { params: { inviteId: string } }) {
                         src={'/img/image_loading.gif'}
                         width={64}
                         height={64}
-                        //sizes="100vw"
-                        //className="w-16 h-16"
                         alt="Loading"
                     />
                     <p className="text-fg-dark">Joining server...</p>
