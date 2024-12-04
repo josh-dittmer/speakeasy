@@ -58,11 +58,12 @@ export class InviteController {
     }
 
     async consumeInvite(req: Request, res: Response) {
-        if (!req.params.inviteId) {
+        if (!req.params.inviteId || !req.query.clientId) {
             return badRequest(res);
         }
 
         const inviteId = req.params.inviteId;
+        const clientId = req.query.clientId;
 
         const inviteResult = await db
             .select({
@@ -112,6 +113,14 @@ export class InviteController {
                 serverId: invite.serverId,
             },
         ]);
+
+        this.sioServer.emitEvent({
+            type: 'SERVER_USER_JOIN',
+            clientId: clientId as string,
+            userId: res.locals.userId,
+            serverId: invite.serverId,
+            channelId: null,
+        });
 
         const response: ConsumeInviteResponseT = {
             success: true,

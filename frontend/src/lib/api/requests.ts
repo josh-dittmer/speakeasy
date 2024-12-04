@@ -270,8 +270,8 @@ export async function createInvite(
     );
 }
 
-export async function consumeInvite(inviteId: string) {
-    return await requestAndDecode(`/consumeInvite/${inviteId}`, getReq(), ConsumeInviteResponse);
+export async function consumeInvite(inviteId: string, clientId: string) {
+    return await requestAndDecode(`/consumeInvite/${inviteId}?clientId=${clientId}`, getReq(), ConsumeInviteResponse);
 }
 
 export async function previewInvite(inviteId: string): Promise<PreviewInviteResponseT> {
