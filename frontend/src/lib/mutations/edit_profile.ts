@@ -1,32 +1,33 @@
-import { QueryClient, useMutation } from "@tanstack/react-query";
-import { uploadFileMutation } from "./upload_file";
-import { editProfile, editServer, Tags } from "../api/requests";
-import { useRouter } from "next/navigation";
+import { QueryClient, useMutation } from '@tanstack/react-query';
+import { editProfile, Tags } from '../api/requests';
+import { useUploadFileMutation } from './upload_file';
 
 export const editProfileKey = (): string => `editProfile`;
 
 type EditProfileMutationVars = {
-    name: string,
-    bio: string,
-    imageFile: File | null
-}
+    name: string;
+    bio: string;
+    imageFile: File | null;
+};
 
-export const editProfileMutation = (client: QueryClient, clientId: string) => {
-    const { mutate } = uploadFileMutation(client);
-    const router = useRouter();
+export const useEditProfileMutation = (client: QueryClient, clientId: string) => {
+    const { mutate } = useUploadFileMutation(client);
 
     return useMutation({
-        mutationFn: (vars: EditProfileMutationVars) => editProfile({
-            name: vars.name,
-            bio: vars.bio,
-            image: (vars.imageFile) ? {
-                name: vars.imageFile.name,
-                mimeType: vars.imageFile.type
-            } : null,
-            clientId: clientId
-        }),
+        mutationFn: (vars: EditProfileMutationVars) =>
+            editProfile({
+                name: vars.name,
+                bio: vars.bio,
+                image: vars.imageFile
+                    ? {
+                        name: vars.imageFile.name,
+                        mimeType: vars.imageFile.type,
+                    }
+                    : null,
+                clientId: clientId,
+            }),
         mutationKey: [editProfileKey()],
-        onSuccess: (data, variables, context) => {
+        onSuccess: (data, variables) => {
             client.invalidateQueries({ queryKey: [Tags.myself] });
             client.invalidateQueries({ queryKey: [Tags.serverData] });
             client.invalidateQueries({ queryKey: [Tags.channelData] });
@@ -38,12 +39,12 @@ export const editProfileMutation = (client: QueryClient, clientId: string) => {
                     fields: data.upload.fields,
                     finishedCallback: () => {
                         //router.refresh();
-                    }
+                    },
                 });
             }
         },
-        onError: (error, variables, context) => {
-            console.log(error)
-        }
-    })
-}
+        onError: (error) => {
+            console.log(error);
+        },
+    });
+};

@@ -1,8 +1,9 @@
-import { useQuery } from "@tanstack/react-query";
-import { getMyUserData, Tags } from "../api/requests";
+import { useQuery } from '@tanstack/react-query';
+import { getMyUserData, Tags } from '../api/requests';
 
-export const getMyUserDataQuery = () => useQuery({
-    queryKey: [Tags.myself],
-    queryFn: () => getMyUserData(),
-    staleTime: Infinity
-});
+export const useGetMyUserDataQuery = () =>
+    useQuery({
+        queryKey: [Tags.myself],
+        queryFn: () => getMyUserData(),
+        staleTime: Infinity,
+    });

@@ -1,6 +1,8 @@
 {
     "compilerOptions": {
-        "lib": ["es2015"],
+        "lib": [
+            "es2015"
+        ],
         "module": "commonjs",
         "esModuleInterop": true,
         "target": "es6",
@@ -10,9 +12,11 @@
         "strict": true,
         "skipLibCheck": true
     },
-    "references": [
-        { "path": "../models" }
+    "include": [
+        "**/*.ts",
+        "**/*.tsx"
     ],
-    "include": ["**/*.ts", "**/*.tsx"],
-    "exclude": ["node_modules"],
+    "exclude": [
+        "node_modules"
+    ]
 }

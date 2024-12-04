@@ -1,12 +1,11 @@
-import { getFileQuery } from '@/lib/queries/get_file';
+import { useGetFileQuery } from '@/lib/queries/get_file';
 import { FileT, S3Keys } from 'models';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
 export default function MessageFile({ file }: { file: FileT }) {
-    const { data, isLoading, isError } = getFileQuery(S3Keys.messageFiles, file.fileId);
-    const url = useMemo(() => (data) ? URL.createObjectURL(data) : undefined, [data]);
-
+    const { data, isLoading, isError } = useGetFileQuery(S3Keys.messageFiles, file.fileId);
+    const url = useMemo(() => (data ? URL.createObjectURL(data) : undefined), [data]);
 
     if (isLoading) {
         return (
@@ -18,18 +17,16 @@ export default function MessageFile({ file }: { file: FileT }) {
                 //className="w-16 h-16"
                 alt="Server image loading"
             />
-        )
+        );
     }
 
     if (isError) {
-        return (
-            <p>FAILED TO LOAD FILE</p>
-        )
+        return <p>FAILED TO LOAD FILE</p>;
     }
 
     if (!data || !url) return;
 
-    switch(file.mimeType) {
+    switch (file.mimeType) {
         case 'image/png':
         case 'image/jpeg':
         case 'image/gif':
@@ -44,10 +41,8 @@ export default function MessageFile({ file }: { file: FileT }) {
                         alt="Message image"
                     />
                 </div>
-            )
+            );
         default:
-            return (
-                <p className="text-red-600">File previews for non-images coming soon!</p>
-            )
+            return <p className="text-red-600">File previews for non-images coming soon!</p>;
     }
 }

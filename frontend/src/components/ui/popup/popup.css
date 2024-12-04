@@ -2,7 +2,7 @@
     0% {
         opacity: 0;
     }
-    
+
     100% {
         opacity: 0.6;
     }
@@ -10,14 +10,14 @@
 
 .backdrop-open {
     animation: backdrop-open-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }
 
 @keyframes backdrop-close-animation {
     0% {
         opacity: 0.6;
     }
-    
+
     100% {
         opacity: 0;
         visibility: hidden;
@@ -26,7 +26,7 @@
 
 .backdrop-close {
     animation: backdrop-close-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }
 
 @keyframes popup-open-animation {
@@ -34,7 +34,7 @@
         opacity: 0;
         transform: translateY(30px);
     }
-    
+
     100% {
         opacity: 1;
         transform: translateY(0px);
@@ -43,7 +43,7 @@
 
 .popup-open {
     animation: popup-open-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }
 
 @keyframes popup-close-animation {
@@ -61,5 +61,5 @@
 
 .popup-close {
     animation: popup-close-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }

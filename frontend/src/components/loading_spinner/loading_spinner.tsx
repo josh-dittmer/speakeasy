@@ -5,5 +5,5 @@ export default function LoadingSpinner() {
         <div className="relative h-screen grow flex justify-center items-center">
             <Image src="/img/loading.gif" width={100} height={100} alt="Loading" priority />
         </div>
-    )
+    );
 }

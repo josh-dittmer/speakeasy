@@ -1,27 +1,25 @@
 'use client';
 
 import ServerBar from '@/components/server_bar/server_bar';
-import { getServerList } from '@/lib/api/requests';
-import { ServerArrayT } from 'models';
 
-import './css/layout.css';
-import { getServerListQuery } from '@/lib/queries/get_server_list';
-import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import SIOClient from '@/components/sio_client/sio_client';
+import { useIsMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import './css/layout.css';
 
 export default function HomeLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const router = useRouter();
-    
-    const { data: profileCompleteRes, isSuccess: profileCompleteLoadFinished } = isMyProfileCompleteQuery();
+
+    const { data: profileCompleteRes, isSuccess: profileCompleteLoadFinished } =
+        useIsMyProfileCompleteQuery();
 
     useEffect(() => {
         if (profileCompleteLoadFinished && !profileCompleteRes?.complete) {
             router.push(`/signup`);
         }
-    }, [profileCompleteLoadFinished]);
-    
+    }, [profileCompleteLoadFinished, profileCompleteRes?.complete, router]);
+
     if (!profileCompleteLoadFinished || !profileCompleteRes.complete) return;
 
     return (
@@ -31,5 +29,5 @@ export default function HomeLayout({ children }: Readonly<{ children: React.Reac
                 {children}
             </div>
         </SIOClient>
-    )
+    );
 }

@@ -16,21 +16,22 @@ const ServerUserJoin = t.literal('SERVER_USER_JOIN');
 const ServerUserLeave = t.literal('SERVER_USER_LEAVE');
 
 const UserProfileEdited = t.literal('USER_PROFILE_EDITED');
-const UserStatusChange = t.literal('USER_STATUS_CHANGE');
+const UserStatusOnline = t.literal('USER_STATUS_ONLINE');
+const UserStatusOffline = t.literal('USER_STATUS_OFFLINE');
 
-const EventType = t.union([ 
+const EventType = t.union([
     MessageSent, MessageDeleted, MessageEdited,
     ChannelCreated, ChannelDeleted, ChannelEdited,
     ServerEdited, ServerUserJoin, ServerUserLeave,
-    UserProfileEdited, UserStatusChange
+    UserProfileEdited, UserStatusOnline, UserStatusOffline
 ]);
 
 export const Event = t.type({
     type: EventType,
     clientId: t.string,
     userId: t.string,
-    serverId: t.union([ t.string, t.null ]),
-    channelId: t.union([ t.string, t.null ]),
+    serverId: t.union([t.string, t.null]),
+    channelId: t.union([t.string, t.null]),
 });
 
 export type EventT = t.TypeOf<typeof Event>;

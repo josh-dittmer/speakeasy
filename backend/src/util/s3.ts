@@ -1,15 +1,19 @@
 import 'dotenv/config';
 
-import { DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
+import {
+    DeleteObjectCommand,
+    GetObjectCommand,
+    HeadObjectCommand,
+    S3Client,
+} from '@aws-sdk/client-s3';
 import { createPresignedPost } from '@aws-sdk/s3-presigned-post';
-import { maxFileSize } from 'models';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Response } from 'express';
-import { Writable } from 'stream';
+import { maxFileSize } from 'models';
 
 const client = new S3Client({
-    region: process.env.AWS_REGION
-})
+    region: process.env.AWS_REGION,
+});
 
 export async function createUploadUrl(key: string) {
     const bucket = process.env.AWS_S3_BUCKET!;
@@ -18,12 +22,10 @@ export async function createUploadUrl(key: string) {
         Bucket: bucket,
         Key: key,
         Fields: {
-            key: key
+            key: key,
         },
-        Conditions: [
-            ['content-length-range', 0, maxFileSize]
-        ],
-        Expires: 600
+        Conditions: [['content-length-range', 0, maxFileSize]],
+        Expires: 600,
     });
 
     return { url, fields };
@@ -32,12 +34,12 @@ export async function createUploadUrl(key: string) {
 export async function fileExists(key: string) {
     const command = new HeadObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: key
+        Key: key,
     });
 
     try {
-        const response = await client.send(command);
-    } catch(err) {
+        await client.send(command);
+    } catch {
         return false;
     }
 
@@ -47,7 +49,7 @@ export async function fileExists(key: string) {
 export async function streamDownload(res: Response, key: string, mimeType: string) {
     const command = new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: key
+        Key: key,
     });
 
     const response = await client.send(command);
@@ -55,16 +57,16 @@ export async function streamDownload(res: Response, key: string, mimeType: strin
     res.setHeader('Content-Type', mimeType);
 
     const stream: WritableStream = new WritableStream({
-        write: (chunk: any) => {
+        write: chunk => {
             res.write(chunk);
         },
         close: () => {
             res.end();
         },
-        abort: (err) => {
+        abort: err => {
             console.log(err);
             res.end();
-        }
+        },
     });
 
     response.Body?.transformToWebStream().pipeTo(stream);
@@ -73,7 +75,7 @@ export async function streamDownload(res: Response, key: string, mimeType: strin
 export async function deleteFile(key: string) {
     const command = new DeleteObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: key
+        Key: key,
     });
 
     await client.send(command);
@@ -82,10 +84,10 @@ export async function deleteFile(key: string) {
 export async function createDownloadUrl(key: string) {
     const command = new GetObjectCommand({
         Bucket: process.env.AWS_S3_BUCKET,
-        Key: key
+        Key: key,
     });
 
     return await getSignedUrl(client, command, {
-        expiresIn: 600
+        expiresIn: 600,
     });
 }

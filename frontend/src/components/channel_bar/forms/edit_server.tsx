@@ -1,29 +1,37 @@
-import { useQueryClient } from '@tanstack/react-query';
-import { Dispatch, SetStateAction, useState } from 'react';
-import { maxFileSize, maxServerNameLength, S3Keys, ServerT } from 'models';
-import Popup from '@/components/ui/popup/popup';
-import { Settings } from 'lucide-react';
-import { editServerMutation } from '@/lib/mutations/edit_server';
-import { CLIENT_ID } from '@/lib/util/client_id';
-import TitleSection from '@/components/ui/forms/section/title_section';
-import ImageUpload from '@/components/ui/forms/file_upload/image_upload';
-import TextBox from '@/components/ui/forms/text_box/text_box';
-import ButtonSection from '@/components/ui/forms/section/button_section';
 import { CancelButton, DeleteButton, SubmitButton } from '@/components/ui/forms/button/button';
+import ImageUpload from '@/components/ui/forms/file_upload/image_upload';
 import { NormalForm } from '@/components/ui/forms/form/form';
+import ButtonSection from '@/components/ui/forms/section/button_section';
+import TitleSection from '@/components/ui/forms/section/title_section';
+import TextBox from '@/components/ui/forms/text_box/text_box';
+import Popup from '@/components/ui/popup/popup';
+import { useEditServerMutation } from '@/lib/mutations/edit_server';
+import { CLIENT_ID } from '@/lib/util/client_id';
+import { useQueryClient } from '@tanstack/react-query';
+import { Settings } from 'lucide-react';
+import { maxFileSize, maxServerNameLength, S3Keys, ServerT } from 'models';
+import { Dispatch, SetStateAction, useState } from 'react';
 
-export default function EditServer({ server, menuOpen, setMenuOpen } : { server: ServerT, menuOpen: boolean, setMenuOpen: Dispatch<SetStateAction<boolean>> }) {
+export default function EditServer({
+    server,
+    menuOpen,
+    setMenuOpen,
+}: {
+    server: ServerT;
+    menuOpen: boolean;
+    setMenuOpen: Dispatch<SetStateAction<boolean>>;
+}) {
     const [serverName, setServerName] = useState<string>(server.name);
     const [serverNameValid, setServerNameValid] = useState<boolean>();
 
     const [serverImage, setServerImage] = useState<File>();
 
-    const [submitted, setSubmitted] = useState<boolean>();
+    const [submitted] = useState<boolean>();
 
     const valid = serverNameValid;
 
     const client = useQueryClient();
-    const { mutate } = editServerMutation(client, server.serverId, CLIENT_ID);
+    const { mutate } = useEditServerMutation(client, server.serverId, CLIENT_ID);
 
     const handleDeleteServer = async () => {
         /*await deleteChannel(channel.channelId);
@@ -45,7 +53,7 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
 
         mutate({
             name: serverName,
-            imageFile: serverImage || null
+            imageFile: serverImage || null,
         });
 
         setMenuOpen(false);
@@ -55,12 +63,28 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
         <Popup open={menuOpen}>
             <NormalForm>
                 <TitleSection title={server.name} icon={Settings} />
-                <ImageUpload existingImageId={server.imageId} existingImageLocation={S3Keys.serverImgs} title={'Server Icon'} maxSize={maxFileSize} file={serverImage} setFile={setServerImage} onInvalid={(message) => console.log(message)} />
-                <TextBox value={serverName} setValue={setServerName} title={'Server Name'} placeholder={'Server name...'} maxChars={maxServerNameLength} submitted={submitted} setValid={setServerNameValid} />
+                <ImageUpload
+                    existingImageId={server.imageId}
+                    existingImageLocation={S3Keys.serverImgs}
+                    title={'Server Icon'}
+                    maxSize={maxFileSize}
+                    file={serverImage}
+                    setFile={setServerImage}
+                    onInvalid={message => console.log(message)}
+                />
+                <TextBox
+                    value={serverName}
+                    setValue={setServerName}
+                    title={'Server Name'}
+                    placeholder={'Server name...'}
+                    maxChars={maxServerNameLength}
+                    submitted={submitted}
+                    setValid={setServerNameValid}
+                />
                 <ButtonSection>
-                    <DeleteButton 
+                    <DeleteButton
                         onClick={() => {
-                            setMenuOpen(false)
+                            setMenuOpen(false);
                             handleDeleteServer();
                         }}
                         text={'Delete Server'}
@@ -70,5 +94,5 @@ export default function EditServer({ server, menuOpen, setMenuOpen } : { server:
                 </ButtonSection>
             </NormalForm>
         </Popup>
-    )
+    );
 }

@@ -1,24 +1,22 @@
-import { getFileQuery } from '@/lib/queries/get_file';
+import { useGetFileQuery } from '@/lib/queries/get_file';
 import { S3Keys } from 'models';
 import Image from 'next/image';
 import { useMemo } from 'react';
 
-export default function ProfileImage({ name, imageId, className }: { name: string, imageId: string | null, className: string }) {    
-    if (!imageId) {
-        return (
-            <div className={`w-11 h-11 rounded-full flex items-center justify-center ${className}`}>
-                <p className="text-fg-dark">{name[0]}</p>
-            </div>
-        )
-    }
+function ProfileImageWithoutFile({ name, className }: { name: string, className: string }) {
+    return (
+        <div className={`w-11 h-11 rounded-full flex items-center justify-center ${className}`}>
+            <p className="text-fg-dark">{name[0]}</p>
+        </div>
+    );
+}
 
-    const { data, isLoading, isSuccess, isError } = getFileQuery(S3Keys.profileImgs, imageId);
-    const url = useMemo(() => (data) ? URL.createObjectURL(data) : undefined, [data]);
+function ProfileImageWithFile({ imageId, className }: { imageId: string, className: string }) {
+    const { data, isLoading, isSuccess, isError } = useGetFileQuery(S3Keys.profileImgs, imageId);
+    const url = useMemo(() => (data ? URL.createObjectURL(data) : undefined), [data]);
 
     if (isError) {
-        return (
-            <p>ERROR</p>
-        )
+        return <p>ERROR</p>;
     }
 
     return (
@@ -46,5 +44,21 @@ export default function ProfileImage({ name, imageId, className }: { name: strin
                 />
             )}
         </div>
-    )
+    );
+}
+
+export default function ProfileImage({
+    name,
+    imageId,
+    className,
+}: {
+    name: string;
+    imageId: string | null;
+    className: string;
+}) {
+    if (!imageId) {
+        return <ProfileImageWithoutFile name={name} className={className} />
+    }
+
+    return <ProfileImageWithFile imageId={imageId} className={className} />
 }

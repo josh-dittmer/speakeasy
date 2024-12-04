@@ -1,28 +1,30 @@
 'use client';
 
-import { getServerData, getServerList } from '@/lib/api/requests';
-import { ServerArrayT, ServerDataT } from 'models';
-import { redirect, useRouter } from 'next/navigation';
-import { getServerListQuery } from '@/lib/queries/get_server_list';
-import { getServerDataQuery, getServerDataQueryDependent } from '@/lib/queries/get_server_data';
-import { useQuery } from '@tanstack/react-query';
+import { useGetServerDataQueryDependent } from '@/lib/queries/get_server_data';
+import { useGetServerListQuery } from '@/lib/queries/get_server_list';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
 
 export default function HomePage() {
-    const router = useRouter(); 
+    const router = useRouter();
 
-    const { data: servers } = getServerListQuery();
+    const { data: servers } = useGetServerListQuery();
     const lastServer = servers?.at(0);
 
-    const { data: serverData, isSuccess: serverLoadFinished } = getServerDataQueryDependent(lastServer?.serverId);
+    const { data: serverData, isSuccess: serverLoadFinished } = useGetServerDataQueryDependent(
+        lastServer?.serverId,
+    );
     const lastChannel = serverData?.channels[0];
 
     useEffect(() => {
         if (lastServer && serverLoadFinished) {
-            router.push((lastChannel) ? `/home/${lastServer.serverId}/${lastChannel.channelId}` : `/home/${lastServer.serverId}/empty`);
+            router.push(
+                lastChannel
+                    ? `/home/${lastServer.serverId}/${lastChannel.channelId}`
+                    : `/home/${lastServer.serverId}/empty`,
+            );
         }
-    }, [serverLoadFinished]);
+    }, [router, lastServer, lastChannel, serverLoadFinished]);
 
-    return <></>
+    return <></>;
 }

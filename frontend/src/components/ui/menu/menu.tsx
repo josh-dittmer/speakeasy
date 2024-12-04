@@ -1,12 +1,11 @@
-import { Pencil, Trash } from 'lucide-react';
-import { Dispatch, Fragment, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction } from 'react';
 
-import './menu.css'
+import './menu.css';
 
 type MenuState = {
-    open: boolean,
-    setOpen: Dispatch<SetStateAction<boolean>>
-}
+    open: boolean;
+    setOpen: Dispatch<SetStateAction<boolean>>;
+};
 
 /*
 Example:
@@ -15,22 +14,35 @@ Example:
 */
 
 export function MenuSeparator() {
-    return (
-        <div className="h-[0.5px] bg-fg-light mt-2 mb-2"></div>
-    )
+    return <div className="h-[0.5px] bg-fg-light mt-2 mb-2"></div>;
 }
 
-export function MenuItem({ children, onClick }: { children: React.ReactNode, onClick: () => void }) {
+export function MenuItem({
+    children,
+    onClick,
+}: {
+    children: React.ReactNode;
+    onClick: () => void;
+}) {
     return (
         <>
-            <div onClick={() => onClick()} className="flex gap-2 items-center text-fg-dark p-1 hover:bg-bg-medium rounded mt-2 mb-2">
+            <div
+                onClick={() => onClick()}
+                className="flex gap-2 items-center text-fg-dark p-1 hover:bg-bg-medium rounded mt-2 mb-2"
+            >
                 {children}
             </div>
         </>
-    )
+    );
 }
 
-export function MenuUp({ children, menuState }: { children: React.ReactNode | React.ReactNode[], menuState: MenuState }) {
+export function MenuUp({
+    children,
+    menuState,
+}: {
+    children: React.ReactNode | React.ReactNode[];
+    menuState: MenuState;
+}) {
     return (
         <>
             {menuState.open && (
@@ -50,10 +62,16 @@ export function MenuUp({ children, menuState }: { children: React.ReactNode | Re
                 </div>
             )}
         </>
-    )
+    );
 }
 
-export default function Menu({ children, menuState }: { children: React.ReactNode | React.ReactNode[], menuState: MenuState }) {
+export default function Menu({
+    children,
+    menuState,
+}: {
+    children: React.ReactNode | React.ReactNode[];
+    menuState: MenuState;
+}) {
     return (
         <>
             {menuState.open && (
@@ -73,5 +91,5 @@ export default function Menu({ children, menuState }: { children: React.ReactNod
                 </div>
             )}
         </>
-    )
+    );
 }

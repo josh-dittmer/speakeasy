@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/user.controller';
 import { SIOServer } from '../socket.io/sio_server';
+import { asyncHandler } from '../util/async_error_handler';
 //import { getLastVisitedServer } from '../controllers/user.controller';
 
 export class UserRoutes {
@@ -14,10 +15,22 @@ export class UserRoutes {
     }
 
     private init() {
-        this.router.get('/getMyUserData', (req, res) => this.controller.getMyUserData(req, res));
-        this.router.get('/isMyProfileComplete', (req, res) => this.controller.isMyProfileComplete(req, res));
-        this.router.post('/editUserProfile', (req, res) => this.controller.editUserProfile(req, res));
-        this.router.post('/createUserProfile', (req, res) => this.controller.createUserProfile(req, res));
+        this.router.get(
+            '/getMyUserData',
+            asyncHandler((req, res) => this.controller.getMyUserData(req, res)),
+        );
+        this.router.get(
+            '/isMyProfileComplete',
+            asyncHandler((req, res) => this.controller.isMyProfileComplete(req, res)),
+        );
+        this.router.post(
+            '/editUserProfile',
+            asyncHandler((req, res) => this.controller.editUserProfile(req, res)),
+        );
+        this.router.post(
+            '/createUserProfile',
+            asyncHandler((req, res) => this.controller.createUserProfile(req, res)),
+        );
     }
 }
 

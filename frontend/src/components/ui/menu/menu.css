@@ -12,7 +12,7 @@
 
 .menu {
     animation: menu-open-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }
 
 @keyframes menu-up-open-animation {
@@ -29,5 +29,5 @@
 
 .menu-up {
     animation: menu-up-open-animation 0.2s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }

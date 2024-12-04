@@ -1,16 +1,14 @@
-import { getFileQuery } from '@/lib/queries/get_file';
-import { getMyUserDataQuery } from '@/lib/queries/get_my_user_data'
-import { S3Keys } from 'models';
-import Image from 'next/image';
-import ProfileImage from '../profile_image/profile_image';
-import { useState } from 'react';
+import { useGetMyUserDataQuery } from '@/lib/queries/get_my_user_data';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import Image from 'next/image';
+import { useState } from 'react';
+import ProfileImage from '../profile_image/profile_image';
 import ProfileMenu from './forms/profile_menu';
 
 export default function ProfileInfo() {
     const [menuOpen, setMenuOpen] = useState<boolean>(false);
 
-    const { data, isLoading } = getMyUserDataQuery();
+    const { data, isLoading } = useGetMyUserDataQuery();
 
     if (isLoading) {
         return (
@@ -21,10 +19,10 @@ export default function ProfileInfo() {
                     height={64}
                     //sizes="100vw"
                     //className="w-16 h-16"
-                    alt="Server image loading"
+                    alt="Profile info loading"
                 />
             </div>
-        )
+        );
     }
 
     if (!data) return;
@@ -32,7 +30,10 @@ export default function ProfileInfo() {
     return (
         <>
             <ProfileMenu user={data} open={menuOpen} setOpen={setMenuOpen} />
-            <div onClick={() => setMenuOpen((old) => !old)} className="flex items-center h-16 bg-bg-medium-dark hover:bg-bg-dark">
+            <div
+                onClick={() => setMenuOpen(old => !old)}
+                className="flex items-center h-16 bg-bg-medium-dark hover:bg-bg-dark"
+            >
                 <div className="p-2">
                     <ProfileImage name={data.name} imageId={data.imageId} className="bg-bg-light" />
                 </div>
@@ -49,5 +50,5 @@ export default function ProfileInfo() {
                 </div>
             </div>
         </>
-    )
+    );
 }

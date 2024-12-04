@@ -1,12 +1,27 @@
-import { Request, Response } from 'express';
-import { db } from '../db/db';
-import { allowedImageMimes, CreateProfileRequest, CreateProfileRequestT, CreateProfileResponseT, EditProfileRequest, EditProfileRequestT, EditProfileResponseT, IsMyProfileCompleteResponseT, maxUserBioLength, maxUserNameLength, S3Keys, UploadResponseT, UserArrayT, UserT, welcomeServerId } from 'models';
-import { filesTable, membershipsTable, usersTable } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import { Request, Response } from 'express';
+import { isLeft } from 'fp-ts/Either';
+import {
+    allowedImageMimes,
+    CreateProfileRequest,
+    CreateProfileRequestT,
+    CreateProfileResponseT,
+    EditProfileRequest,
+    EditProfileRequestT,
+    EditProfileResponseT,
+    IsMyProfileCompleteResponseT,
+    maxUserBioLength,
+    maxUserNameLength,
+    S3Keys,
+    UploadResponseT,
+    UserT,
+    welcomeServerId,
+} from 'models';
 import { badRequest, notFound, serverError } from '../common/response';
-import { isLeft } from 'fp-ts/Either'
-import { createUploadUrl, deleteFile } from '../util/s3';
+import { db } from '../db/db';
+import { filesTable, membershipsTable, usersTable } from '../db/schema';
 import { SIOServer } from '../socket.io/sio_server';
+import { createUploadUrl, deleteFile } from '../util/s3';
 
 export class UserController {
     private sioServer: SIOServer;
@@ -16,14 +31,15 @@ export class UserController {
     }
 
     async getMyUserData(req: Request, res: Response) {
-        const result = await db.select({
-            userId: usersTable.userId,
-            imageId: usersTable.imageId,
-            name: usersTable.name,
-            bio: usersTable.bio
-        })
-        .from(usersTable)
-        .where(eq(usersTable.userId, res.locals.userId))
+        const result = await db
+            .select({
+                userId: usersTable.userId,
+                imageId: usersTable.imageId,
+                name: usersTable.name,
+                bio: usersTable.bio,
+            })
+            .from(usersTable)
+            .where(eq(usersTable.userId, res.locals.userId));
 
         if (result.length === 0) {
             return notFound(res, `user ${res.locals.userId}`);
@@ -34,18 +50,19 @@ export class UserController {
             imageId: result[0].imageId,
             name: result[0].name,
             bio: result[0].bio,
-            status: 'ONLINE'
-        }
+            status: 'ONLINE',
+        };
 
         res.json(response);
     }
 
     async isMyProfileComplete(req: Request, res: Response) {
-        const result = await db.select({
-            userId: usersTable.userId
-        })
-        .from(usersTable)
-        .where(eq(usersTable.userId, res.locals.userId));
+        const result = await db
+            .select({
+                userId: usersTable.userId,
+            })
+            .from(usersTable)
+            .where(eq(usersTable.userId, res.locals.userId));
 
         let complete = true;
 
@@ -55,7 +72,7 @@ export class UserController {
 
         const response: IsMyProfileCompleteResponseT = {
             complete: complete,
-            email: res.locals.userEmail
+            email: res.locals.userEmail,
         };
 
         res.json(response);
@@ -73,11 +90,12 @@ export class UserController {
             return badRequest(res);
         }
 
-        const userResult = await db.select({
-            imageId: usersTable.imageId
-        })
-        .from(usersTable)
-        .where(eq(usersTable.userId, res.locals.userId));
+        const userResult = await db
+            .select({
+                imageId: usersTable.imageId,
+            })
+            .from(usersTable)
+            .where(eq(usersTable.userId, res.locals.userId));
 
         if (userResult.length === 0) {
             return serverError(res);
@@ -100,27 +118,30 @@ export class UserController {
 
             imageId = crypto.randomUUID();
 
-            await db.insert(filesTable).values([{
-                fileId: imageId,
-                userId: res.locals.userId,
-                name: data.image.name,
-                mimeType: data.image.mimeType
-            }]);
+            await db.insert(filesTable).values([
+                {
+                    fileId: imageId,
+                    userId: res.locals.userId,
+                    name: data.image.name,
+                    mimeType: data.image.mimeType,
+                },
+            ]);
 
             const { url, fields } = await createUploadUrl(`${S3Keys.profileImgs}/${imageId}`);
             upload = {
                 fileId: imageId,
                 url: url,
                 name: data.image.name,
-                fields: fields
+                fields: fields,
             };
         }
 
-        await db.update(usersTable)
+        await db
+            .update(usersTable)
             .set({
                 name: data.name,
                 bio: data.bio,
-                imageId: imageId
+                imageId: imageId,
             })
             .where(eq(usersTable.userId, res.locals.userId));
 
@@ -129,11 +150,11 @@ export class UserController {
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: null,
-            channelId: null
+            channelId: null,
         });
 
         const response: EditProfileResponseT = {
-            upload: upload
+            upload: upload,
         };
 
         res.json(response);
@@ -152,38 +173,44 @@ export class UserController {
         }
 
         let upload: UploadResponseT | undefined;
-        let imageId: string = crypto.randomUUID();
-        
-        await db.insert(usersTable).values([{
-            userId: res.locals.userId,
-            imageId: data.image ? imageId : null,
-            name: data.name,
-            bio: data.bio
-        }]);
+        const imageId: string = crypto.randomUUID();
 
-        await db.insert(membershipsTable).values([{
-            serverId: welcomeServerId,
-            userId: res.locals.userId
-        }]);
+        await db.insert(usersTable).values([
+            {
+                userId: res.locals.userId,
+                imageId: data.image ? imageId : null,
+                name: data.name,
+                bio: data.bio,
+            },
+        ]);
+
+        await db.insert(membershipsTable).values([
+            {
+                serverId: welcomeServerId,
+                userId: res.locals.userId,
+            },
+        ]);
 
         if (data.image) {
             if (!allowedImageMimes.includes(data.image.mimeType)) {
                 return badRequest(res);
             }
 
-            await db.insert(filesTable).values([{
-                fileId: imageId,
-                userId: res.locals.userId,
-                name: data.image.name,
-                mimeType: data.image.mimeType
-            }]);
+            await db.insert(filesTable).values([
+                {
+                    fileId: imageId,
+                    userId: res.locals.userId,
+                    name: data.image.name,
+                    mimeType: data.image.mimeType,
+                },
+            ]);
 
             const { url, fields } = await createUploadUrl(`${S3Keys.profileImgs}/${imageId}`);
             upload = {
                 fileId: imageId,
                 url: url,
                 name: data.image.name,
-                fields: fields
+                fields: fields,
             };
         }
 
@@ -192,11 +219,11 @@ export class UserController {
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: welcomeServerId,
-            channelId: null
+            channelId: null,
         });
 
         const response: CreateProfileResponseT = {
-            upload: upload
+            upload: upload,
         };
 
         res.json(response);

@@ -35,7 +35,7 @@ export const welcomeServerId = '045a66e6-30cb-4d05-916e-4debe61b9413';
 
 export const Server = t.type({
     serverId: t.string,
-    imageId: t.union([ t.string, t.null ]),
+    imageId: t.union([t.string, t.null]),
     name: t.string
 })
 
@@ -63,9 +63,9 @@ export type UserStatusT = t.TypeOf<typeof UserStatus>;
 
 export const User = t.type({
     userId: t.string,
-    imageId: t.union([ t.string, t.null ]),
+    imageId: t.union([t.string, t.null]),
     name: t.string,
-    bio: t.union([ t.string, t.null ]),
+    bio: t.union([t.string, t.null]),
     status: UserStatus
 });
 
@@ -76,9 +76,9 @@ export type UserArrayT = t.TypeOf<typeof UserArray>;
 
 export const File = t.type({
     fileId: t.string,
-    messageId: t.union([ t.string, t.null]),
-    serverId: t.union([ t.string, t.null]),
-    userId: t.union([ t.string, t.null]),
+    messageId: t.union([t.string, t.null]),
+    serverId: t.union([t.string, t.null]),
+    userId: t.union([t.string, t.null]),
     name: t.string,
     mimeType: t.string
 });
@@ -186,7 +186,7 @@ export type EditChannelRequestT = t.TypeOf<typeof EditChannelRequest>;
 
 export const EditServerRequest = t.type({
     name: t.string,
-    image: t.union([ UploadRequest, t.null ]),
+    image: t.union([UploadRequest, t.null]),
     clientId: t.string
 });
 
@@ -200,7 +200,7 @@ export type EditServerResponseT = t.TypeOf<typeof EditServerResponse>;
 
 export const CreateServerRequest = t.type({
     name: t.string,
-    image: t.union([ UploadRequest, t.null ]),
+    image: t.union([UploadRequest, t.null]),
     clientId: t.string
 });
 
@@ -221,7 +221,7 @@ export type LeaveServerRequestT = t.TypeOf<typeof LeaveServerRequest>;
 export const EditProfileRequest = t.type({
     name: t.string,
     bio: t.string,
-    image: t.union([ UploadRequest, t.null ]),
+    image: t.union([UploadRequest, t.null]),
     clientId: t.string
 });
 
@@ -236,7 +236,7 @@ export type EditProfileResponseT = t.TypeOf<typeof EditProfileResponse>;
 export const CreateProfileRequest = t.type({
     name: t.string,
     bio: t.string,
-    image: t.union([ UploadRequest, t.null ]),
+    image: t.union([UploadRequest, t.null]),
     clientId: t.string
 });
 
@@ -257,7 +257,7 @@ export type IsMyProfileCompleteResponseT = t.TypeOf<typeof IsMyProfileCompleteRe
 
 export const CreateInviteRequest = t.type({
     serverId: t.string,
-    validFor: t.union([ t.number, t.null ])
+    validFor: t.union([t.number, t.null])
 });
 
 export type CreateInviteRequestT = t.TypeOf<typeof CreateInviteRequest>;
@@ -270,16 +270,20 @@ export type CreateInviteResponseT = t.TypeOf<typeof CreateInviteResponse>;
 
 export const ConsumeInviteResponse = t.type({
     success: t.boolean,
-    expiresAt: t.union([ t.number, t.null ])
+    serverId: t.string,
+    expiresAt: t.union([t.number, t.null]),
+    joined: t.boolean
 });
 
 export type ConsumeInviteResponseT = t.TypeOf<typeof ConsumeInviteResponse>;
 
 export const PreviewInviteResponse = t.type({
+    serverId: t.string,
     serverName: t.string,
-    serverImageId: t.union([ t.string, t.null ]),
+    serverImageId: t.union([t.string, t.null]),
     userName: t.string,
-    expiresAt: t.union([ t.number, t.null ])
+    expiresAt: t.union([t.number, t.null]),
+    joined: t.boolean
 });
 
 export type PreviewInviteResponseT = t.TypeOf<typeof PreviewInviteResponse>;

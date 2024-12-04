@@ -1,10 +1,10 @@
-import { getFileQuery } from "@/lib/queries/get_file";
-import { Plus } from "lucide-react";
-import { allowedImageMimes, S3Keys } from "models";
-import Image from "next/image"
-import { ChangeEvent, createRef, Dispatch, SetStateAction, useMemo } from "react";
+import { useGetFileQuery } from '@/lib/queries/get_file';
+import { Plus } from 'lucide-react';
+import { allowedImageMimes } from 'models';
+import Image from 'next/image';
+import { ChangeEvent, createRef, useMemo } from 'react';
 
-import './image_upload.css'
+import './image_upload.css';
 
 function NewImagePreview({ imageFile }: { imageFile: File }) {
     return (
@@ -16,13 +16,19 @@ function NewImagePreview({ imageFile }: { imageFile: File }) {
             className="image-preview rounded-full border-2 border-fg-light"
             alt="Image"
         />
-    )
+    );
 }
 
-function ExistingImagePreview({ imageId, imageLocation }: { imageId: string, imageLocation: string }) {
-    const { data, isLoading, isError } = getFileQuery(imageLocation, imageId);
+function ExistingImagePreview({
+    imageId,
+    imageLocation,
+}: {
+    imageId: string;
+    imageLocation: string;
+}) {
+    const { data, isLoading, isError } = useGetFileQuery(imageLocation, imageId);
 
-    const imageUrl = useMemo(() => (data) ? URL.createObjectURL(data) : null, [data]);
+    const imageUrl = useMemo(() => (data ? URL.createObjectURL(data) : null), [data]);
 
     return (
         <>
@@ -36,9 +42,7 @@ function ExistingImagePreview({ imageId, imageLocation }: { imageId: string, ima
                     alt="Server image loading"
                 />
             )}
-            {isError && (
-                <p>FAILED TO LOAD FILE</p>
-            )}
+            {isError && <p>FAILED TO LOAD FILE</p>}
             {data && imageUrl && (
                 <Image
                     src={imageUrl}
@@ -49,12 +53,19 @@ function ExistingImagePreview({ imageId, imageLocation }: { imageId: string, ima
                     alt="Image"
                 />
             )}
-
         </>
-    )
+    );
 }
 
-function ConditionalImagePreview({ existingImageId, existingImageLocation, newImageFile}: { existingImageId: string | null, existingImageLocation: string, newImageFile: File | undefined } ) {
+function ConditionalImagePreview({
+    existingImageId,
+    existingImageLocation,
+    newImageFile,
+}: {
+    existingImageId: string | null;
+    existingImageLocation: string;
+    newImageFile: File | undefined;
+}) {
     if (newImageFile) {
         return <NewImagePreview imageFile={newImageFile} />;
     }
@@ -64,30 +75,38 @@ function ConditionalImagePreview({ existingImageId, existingImageLocation, newIm
             <div className="image-preview rounded-full border-2 border-fg-light bg-bg-light flex justify-center items-center">
                 <Plus width={32} height={32} className="text-fg-dark" />
             </div>
-        )
+        );
     }
 
-    return <ExistingImagePreview imageId={existingImageId} imageLocation={existingImageLocation} />
+    return <ExistingImagePreview imageId={existingImageId} imageLocation={existingImageLocation} />;
 }
 
 type ImageUploadProps = {
-    existingImageId: string | null,
-    existingImageLocation: string,
-    title: string,
-    maxSize: number,
-    file: File | undefined,
-    setFile: (file: File) => void,
-    onInvalid: (message: string) => void
+    existingImageId: string | null;
+    existingImageLocation: string;
+    title: string;
+    maxSize: number;
+    file: File | undefined;
+    setFile: (file: File) => void;
+    onInvalid: (message: string) => void;
 };
 
-export default function ImageUpload({ existingImageId, existingImageLocation, title, maxSize, file, setFile, onInvalid }: ImageUploadProps) {
+export default function ImageUpload({
+    existingImageId,
+    existingImageLocation,
+    title,
+    maxSize,
+    file,
+    setFile,
+    onInvalid,
+}: ImageUploadProps) {
     const inputRef = createRef<HTMLInputElement>();
 
     const clearFile = () => {
         if (inputRef.current) {
             inputRef.current.value = '';
         }
-    }
+    };
 
     const onFileAdded = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files || !e.target.files[0]) {
@@ -97,35 +116,34 @@ export default function ImageUpload({ existingImageId, existingImageLocation, ti
         const file = e.target.files[0];
 
         if (file.size > maxSize) {
-            onInvalid(`The selected file is too big! The maximum allowed size is ${maxSize} bytes.`);
-        }
-
-        else if (!allowedImageMimes.includes(file.type)) {
+            onInvalid(
+                `The selected file is too big! The maximum allowed size is ${maxSize} bytes.`,
+            );
+        } else if (!allowedImageMimes.includes(file.type)) {
             onInvalid('The selected file type is not allowed!');
-        }
-
-        else {
+        } else {
             setFile(file);
             clearFile();
         }
-    }
+    };
 
     return (
         <div className="w-full flex flex-col items-center p-3">
             <p className="text-fg-medium mb-2">{title}</p>
-            <input 
+            <input
                 type="file"
                 id="file-input"
                 ref={inputRef}
                 onChange={onFileAdded}
                 className="hidden"
             />
-            <label
-                htmlFor="file-input"
-                className=""
-            >
-                <ConditionalImagePreview existingImageId={existingImageId} existingImageLocation={existingImageLocation} newImageFile={file} /> 
+            <label htmlFor="file-input" className="">
+                <ConditionalImagePreview
+                    existingImageId={existingImageId}
+                    existingImageLocation={existingImageLocation}
+                    newImageFile={file}
+                />
             </label>
         </div>
-    )
+    );
 }

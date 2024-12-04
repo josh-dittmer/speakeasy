@@ -1,13 +1,15 @@
 @keyframes upsize-animation {
-	100% { 
-        grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(--user-bar-width);
-	}
+    100% {
+        grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(
+                --user-bar-width
+            );
+    }
 }
 
 @keyframes downsize-animation {
-	100% { 
+    100% {
         grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto 0px;
-	}
+    }
 }
 
 @media (min-width: 1000px) {
@@ -23,9 +25,11 @@
 @media (max-width: 1000px) {
     .home-layout {
         display: grid;
-        grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(--user-bar-width);
+        grid-template-columns: var(--server-bar-width) var(--channel-bar-width) auto var(
+                --user-bar-width
+            );
 
         animation: downsize-animation 0.3s;
         animation-fill-mode: forwards;
     }
- }
+}

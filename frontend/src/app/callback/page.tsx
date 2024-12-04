@@ -1,12 +1,12 @@
 'use client';
 
-import { handleCallback, createLoginUrl } from '@/lib/auth/auth';
+import { handleCallback } from '@/lib/auth/auth';
+import { useQuery } from '@tanstack/react-query';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { getClientId } from '../actions';
-import { useQuery } from '@tanstack/react-query';
 
 export default function CallbackPage() {
     const searchParams = useSearchParams();
@@ -27,11 +27,11 @@ export default function CallbackPage() {
         return true;
     };
 
-    const { data, isError, isSuccess } = useQuery({
+    const { isError, isSuccess } = useQuery({
         queryKey: ['finishLogin'],
         queryFn: finishLogin,
         staleTime: Infinity,
-        retry: false
+        retry: false,
     });
 
     useEffect(() => {
@@ -39,16 +39,17 @@ export default function CallbackPage() {
             router.push('/home');
             //console.log('yay');
         }
-    }, [data]);
-
+    }, [router, isSuccess]);
 
     if (isError) {
         return (
             <div className="w-screen h-screen flex flex-col justify-center items-center">
                 <p className="text-fg-dark">Something went wrong!</p>
-                <Link className="text-fg-dark underline" href="/login">Try Again</Link>
+                <Link className="text-fg-dark underline" href="/login">
+                    Try Again
+                </Link>
             </div>
-        )
+        );
     }
 
     return (
@@ -63,5 +64,5 @@ export default function CallbackPage() {
             />
             <p className="text-fg-dark">Login complete!</p>
         </div>
-    )
+    );
 }

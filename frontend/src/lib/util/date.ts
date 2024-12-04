@@ -10,7 +10,7 @@ export function formatDate(d: Date): string {
     const currDate: Date = new Date();
     if (currDate.getMonth() === d.getMonth() && currDate.getFullYear() === d.getFullYear()) {
         const currDay = currDate.getDate();
-        switch(d.getDate()) {
+        switch (d.getDate()) {
             case currDay:
                 mdy = 'Today';
                 break;
@@ -22,7 +22,7 @@ export function formatDate(d: Date): string {
 
     const minutes = String(d.getMinutes()).padStart(2, '0');
 
-    const dateStr = `${mdy} at ${hours}:${minutes}${s}`
+    const dateStr = `${mdy} at ${hours}:${minutes}${s}`;
 
     return dateStr;
 }

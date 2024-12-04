@@ -1,14 +1,14 @@
 import { Application, Router } from 'express';
+import { API_PREFIX } from '..';
 import { SIOServer } from '../socket.io/sio_server';
 import { ChannelRoutes } from './channel.routes';
 import { FileRoutes } from './file.routes';
+import { InviteRoutes } from './invite.routes';
 import { MessageRoutes } from './message.routes';
 import { ServerRoutes } from './server.routes';
 import { UserRoutes } from './user.routes';
-import { API_PREFIX } from '..';
-import { InviteRoutes } from './invite.routes';
 
-const apiVersion = parseInt(process.env.API_VERSION!);
+//const apiVersion = parseInt(process.env.API_VERSION!);
 
 export default class Routes {
     public router: Router;

@@ -1,12 +1,12 @@
+import { eq } from 'drizzle-orm';
 import { Request, Response } from 'express';
-import { badRequest, forbidden, notFound, serverError } from '../common/response';
+import { FileArrayT, S3Keys } from 'models';
+import { badRequest, forbidden, notFound } from '../common/response';
 import { db } from '../db/db';
 import { filesTable } from '../db/schema';
-import { eq } from 'drizzle-orm';
-import { FileArrayT, S3Keys } from 'models';
-import { verifyServer } from '../util/verify';
-import { createDownloadUrl, fileExists, streamDownload } from '../util/s3';
 import { SIOServer } from '../socket.io/sio_server';
+import { fileExists, streamDownload } from '../util/s3';
+import { verifyServer } from '../util/verify';
 
 export class FileController {
     private sioServer: SIOServer;
@@ -35,16 +35,17 @@ export class FileController {
                 return badRequest(res);
         }
 
-        const results: FileArrayT = await db.select({
-            fileId: filesTable.fileId,
-            messageId: filesTable.messageId,
-            serverId: filesTable.serverId,
-            userId: filesTable.userId,
-            name: filesTable.name,
-            mimeType: filesTable.mimeType
-        })
-        .from(filesTable)
-        .where(eq(filesTable.fileId, req.params.fileId))
+        const results: FileArrayT = await db
+            .select({
+                fileId: filesTable.fileId,
+                messageId: filesTable.messageId,
+                serverId: filesTable.serverId,
+                userId: filesTable.userId,
+                name: filesTable.name,
+                mimeType: filesTable.mimeType,
+            })
+            .from(filesTable)
+            .where(eq(filesTable.fileId, req.params.fileId));
 
         if (results.length === 0) {
             return notFound(res, `file ${req.params.fileId}`);
@@ -52,7 +53,7 @@ export class FileController {
 
         const file = results[0];
 
-        if (file.serverId) {
+        if (file.serverId && key !== S3Keys.serverImgs) {
             const verified = await verifyServer(res.locals.userId, file.serverId);
             if (!verified) {
                 return forbidden(res);
@@ -62,9 +63,7 @@ export class FileController {
         const exists = await fileExists(`${key}/${file.fileId}`);
         if (!exists) {
             return notFound(res, `file ${req.params.fileId}`);
-        }
-
-        else {
+        } else {
             return await streamDownload(res, `${key}/${file.fileId}`, file.mimeType);
         }
     }

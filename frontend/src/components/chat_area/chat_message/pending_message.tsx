@@ -1,10 +1,9 @@
-'use client'
+'use client';
 
-import { CreateMessageRequestT } from 'models';
 import Image from 'next/image';
-import { getMyUserDataQuery } from '@/lib/queries/get_my_user_data';
 
-export default function PendingMessage({ messageReq }: { messageReq: CreateMessageRequestT }) {
+export default function PendingMessage(/*{ messageReq }: { messageReq: CreateMessageRequestT }*/) {
+    //console.log(messageReq);
     /*const { data, isSuccess } = getMyUserDataQuery();
     
     return (
@@ -33,7 +32,7 @@ export default function PendingMessage({ messageReq }: { messageReq: CreateMessa
             </div>
         </div>
     )*/
-   return (
+    return (
         <div className="ml-4">
             <Image
                 src={'/img/image_loading.gif'}
@@ -44,5 +43,5 @@ export default function PendingMessage({ messageReq }: { messageReq: CreateMessa
                 alt="Message sending"
             />
         </div>
-   )
+    );
 }

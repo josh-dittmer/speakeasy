@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @keyframes server-icon-animation {
-	100% { 
-		border-radius: 15px; 
-		background-color: var(--bg-accent);
-		color: var(--fg-accent);
-	}
+    100% {
+        border-radius: 15px;
+        background-color: var(--bg-accent);
+        color: var(--fg-accent);
+    }
 }
 
 @keyframes server-indicator-animation {
@@ -24,9 +24,9 @@
 }
 
 .server-icon {
-	border-radius: 50px;
-	background-color: var(--bg-light);
-	color: var(--fg-medium);
+    border-radius: 50px;
+    background-color: var(--bg-light);
+    color: var(--fg-medium);
     font-size: 1.25rem;
 }
 
@@ -35,45 +35,45 @@
 }
 
 .server-nameplate {
-	opacity: 0;
-	visibility: hidden;
+    opacity: 0;
+    visibility: hidden;
 }
 
 .server-div:hover {
-	.server-icon {
-		animation: server-icon-animation 0.2s;
-		animation-fill-mode: forwards;
-	}
+    .server-icon {
+        animation: server-icon-animation 0.2s;
+        animation-fill-mode: forwards;
+    }
 
-	.server-indicator {
-		animation: server-indicator-animation 0.2s;
-		animation-fill-mode: forwards;
-	}
+    .server-indicator {
+        animation: server-indicator-animation 0.2s;
+        animation-fill-mode: forwards;
+    }
 
     .server-nameplate:not(:hover) {
         animation: server-nameplate-animation 0.4s;
-		animation-fill-mode: forwards;
-		visibility: visible;
+        animation-fill-mode: forwards;
+        visibility: visible;
     }
 }
 
 .selected-server-div {
     .server-icon {
-        border-radius: 15px; 
-		background-color: var(--bg-accent);
-		color: var(--fg-accent);
-	}
+        border-radius: 15px;
+        background-color: var(--bg-accent);
+        color: var(--fg-accent);
+    }
 
-	.server-indicator {
+    .server-indicator {
         opacity: 1;
         background-color: var(--fg-medium);
-	}
+    }
 }
 
 .selected-server-div:hover {
     .server-nameplate:not(:hover) {
         animation: server-nameplate-animation 0.4s;
-		animation-fill-mode: forwards;
-		visibility: visible;
+        animation-fill-mode: forwards;
+        visibility: visible;
     }
 }

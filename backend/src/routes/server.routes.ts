@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { ServerController } from '../controllers/server.controller';
 import { SIOServer } from '../socket.io/sio_server';
+import { asyncHandler } from '../util/async_error_handler';
 
 export class ServerRoutes {
     public router: Router;
@@ -13,11 +14,26 @@ export class ServerRoutes {
     }
 
     private init() {
-        this.router.get('/getServerList', (req, res) => this.controller.getServerList(req, res));
-        this.router.get('/getServerData/:serverId', (req, res) => this.controller.getServerData(req, res));
-        this.router.post('/leaveServer/:serverId', (req, res) => this.controller.leaveServer(req, res));
-        this.router.post('/editServer/:serverId', (req, res) => this.controller.editServer(req, res));
-        this.router.post('/createServer', (req, res) => this.controller.createServer(req, res));
+        this.router.get(
+            '/getServerList',
+            asyncHandler((req, res) => this.controller.getServerList(req, res)),
+        );
+        this.router.get(
+            '/getServerData/:serverId',
+            asyncHandler((req, res) => this.controller.getServerData(req, res)),
+        );
+        this.router.post(
+            '/leaveServer/:serverId',
+            asyncHandler((req, res) => this.controller.leaveServer(req, res)),
+        );
+        this.router.post(
+            '/editServer/:serverId',
+            asyncHandler((req, res) => this.controller.editServer(req, res)),
+        );
+        this.router.post(
+            '/createServer',
+            asyncHandler((req, res) => this.controller.createServer(req, res)),
+        );
     }
 }
 

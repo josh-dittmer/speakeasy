@@ -1,26 +1,32 @@
 'use client';
 
-import { createMessage } from '@/lib/api/requests';
-import { createMessageMutation } from '@/lib/mutations/create_message';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useCreateMessageMutation } from '@/lib/mutations/create_message';
+import { useQueryClient } from '@tanstack/react-query';
 import { Plus, X } from 'lucide-react';
-import { allowedImageMimes, allowedMimes, ChannelT, CreateMessageRequestT, FileArrayT, FileT, maxFileSize, maxMessageLength, maxNumFiles } from 'models';
+import {
+    allowedImageMimes,
+    allowedMimes,
+    ChannelT,
+    maxFileSize,
+    maxMessageLength,
+    maxNumFiles
+} from 'models';
 import Image from 'next/image';
-import { ChangeEvent, createRef, FormEvent, KeyboardEvent, useMemo, useState } from 'react';
+import { ChangeEvent, createRef, KeyboardEvent, useMemo, useState } from 'react';
 
-import './chat_box.css'
 import { CLIENT_ID } from '@/lib/util/client_id';
+import './chat_box.css';
 
-function FilePreview({ file, removeFile }: { file: File, removeFile: (file: File) => void }) {
+function FilePreview({ file, removeFile }: { file: File; removeFile: (file: File) => void }) {
     const isImg = allowedImageMimes.includes(file.type);
 
-    const imgUrl = useMemo(() => (isImg) ? URL.createObjectURL(file) : undefined, [file]);
-    
+    const imgUrl = useMemo(() => (isImg ? URL.createObjectURL(file) : undefined), [file, isImg]);
+
     if (isImg && imgUrl) {
         return (
             <div className="relative m-3">
                 <div className="absolute top-[-10px] left-[-10px]">
-                    <button 
+                    <button
                         className="p-1 bg-red-600 hover:bg-red-800 rounded-full text-white shadow"
                         onClick={() => removeFile(file)}
                     >
@@ -36,14 +42,10 @@ function FilePreview({ file, removeFile }: { file: File, removeFile: (file: File
                     alt="Message image"
                 />
             </div>
-        )
+        );
     }
 
-    return (
-        <div className="">
-
-        </div>
-    )
+    return <div className=""></div>;
 }
 
 export default function ChatBox({ channel }: { channel: ChannelT }) {
@@ -55,16 +57,17 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
     const fileUploadRef = createRef<HTMLInputElement>();
 
     const queryClient = useQueryClient();
-    const { mutate } = createMessageMutation(queryClient, channel.channelId, CLIENT_ID);
+    const { mutate } = useCreateMessageMutation(queryClient, channel.channelId, CLIENT_ID);
 
     const onMessageInput = (e: ChangeEvent<HTMLTextAreaElement>) => {
         setMessageContent(e.target.value);
-        
-        const maxHeight = 300/*px*/;
+
+        const maxHeight = 300; /*px*/
 
         if (textBoxRef.current) {
             textBoxRef.current.style.height = '';
-            textBoxRef.current.style.height = Math.min(textBoxRef.current.scrollHeight, maxHeight) + 'px';
+            textBoxRef.current.style.height =
+                Math.min(textBoxRef.current.scrollHeight, maxHeight) + 'px';
         }
     };
 
@@ -76,7 +79,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
 
         mutate({
             content: messageContent,
-            files: files
+            files: files,
         });
 
         setMessageContent('');
@@ -87,7 +90,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
         setFiles([]);
 
         clearFile();
-    }
+    };
 
     const playAnimation = (className: 'empty' | 'sent') => {
         if (textAreaRef.current) {
@@ -96,7 +99,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
             textAreaRef.current?.offsetHeight; // this resets the animation for some unknown reason
             textAreaRef.current?.classList.add(className);
         }
-    }
+    };
 
     const onMessageKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter') {
@@ -106,16 +109,16 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                 playAnimation('sent');
                 sendMessage();
             }
-            
+
             e.preventDefault();
         }
-    }
+    };
 
     const clearFile = () => {
         if (fileUploadRef.current) {
             fileUploadRef.current.value = '';
         }
-    }
+    };
 
     const onAddFile = (e: ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
@@ -135,9 +138,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                 errorAlertState.setOpen(true);*/
                 clearFile();
                 return;
-            }
-
-            else if (!allowedMimes.includes(e.target.files[i].type)) {
+            } else if (!allowedMimes.includes(e.target.files[i].type)) {
                 /*errorAlertState.setTitle('Disallowed file type!');
                 errorAlertState.setDescription('One or more of the selected files have disallowed types!');
                 errorAlertState.setOpen(true);*/
@@ -161,11 +162,11 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
     const removeFile = (file: File) => {
         const i = files.indexOf(file);
         if (i > -1) {
-            setFiles((old) => {
+            setFiles(old => {
                 const newFiles = [...old];
                 newFiles.splice(i, 1);
                 return newFiles;
-            })
+            });
         }
     };
 
@@ -174,13 +175,16 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
             {files.length > 0 && (
                 <div className="flex justify-center items-center bg-bg-medium p-7 rounded-t-lg w-full">
                     {files.map((file, index) => {
-                        return <FilePreview key={index} file={file} removeFile={removeFile} />
+                        return <FilePreview key={index} file={file} removeFile={removeFile} />;
                     })}
                 </div>
             )}
-            <div className="w-full flex items-center bg-bg-medium p-3 rounded text-nowrap chat-box" ref={textAreaRef}>
-                <textarea 
-                    placeholder={`Send a message to ${channel.name}...`} 
+            <div
+                className="w-full flex items-center bg-bg-medium p-3 rounded text-nowrap chat-box"
+                ref={textAreaRef}
+            >
+                <textarea
+                    placeholder={`Send a message to ${channel.name}...`}
                     className="grow bg-bg-medium text-fg-medium focus:outline-none h-chat-box resize-none"
                     rows={1}
                     ref={textBoxRef}
@@ -188,7 +192,7 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                     onChange={(e: ChangeEvent<HTMLTextAreaElement>) => onMessageInput(e)}
                     onKeyDown={(e: KeyboardEvent<HTMLTextAreaElement>) => onMessageKeyDown(e)}
                 />
-                <input 
+                <input
                     type="file"
                     id="file-chat"
                     ref={fileUploadRef}
@@ -196,15 +200,12 @@ export default function ChatBox({ channel }: { channel: ChannelT }) {
                     className="hidden"
                     multiple
                 />
-                <label 
-                    htmlFor="file-chat"
-                    className=""
-                >
+                <label htmlFor="file-chat" className="">
                     <div className="ml-2 bg-bg-light hover:bg-bg-dark p-2 rounded-full shadow">
                         <Plus width={15} height={15} className="text-fg-dark"></Plus>
                     </div>
                 </label>
             </div>
         </div>
-    )
+    );
 }

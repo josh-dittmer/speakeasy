@@ -1,0 +1,14 @@
+@keyframes copied-animation {
+    0% {
+        border: 2px solid var(--bg-accent);
+    }
+}
+
+.animate-copied {
+    animation: copied-animation 0.5s;
+    animation-fill-mode: forwards;
+}
+
+.copyable-text {
+    padding: var(--form-main-padding);
+}

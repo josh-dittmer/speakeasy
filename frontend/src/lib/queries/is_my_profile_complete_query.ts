@@ -1,7 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import { getMyUserData, isMyProfileComplete, Tags } from "../api/requests";
+import { useQuery } from '@tanstack/react-query';
+import { isMyProfileComplete } from '../api/requests';
 
-export const isMyProfileCompleteQuery = () => useQuery({
-    queryKey: ['isMyProfileComplete'],
-    queryFn: () => isMyProfileComplete(),
-});
+export const useIsMyProfileCompleteQuery = () =>
+    useQuery({
+        queryKey: ['isMyProfileComplete'],
+        queryFn: () => isMyProfileComplete(),
+    });

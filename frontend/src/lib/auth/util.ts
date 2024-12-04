@@ -1,5 +1,5 @@
 function base64UrlEncode(a: ArrayBuffer) {
-    let str = "";
+    let str = '';
     const bytes = new Uint8Array(a);
     const len = bytes.byteLength;
 
@@ -7,17 +7,17 @@ function base64UrlEncode(a: ArrayBuffer) {
         str += String.fromCharCode(bytes[i]);
     }
 
-    return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    return btoa(str).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function dec2hex(dec: number) {
-    return ("0" + dec.toString(16)).substr(-2);
+    return ('0' + dec.toString(16)).substr(-2);
 }
 
 function genRandomString(len: number = 80): string {
     const array = new Uint32Array(len / 2);
     crypto.getRandomValues(array);
-    return Array.from(array, dec2hex).join("");
+    return Array.from(array, dec2hex).join('');
 }
 
 async function sha256(plain: string): Promise<ArrayBuffer> {

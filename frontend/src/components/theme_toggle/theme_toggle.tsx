@@ -9,7 +9,7 @@ export default function ThemeToggle() {
 
     const switchTheme = () => {
         theme?.setTheme(theme.theme === 'dark' ? 'light' : 'dark');
-    }
+    };
 
     return (
         <button className="bg-bg-medium hover:bg-bg-dark p-1 rounded" onClick={switchTheme}>
@@ -19,5 +19,5 @@ export default function ThemeToggle() {
                 <Sun width={15} height={15} className="text-fg-light"></Sun>
             )}
         </button>
-    )
+    );
 }

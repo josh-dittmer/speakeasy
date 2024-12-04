@@ -1,12 +1,25 @@
+import { desc, eq } from 'drizzle-orm';
 import { Request, Response } from 'express';
-import { db } from '../db/db';
-import { eq, asc, desc } from 'drizzle-orm';
-import { channelsTable, filesTable, messagesTable } from '../db/schema';
-import { ChannelArrayT, ChannelDataT, CreateChannelRequest, CreateChannelRequestT, CreateChannelResponseT, DeleteChannelRequest, DeleteChannelRequestT, EditChannelRequest, EditChannelRequestT, FileArrayT, maxChannelNameLength, MessageArrayT } from 'models';
-import { isLeft } from 'fp-ts/Either'
+import { isLeft } from 'fp-ts/Either';
+import {
+    ChannelArrayT,
+    ChannelDataT,
+    CreateChannelRequest,
+    CreateChannelRequestT,
+    CreateChannelResponseT,
+    DeleteChannelRequest,
+    DeleteChannelRequestT,
+    EditChannelRequest,
+    EditChannelRequestT,
+    FileArrayT,
+    maxChannelNameLength,
+    MessageArrayT,
+} from 'models';
 import { badRequest, forbidden, notFound } from '../common/response';
-import { verifyServer } from '../util/verify';
+import { db } from '../db/db';
+import { channelsTable, filesTable, messagesTable } from '../db/schema';
 import { SIOServer } from '../socket.io/sio_server';
+import { verifyServer } from '../util/verify';
 
 export class ChannelController {
     private sioServer: SIOServer;
@@ -25,13 +38,14 @@ export class ChannelController {
         const channelId = req.params.channelId;
         const page = +req.query.page;
 
-        const channelResult: ChannelArrayT = await db.select({
-            channelId: channelsTable.channelId,
-            serverId: channelsTable.serverId,
-            name: channelsTable.name
-        })
-        .from(channelsTable)
-        .where(eq(channelsTable.channelId, channelId));
+        const channelResult: ChannelArrayT = await db
+            .select({
+                channelId: channelsTable.channelId,
+                serverId: channelsTable.serverId,
+                name: channelsTable.name,
+            })
+            .from(channelsTable)
+            .where(eq(channelsTable.channelId, channelId));
 
         if (channelResult.length === 0) {
             return notFound(res, `channel ${channelId}`);
@@ -42,38 +56,40 @@ export class ChannelController {
             return forbidden(res);
         }
 
-        const messageResult = await db.select({
-            channelId: channelsTable.channelId,
-            messageId: messagesTable.messageId,
-            userId: messagesTable.userId,
-            serverId: messagesTable.serverId,
-            content: messagesTable.content,
-            date: messagesTable.date,
-            hasFiles: messagesTable.hasFiles
-        })
-        .from(channelsTable)
-        .innerJoin(messagesTable, eq(channelsTable.channelId, messagesTable.channelId))
-        .where(eq(channelsTable.channelId, channelId))
-        .orderBy(desc(messagesTable.date))
-        .limit(MESSAGES_PER_PAGE)
-        .offset(page * MESSAGES_PER_PAGE)
+        const messageResult = await db
+            .select({
+                channelId: channelsTable.channelId,
+                messageId: messagesTable.messageId,
+                userId: messagesTable.userId,
+                serverId: messagesTable.serverId,
+                content: messagesTable.content,
+                date: messagesTable.date,
+                hasFiles: messagesTable.hasFiles,
+            })
+            .from(channelsTable)
+            .innerJoin(messagesTable, eq(channelsTable.channelId, messagesTable.channelId))
+            .where(eq(channelsTable.channelId, channelId))
+            .orderBy(desc(messagesTable.date))
+            .limit(MESSAGES_PER_PAGE)
+            .offset(page * MESSAGES_PER_PAGE);
 
         const messages: MessageArrayT = [];
         for (let i = messageResult.length - 1; i >= 0; i--) {
             const message = messageResult[i];
             let files: FileArrayT = [];
-            
+
             if (message.hasFiles) {
-                const fileResult: FileArrayT = await db.select({
-                    fileId: filesTable.fileId,
-                    messageId: filesTable.messageId,
-                    serverId: filesTable.serverId,
-                    userId: filesTable.userId,
-                    name: filesTable.name,
-                    mimeType: filesTable.mimeType
-                })
-                .from(filesTable)
-                .where(eq(filesTable.messageId, message.messageId));
+                const fileResult: FileArrayT = await db
+                    .select({
+                        fileId: filesTable.fileId,
+                        messageId: filesTable.messageId,
+                        serverId: filesTable.serverId,
+                        userId: filesTable.userId,
+                        name: filesTable.name,
+                        mimeType: filesTable.mimeType,
+                    })
+                    .from(filesTable)
+                    .where(eq(filesTable.messageId, message.messageId));
 
                 files = fileResult;
             }
@@ -86,14 +102,14 @@ export class ChannelController {
                 content: message.content,
                 date: message.date.getTime(),
                 isMine: message.userId === res.locals.userId,
-                files: files
+                files: files,
             });
         }
 
         const result: ChannelDataT = {
             channel: channelResult[0],
-            messages: messages
-        }
+            messages: messages,
+        };
 
         res.json(result);
     }
@@ -110,12 +126,13 @@ export class ChannelController {
 
         const data: DeleteChannelRequestT = decoded.right;
 
-        const result = await db.select({
-            channelId: channelsTable.channelId,
-            serverId: channelsTable.serverId
-        })
-        .from(channelsTable)
-        .where((eq(channelsTable.channelId, req.params.channelId)));
+        const result = await db
+            .select({
+                channelId: channelsTable.channelId,
+                serverId: channelsTable.serverId,
+            })
+            .from(channelsTable)
+            .where(eq(channelsTable.channelId, req.params.channelId));
 
         if (result.length === 0) {
             return notFound(res, `channel ${req.params.channelId}`);
@@ -135,7 +152,7 @@ export class ChannelController {
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: channelInfo.serverId,
-            channelId: channelInfo.channelId
+            channelId: channelInfo.channelId,
         });
 
         res.json({});
@@ -157,12 +174,13 @@ export class ChannelController {
             return badRequest(res);
         }
 
-        const result = await db.select({
-            channelId: channelsTable.channelId,
-            serverId: channelsTable.serverId
-        })
-        .from(channelsTable)
-        .where(eq(channelsTable.channelId, req.params.channelId));
+        const result = await db
+            .select({
+                channelId: channelsTable.channelId,
+                serverId: channelsTable.serverId,
+            })
+            .from(channelsTable)
+            .where(eq(channelsTable.channelId, req.params.channelId));
 
         if (result.length === 0) {
             return notFound(res, `channel ${req.params.channelId}`);
@@ -175,7 +193,8 @@ export class ChannelController {
             return forbidden(res);
         }
 
-        await db.update(channelsTable)
+        await db
+            .update(channelsTable)
             .set({ name: data.name })
             .where(eq(channelsTable.channelId, channelInfo.channelId));
 
@@ -184,7 +203,7 @@ export class ChannelController {
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: channelInfo.serverId,
-            channelId: channelInfo.channelId
+            channelId: channelInfo.channelId,
         });
 
         res.json({});
@@ -213,22 +232,22 @@ export class ChannelController {
         const channel: ChannelSchema = {
             channelId: channelId,
             serverId: data.serverId,
-            name: data.name
+            name: data.name,
         };
 
         await db.insert(channelsTable).values([channel]);
 
         const response: CreateChannelResponseT = {
             serverId: data.serverId,
-            channelId: channelId
-        }
+            channelId: channelId,
+        };
 
         this.sioServer.emitEvent({
             type: 'CHANNEL_CREATED',
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: data.serverId,
-            channelId: channelId
+            channelId: channelId,
         });
 
         res.json(response);

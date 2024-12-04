@@ -1,15 +1,24 @@
-import { Request, Response } from 'express';
-import { badRequest, forbidden, notFound } from '../common/response';
-import { CreateMessageRequest, CreateMessageRequestT, CreateMessageResponseT, UploadResponseT, S3Keys, maxMessageLength, FileT, DeleteMessageRequest, DeleteMessageRequestT } from 'models';
-import { isLeft } from 'fp-ts/Either'
-import { channelsTable, filesTable, messagesTable } from '../db/schema';
-import { db } from '../db/db';
 import { eq } from 'drizzle-orm';
-import { verifyServer } from '../util/verify';
-import { allowedMimes } from 'models';
-import { createUploadUrl, deleteFile } from '../util/s3';
+import { Request, Response } from 'express';
+import { isLeft } from 'fp-ts/Either';
+import {
+    CreateMessageRequest,
+    CreateMessageRequestT,
+    CreateMessageResponseT,
+    DeleteMessageRequest,
+    DeleteMessageRequestT,
+    FileT,
+    S3Keys,
+    UploadResponseT,
+    allowedMimes,
+    maxMessageLength,
+} from 'models';
+import { badRequest, forbidden, notFound } from '../common/response';
+import { db } from '../db/db';
+import { channelsTable, filesTable, messagesTable } from '../db/schema';
 import { SIOServer } from '../socket.io/sio_server';
-import { Event } from 'models';
+import { createUploadUrl, deleteFile } from '../util/s3';
+import { verifyServer } from '../util/verify';
 
 export class MessageController {
     private sioServer: SIOServer;
@@ -32,22 +41,23 @@ export class MessageController {
         }
 
         let allowed: boolean = true;
-        data.files.forEach((file) => {
+        data.files.forEach(file => {
             if (!allowedMimes.includes(file.mimeType)) {
                 console.log(`disallowed mime ${file.mimeType}`);
                 allowed = false;
             }
-        })
+        });
 
         if (!allowed) {
             return badRequest(res);
         }
 
-        const channelResult = await db.select({
-            serverId: channelsTable.serverId
-        })
-        .from(channelsTable)
-        .where(eq(channelsTable.channelId, data.channelId));
+        const channelResult = await db
+            .select({
+                serverId: channelsTable.serverId,
+            })
+            .from(channelsTable)
+            .where(eq(channelsTable.channelId, data.channelId));
 
         if (channelResult.length === 0) {
             return notFound(res, `channel ${data.channelId}`);
@@ -71,7 +81,7 @@ export class MessageController {
             serverId: serverId,
             content: data.content,
             date: date,
-            hasFiles: hasFiles
+            hasFiles: hasFiles,
         };
 
         await db.insert(messagesTable).values([message]);
@@ -92,7 +102,7 @@ export class MessageController {
                 messageId: messageId,
                 serverId: serverId,
                 name: data.files[i].name,
-                mimeType: data.files[i].mimeType
+                mimeType: data.files[i].mimeType,
             });
 
             // data for http response
@@ -101,8 +111,8 @@ export class MessageController {
                 fileId: fileId,
                 url: url,
                 name: data.files[i].name,
-                fields: fields
-            })
+                fields: fields,
+            });
 
             // data for notification
             notificationFiles.push({
@@ -111,24 +121,24 @@ export class MessageController {
                 serverId: serverId,
                 userId: res.locals.userId,
                 name: data.files[i].name,
-                mimeType: data.files[i].mimeType
-            })
-        };
+                mimeType: data.files[i].mimeType,
+            });
+        }
 
         if (hasFiles) {
             await db.insert(filesTable).values(files);
         }
-        
+
         this.sioServer.emitEvent({
             type: 'MESSAGE_SENT',
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: serverId,
-            channelId: data.channelId
+            channelId: data.channelId,
         });
 
         const response: CreateMessageResponseT = {
-            uploads: uploads
+            uploads: uploads,
         };
 
         res.json(response);
@@ -146,15 +156,16 @@ export class MessageController {
 
         const data: DeleteMessageRequestT = decoded.right;
 
-        const result = await db.select({
-            messageId: messagesTable.messageId,
-            userId: messagesTable.userId,
-            channelId: messagesTable.channelId,
-            serverId: messagesTable.serverId,
-            hasFiles: messagesTable.hasFiles
-        })
-        .from(messagesTable)
-        .where(eq(messagesTable.messageId, req.params.messageId));
+        const result = await db
+            .select({
+                messageId: messagesTable.messageId,
+                userId: messagesTable.userId,
+                channelId: messagesTable.channelId,
+                serverId: messagesTable.serverId,
+                hasFiles: messagesTable.hasFiles,
+            })
+            .from(messagesTable)
+            .where(eq(messagesTable.messageId, req.params.messageId));
 
         if (result.length === 0) {
             return notFound(res, `message ${req.params.messageId}`);
@@ -166,15 +177,16 @@ export class MessageController {
             return forbidden(res);
         }
 
-        const fileResults = await db.select({
-            fileId: filesTable.fileId,
-            messageId: filesTable.messageId
-        })
-        .from(filesTable)
-        .where(eq(filesTable.messageId, messageInfo.messageId));
+        const fileResults = await db
+            .select({
+                fileId: filesTable.fileId,
+                messageId: filesTable.messageId,
+            })
+            .from(filesTable)
+            .where(eq(filesTable.messageId, messageInfo.messageId));
 
-        fileResults.forEach(async (file) => {
-            await deleteFile(`${S3Keys.messageFiles}/${file.fileId}`)
+        fileResults.forEach(async file => {
+            await deleteFile(`${S3Keys.messageFiles}/${file.fileId}`);
         });
 
         await db.delete(messagesTable).where(eq(messagesTable.messageId, messageInfo.messageId));
@@ -184,7 +196,7 @@ export class MessageController {
             clientId: data.clientId,
             userId: res.locals.userId,
             serverId: messageInfo.serverId,
-            channelId: messageInfo.channelId
+            channelId: messageInfo.channelId,
         });
 
         res.json({});

@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { previewInvite } from "../api/requests";
+import { useQuery } from '@tanstack/react-query';
+import { previewInvite } from '../api/requests';
 
-export const previewInviteKey = (inviteId: string) => `previewInvite_${inviteId}`; 
+export const previewInviteKey = (inviteId: string) => `previewInvite_${inviteId}`;
 
-export const previewInviteQuery = (inviteId: string) => useQuery({
-    queryKey: [previewInviteKey(inviteId)],
-    queryFn: () => previewInvite(inviteId),
-});
+export const usePreviewInviteQuery = (inviteId: string) =>
+    useQuery({
+        queryKey: [previewInviteKey(inviteId)],
+        queryFn: () => previewInvite(inviteId),
+    });

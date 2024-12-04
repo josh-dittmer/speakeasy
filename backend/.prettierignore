@@ -1,0 +1,9 @@
+dist
+keys
+node_modules
+public
+.dockerignore
+.env
+.env.example
+.gitignore
+Dockerfile

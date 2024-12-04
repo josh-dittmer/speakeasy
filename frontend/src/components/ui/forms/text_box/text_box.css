@@ -1,21 +1,29 @@
 @keyframes invalid-animation {
-    0% { 
+    0% {
         transform: translateX(10px);
         border: 2px solid var(--fg-light);
     }
 
-    20% { transform: translate(-5px) }
-    40% { transform: translateX(5px) }
-    60% { transform: translate(-5px) }
-    80% { transform: translateX(5px) }
-    100% { 
+    20% {
+        transform: translate(-5px);
+    }
+    40% {
+        transform: translateX(5px);
+    }
+    60% {
+        transform: translate(-5px);
+    }
+    80% {
+        transform: translateX(5px);
+    }
+    100% {
         transform: translate(0px);
     }
 }
 
 .animate-invalid {
     animation: invalid-animation 0.5s;
-	animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
 }
 
 .text-box {

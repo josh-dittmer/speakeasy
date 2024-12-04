@@ -1,4 +1,4 @@
-import ThemeToggle from "@/components/theme_toggle/theme_toggle";
+import ThemeToggle from '@/components/theme_toggle/theme_toggle';
 
 export default function EmptyPage() {
     return (
@@ -14,5 +14,5 @@ export default function EmptyPage() {
                 <p className="text-fg-medium">Create a channel to get started!</p>
             </div>
         </div>
-    )
+    );
 }

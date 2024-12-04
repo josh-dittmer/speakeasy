@@ -1,26 +1,23 @@
 'use client';
 
-import { deleteChannel, isMyProfileComplete } from '@/lib/api/requests';
-import { editChannelMutation } from '@/lib/mutations/edit_channel';
-import { useQueryClient } from '@tanstack/react-query';
-import { usePathname, useRouter } from 'next/navigation';
-import { ChangeEvent, createRef, Dispatch, SetStateAction, useEffect, useState } from 'react';
-import { allowedImageMimes, ChannelArrayT, ChannelT, FileT, maxChannelNameLength, maxFileSize, maxServerNameLength, maxUserNameLength, S3Keys, ServerT } from 'models';
-import Popup from '@/components/ui/popup/popup';
-import { BookCheck, Check, Plus, Settings, Trash } from 'lucide-react';
-import { editServerMutation } from '@/lib/mutations/edit_server';
-import Image from 'next/image';
-import { getFileQuery } from '@/lib/queries/get_file';
-import { createServerMutation } from '@/lib/mutations/create_server';
 import ThemeToggle from '@/components/theme_toggle/theme_toggle';
-import { isMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
-import { createProfileMutation } from '@/lib/mutations/create_profile';
-import { createLoginUrl } from '@/lib/auth/auth';
-import { getClientId } from '../actions';
-import ImageUpload from '@/components/ui/forms/file_upload/image_upload';
-import TextBox from '@/components/ui/forms/text_box/text_box';
 import { SubmitButton } from '@/components/ui/forms/button/button';
+import ImageUpload from '@/components/ui/forms/file_upload/image_upload';
 import { NormalForm } from '@/components/ui/forms/form/form';
+import TextBox from '@/components/ui/forms/text_box/text_box';
+import { createLoginUrl } from '@/lib/auth/auth';
+import { useCreateProfileMutation } from '@/lib/mutations/create_profile';
+import { useIsMyProfileCompleteQuery } from '@/lib/queries/is_my_profile_complete_query';
+import { useQueryClient } from '@tanstack/react-query';
+import { BookCheck } from 'lucide-react';
+import {
+    maxFileSize,
+    maxUserNameLength,
+    S3Keys
+} from 'models';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { getClientId } from '../actions';
 
 export default function SignupPage() {
     const router = useRouter();
@@ -33,26 +30,26 @@ export default function SignupPage() {
 
     const [userImage, setUserImage] = useState<File>();
 
-    const [submitted, setSubmitted] = useState<boolean>();
+    const [submitted] = useState<boolean>();
 
     const valid = userNameValid && userBioValid;
 
     const client = useQueryClient();
-    const { mutate } = createProfileMutation(client, '/home');
+    const { mutate } = useCreateProfileMutation(client, '/home');
 
-    const { data } = isMyProfileCompleteQuery();
+    const { data } = useIsMyProfileCompleteQuery();
 
     useEffect(() => {
         if (data?.complete) {
             router.push('/home');
         }
-    }, [data]);
+    }, [data, router]);
 
     const handleProfileCreate = () => {
         mutate({
             name: userName,
             bio: userBio,
-            imageFile: userImage || null
+            imageFile: userImage || null,
         });
     };
 
@@ -72,15 +69,44 @@ export default function SignupPage() {
                         </div>
                     </div>
                     <div className="p-3">
-                        <ImageUpload existingImageId={null} existingImageLocation={S3Keys.profileImgs} title={'Profile Picture'} maxSize={maxFileSize} file={userImage} setFile={setUserImage} onInvalid={(message) => console.log(message)} />
-                        <TextBox value={userName} setValue={setUserName} title={'Name'} placeholder={'Name...'} maxChars={maxUserNameLength} submitted={submitted} setValid={setUserNameValid} />
-                        <TextBox value={userBio} setValue={setUserBio} title={'Bio (optional)'} multiline={true} placeholder={'Bio...'} maxChars={maxUserNameLength} optional={true} submitted={submitted} setValid={setUserBioValid} />
+                        <ImageUpload
+                            existingImageId={null}
+                            existingImageLocation={S3Keys.profileImgs}
+                            title={'Profile Picture'}
+                            maxSize={maxFileSize}
+                            file={userImage}
+                            setFile={setUserImage}
+                            onInvalid={message => console.log(message)}
+                        />
+                        <TextBox
+                            value={userName}
+                            setValue={setUserName}
+                            title={'Name'}
+                            placeholder={'Name...'}
+                            maxChars={maxUserNameLength}
+                            submitted={submitted}
+                            setValid={setUserNameValid}
+                        />
+                        <TextBox
+                            value={userBio}
+                            setValue={setUserBio}
+                            title={'Bio (optional)'}
+                            multiline={true}
+                            placeholder={'Bio...'}
+                            maxChars={maxUserNameLength}
+                            optional={true}
+                            submitted={submitted}
+                            setValid={setUserBioValid}
+                        />
                         <div className="flex items-center p-3">
                             <div className="flex gap-1">
                                 <p className="text-fg-medium text-xs">{data.email}</p>
                                 <button
                                     onClick={async () => {
-                                        window.location.href = await createLoginUrl(await getClientId(), true);
+                                        window.location.href = await createLoginUrl(
+                                            await getClientId(),
+                                            true,
+                                        );
                                     }}
                                     className="text-fg-medium text-xs underline"
                                 >
@@ -88,12 +114,16 @@ export default function SignupPage() {
                                 </button>
                             </div>
                             <div className="flex grow justify-end">
-                                <SubmitButton onClick={handleProfileCreate} enabled={valid} text={'Continue'} />
+                                <SubmitButton
+                                    onClick={handleProfileCreate}
+                                    enabled={valid}
+                                    text={'Continue'}
+                                />
                             </div>
                         </div>
                     </div>
                 </div>
             </NormalForm>
         </div>
-    )
+    );
 }

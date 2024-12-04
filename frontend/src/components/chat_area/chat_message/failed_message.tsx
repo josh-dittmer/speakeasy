@@ -1,12 +1,8 @@
-'use client'
+'use client';
 
-import { CreateMessageRequestT } from 'models';
-import Image from 'next/image';
-import { getMyUserDataQuery } from '@/lib/queries/get_my_user_data';
-import { createMessageMutation } from '@/lib/mutations/create_message';
-import { useQueryClient } from '@tanstack/react-query';
 
-export default function FailedMessage({ messageReq }: { messageReq: CreateMessageRequestT }) {
+export default function FailedMessage(/*{ messageReq }: { messageReq: CreateMessageRequestT }*/) {
+    //console.log(messageReq);
     /*const { data, isSuccess } = getMyUserDataQuery();
     
     const queryClient = useQueryClient();
@@ -38,5 +34,5 @@ export default function FailedMessage({ messageReq }: { messageReq: CreateMessag
             </div>
         </div>
     )*/
-   return <p>Error</p>
+    return <p>Error</p>
 }

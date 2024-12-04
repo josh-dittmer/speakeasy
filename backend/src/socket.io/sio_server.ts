@@ -1,15 +1,14 @@
 import 'dotenv/config';
-import http from 'http';
-import { Server, Socket } from 'socket.io';
-import { sioAuth } from '../auth/socket.io';
-import { EVENT_NAME, EventT, UserStatusT, UserT } from 'models';
-import { API_PREFIX } from '..';
-import { db } from '../db/db';
-import { membershipsTable, usersTable } from '../db/schema';
 import { eq } from 'drizzle-orm';
+import http from 'http';
+import { EVENT_NAME, EventT, UserStatusT } from 'models';
+import { Server, Socket } from 'socket.io';
+import { API_PREFIX } from '..';
+import { sioAuth } from '../auth/socket.io';
+import { db } from '../db/db';
+import { membershipsTable } from '../db/schema';
 
 const allowedOrigin = process.env.ALLOWED_ORIGIN!;
-const apiVersion = parseInt(process.env.API_VERSION!);
 
 export class SIOServer {
     private io: Server;
@@ -21,8 +20,8 @@ export class SIOServer {
             cors: {
                 origin: allowedOrigin,
                 methods: ['GET', 'POST'],
-                credentials: true
-            }
+                credentials: true,
+            },
         });
 
         this.config();
@@ -38,47 +37,50 @@ export class SIOServer {
 
             console.log(`[gateway] ${socket.data.userEmail} has connected`);
 
-            socket.on('disconnect', (reason) => {
+            socket.on('disconnecting', reason => {
                 this.emitDisconnectEvents(socket);
                 console.log(`[gateway] ${socket.data.userEmail} has disconnected: ${reason}`);
-            })
+            });
 
-            const results = await db.select({
-                userId: membershipsTable.userId,
-                serverId: membershipsTable.serverId
-            })
-            .from(membershipsTable)
-            .where(eq(membershipsTable.userId, socket.data.userId))
+            const results = await db
+                .select({
+                    userId: membershipsTable.userId,
+                    serverId: membershipsTable.serverId,
+                })
+                .from(membershipsTable)
+                .where(eq(membershipsTable.userId, socket.data.userId));
 
-            results.forEach((membership) => {
+            results.forEach(membership => {
                 socket.join(membership.serverId);
                 this.emitConnectEvent(socket, membership.serverId);
 
-                console.log(`[gateway] ${socket.data.userEmail} registered to be notified for ${membership.serverId}`);
+                console.log(
+                    `[gateway] ${socket.data.userEmail} registered to be notified for ${membership.serverId}`,
+                );
             });
         });
     }
 
     private emitConnectEvent(socket: Socket, room: string) {
         const event: EventT = {
-            type: 'USER_STATUS_CHANGE',
+            type: 'USER_STATUS_ONLINE',
             clientId: '',
             userId: socket.data.userId,
             serverId: room,
-            channelId: null
-        }
+            channelId: null,
+        };
 
         this.namespace().to(room).emit(EVENT_NAME, event);
     }
 
     private emitDisconnectEvents(socket: Socket) {
-        socket.rooms.forEach((room) => {
+        socket.rooms.forEach(room => {
             const event: EventT = {
-                type: 'USER_STATUS_CHANGE',
+                type: 'USER_STATUS_OFFLINE',
                 clientId: socket.data.clientId,
                 userId: socket.data.userId,
                 serverId: room,
-                channelId: null
+                channelId: null,
             };
 
             this.namespace().to(room).emit(EVENT_NAME, event);
@@ -89,9 +91,9 @@ export class SIOServer {
         const allSockets = await this.namespace().fetchSockets();
         const sockets = allSockets.filter(socket => socket.data.userId === userId);
 
-        sockets.forEach((socket) => {
+        sockets.forEach(socket => {
             socket.join(serverId);
-        })
+        });
     }
 
     public async emitEvent(event: EventT) {
@@ -104,7 +106,7 @@ export class SIOServer {
             if (sockets.length === 0) return;
             const socket = sockets[0];
 
-            socket.rooms.forEach((room) => {
+            socket.rooms.forEach(room => {
                 this.namespace().to(room).emit(EVENT_NAME, event);
             });
         }
@@ -115,14 +117,14 @@ export class SIOServer {
         const sockets = allSockets.filter(socket => userIds.has(socket.data.userId));
 
         const statuses = new Map<string, UserStatusT>();
-        userIds.forEach((userId) => {
+        userIds.forEach(userId => {
             statuses.set(userId, 'OFFLINE');
-        })
+        });
 
-        sockets.forEach((socket) => {
+        sockets.forEach(socket => {
             statuses.set(socket.data.userId, 'ONLINE');
         });
 
         return statuses;
     }
-};
+}

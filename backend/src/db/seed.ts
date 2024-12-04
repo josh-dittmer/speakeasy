@@ -1,8 +1,16 @@
 import { welcomeServerId } from 'models';
 import { db } from './db';
-import { channelsTable, filesTable, invitesTable, membershipsTable, messagesTable, serversTable, usersTable } from './schema';
+import {
+    channelsTable,
+    filesTable,
+    invitesTable,
+    membershipsTable,
+    messagesTable,
+    serversTable,
+    usersTable,
+} from './schema';
 
-async function seedTest() {
+/*async function seedTest() {
     try {
         console.log('Seeding...');
 
@@ -189,7 +197,7 @@ async function seedTest() {
         console.log(`Error: ${err}`);
         throw new Error('Seeding failed');
     }
-}
+}*/
 
 async function seedProd() {
     try {
@@ -209,33 +217,33 @@ async function seedProd() {
             {
                 name: 'Welcome!',
                 serverId: welcomeServerId,
-                imageId: null
-            }
+                imageId: null,
+            },
         ];
 
         const channels: Array<typeof channelsTable.$inferInsert> = [
             {
                 channelId: crypto.randomUUID(),
                 serverId: welcomeServerId,
-                name: 'intro'
+                name: 'intro',
             },
             {
                 channelId: crypto.randomUUID(),
                 serverId: welcomeServerId,
-                name: 'changelog'
+                name: 'changelog',
             },
             {
                 channelId: crypto.randomUUID(),
                 serverId: welcomeServerId,
-                name: 'general'
-            }
+                name: 'general',
+            },
         ];
 
         await db.insert(serversTable).values(servers);
         await db.insert(channelsTable).values(channels);
 
         console.log('Finished seeding.');
-    } catch(err) {
+    } catch (err) {
         console.log(`Error: ${err}`);
         throw new Error('Seeding failed.');
     }
