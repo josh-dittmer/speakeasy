@@ -14,6 +14,7 @@ RUN npm ci
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY models ./node_modules/models
 COPY . .
 # COPY node_modules/models /home/node/app/node_modules/models
 

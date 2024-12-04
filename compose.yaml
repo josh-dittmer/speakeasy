@@ -1,12 +1,12 @@
 services:
-    backend:
-        build: "./backend"
-        ports:
-            - "42069:42069"
-    frontend:
-        build: "./frontend"
-        ports:
-            - "3000:3000"
+    #backend:
+    #    build: "./backend"
+    #    ports:
+    #        - "42069:42069"
+    #frontend:
+    #    build: "./frontend"
+    #    ports:
+    #        - "3000:3000"
     db:
         image: postgres
         restart: always

@@ -5,3 +5,6 @@ Dockerfile
 dist
 .gitignore
 .git
+.prettierignore
+.prettierrc
+.DS_Store
